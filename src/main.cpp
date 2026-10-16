@@ -694,7 +694,14 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
 
     switch (opcode) {
         case flow_control_operations_t::opcode_jmp_less_or_equal: {
-            if((sign1 * abs_val1) <= (sign2 * abs_val2)){
+            // GY62, printed p.17: negative zero is less than positive zero.
+            // Keep the existing <= convention elsewhere (equality is POLICY).
+            const bool opposite_signed_zeros = abs_val1 == 0 && abs_val2 == 0
+                && sign1 != sign2;
+            const bool take_branch = opposite_signed_zeros
+                ? (sign1 < sign2)
+                : ((sign1 * abs_val1) <= (sign2 * abs_val2));
+            if(take_branch){
                 C_reg = addr3_shifted.destination;
             } else {
                 ++C_reg;
@@ -712,7 +719,11 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
         }
             break;
         case flow_control_operations_t::opcode_jmp_equal: {
-            if( (sign1 * abs_val1) == (sign2 * abs_val2)){
+            // GY62, printed p.13: exact comparison means SAME magnitude
+            // AND SAME sign. +0 and -0 have distinct 41-bit machine codes.
+            const word_t word_mask = mask_40_bits | mask_41_bit;
+            if((kmem.read_memory(addr3_shifted.source_1) & word_mask) ==
+               (kmem.read_memory(addr3_shifted.source_2) & word_mask)){
                 C_reg = addr3_shifted.destination;
             } else {
                 ++C_reg;
