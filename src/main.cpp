@@ -467,7 +467,13 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
 
     signed_word_t res_for_norm;
     mul_word_t res_mul;
-    uint16_t power = 40 - leftmost_one(abs_val1) -1;
+    // DPS64, printed p. 153: +0 cannot be normalized; the normalizing
+    // pulse sequence is suppressed, hence no shifts and order 0.
+    // Negative zero is deliberately NOT classified here pending reconstruction
+    // of the zero-detector and sign-trigger wiring (ISA-04 D3, OBS).
+    uint16_t power = (abs_val1 == 0 && sign1 > 0)
+        ? 0
+        : (40 - leftmost_one(abs_val1) - 1);
 
     // std::cout << sign1 * (signed_word_t) abs_val1 << "gifhdaflvdjasbh\t" << sign2 * (signed_word_t) abs_val2 << std::endl;
     std::cout << "Arithmetic operation: " << opcode
@@ -626,7 +632,10 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
     } else if(opcode == arythm_operations_t::opcode_mul ||
               opcode == arythm_operations_t::opcode_mul_round
             ) {
-        bool is_negative = (res_mul < 0);
+        // DPS64, printed pp. 149-150: the sign trigger stores the XOR
+        // of operand signs independently of the magnitude. This includes
+        // a zero product and results truncated/rounded to zero.
+        bool is_negative = (sign1 != sign2);
         //std::cout << res_mul << std::endl;
         if (is_negative)
             res_mul = -res_mul;
