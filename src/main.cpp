@@ -755,15 +755,17 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
             break;
         case flow_control_operations_t::opcode_ret:{
             C_reg = P_reg;
+            // GY62, printed p. 58: P -> C, then 0 -> P.
+            P_reg = 0;
         }
             break;
         case flow_control_operations_t::opcode_group_op_begin:{
-            // У книжці Глушков-Ющенко на ст. 14, ймовірно, помилка, бо навіть словами пояснено,
-            // що береться значення а1 і а2, але разом із тим наголошено, що береться не 'а1 чи 'а2,
-            // а саме а1 і а2. В кінці цієї книжки та у Гнеденко-Королюк-Ющенко пише,
-            // ніби беруться значення, тому тут реалізовано саме так.
-            Loop_reg =  addr3_shifted.source_1; //word_to_number(kmem.read_memory(addr3_shifted.source_1));
-            A_reg = addr3_shifted.source_2; // word_to_number(kmem.read_memory(addr3_shifted.source_2));
+            // GY62, printed pp. 14 and 59-60: assign the UNMODIFIED
+            // address-field codes, not their effective addresses or memory.
+            // Fields exceeding the documented 10-bit registers remain an
+            // explicit unresolved case; do not silently mask them here.
+            Loop_reg = addr3.source_1;
+            A_reg = addr3.source_2;
             if (A_reg == Loop_reg) {
                 C_reg = addr3_shifted.destination;
             } else {
@@ -774,9 +776,9 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
         }
             break;
         case flow_control_operations_t::opcode_group_op_end:{
-            // Такий самий прикол, як з НГО
-            // not a value
-            A_reg += addr3.source_1;// word_to_number(kmem.read_memory(addr3_shifted.source_1));
+            // GY62, printed pp. 54 and 60: A is a 10-bit register;
+            // the step is the unmodified code of address field I.
+            A_reg = (A_reg + addr3.source_1) & 01777ULL;
             if (A_reg == Loop_reg) {
                 C_reg = word_to_number(addr3_shifted.destination);
             } else {

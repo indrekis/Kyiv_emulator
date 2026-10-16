@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
     run("32_return_ignores_address_fields", "S", [] {
         Kyiv_t m; m.P_reg=0350;
         bool go=step(m,032,0177,0200,0250); auto r=snap(m,go);
-        strict("32_return_ignores_address_fields",branch(r,0350)&&r.p==0350,detail(r));
+        strict("32_return_ignores_address_fields",branch(r,0350)&&r.p==0,detail(r));
     });
     run("26_begin_group_uses_fields_not_contents", "S", [] {
         Kyiv_t m; m.kmem.write_memory(2,0456);m.kmem.write_memory(3,0555);
