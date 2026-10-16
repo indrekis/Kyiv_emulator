@@ -467,11 +467,10 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
 
     signed_word_t res_for_norm;
     mul_word_t res_mul;
-    // DPS64, printed p. 153: +0 cannot be normalized; the normalizing
-    // pulse sequence is suppressed, hence no shifts and order 0.
-    // Negative zero is deliberately NOT classified here pending reconstruction
-    // of the zero-detector and sign-trigger wiring (ISA-04 D3, OBS).
-    uint16_t power = (abs_val1 == 0 && sign1 > 0)
+    // DPS64, printed pp. 152-153: an all-zero magnitude in P1 cannot
+    // normalize. Its sign is carried by a separate sign trigger;
+    // both +0 and -0 take zero shifts and produce order 0.
+    uint16_t power = (abs_val1 == 0)
         ? 0
         : (40 - leftmost_one(abs_val1) - 1);
 
@@ -658,7 +657,8 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
 //        std::cout << "Mult res: " << word_to_number(kmem[addr3.destination]) << std::endl;
 
     } else if (opcode == arythm_operations_t::opcode_norm) {
-        bool is_negative = (res_for_norm < 0);
+        // The normalizer outputs the original sign independently of magnitude.
+        bool is_negative = (sign1 < 0);
 
         if (is_negative)
             res_for_norm = -res_for_norm;
