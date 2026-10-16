@@ -483,13 +483,21 @@ int main(int argc, char *argv[]) {
         std::cerr << "./kyivemu command <num1> <num2> <operation_code> " << std::endl;
         std::cerr << "./kyivemu expression (<reg1>,<num1>) (<reg2>,<num2>) ... <C_reg> " << std::endl;
         std::cerr<< "./kyivemu removable_memory <file> (<reg1>,<num1>) ... <C_reg> "<< std::endl;
+        std::cerr << "Optional trailing flag for all modes: --block-overflow-stop" << std::endl;
         std::filesystem::path docPath = std::filesystem::current_path() / "../documentation/documentation.txt";
         std::cerr << "For a list of supported commands and detailed instructions, please refer to the documentation file: "
                 << "<a href=\"file://" << docPath.string() << "\">documentation.txt</a>." << std::endl;
         return -1;
     }
     std::string mode = argv[1];
+    // Parse only the optional *last* argument. Preserve all legacy positionals.
+    bool block_overflow_stop = (argc > 2 &&
+        std::string(argv[argc - 1]) == "--block-overflow-stop");
+    if (block_overflow_stop) {
+        --argc;
+    }
     Kyiv_t machine;
+    machine.emergency_stop_blocked = block_overflow_stop;
     if (mode == "command") {
         if (argc != 5) {
             std::cerr << "Usage: " << argv[0] << " command <num1> <num2> <operation_code> " << std::endl;

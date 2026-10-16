@@ -108,12 +108,14 @@ constexpr bool get_A3(word_t w){
 }
 
 constexpr addr3_t shift_addr3_byA(addr3_t addr3, uint64_t offset, word_t w){
+    // The 11-bit effective address wraps modulo 04000 (octal).
+    constexpr addr_t effective_addr_mask = 03777;
     if(get_A1(w))
-        addr3.source_1 += offset;
+        addr3.source_1 = (addr3.source_1 + offset) & effective_addr_mask;
     if(get_A2(w))
-        addr3.source_2 += offset;
+        addr3.source_2 = (addr3.source_2 + offset) & effective_addr_mask;
     if(get_A3(w))
-        addr3.destination += offset;
+        addr3.destination = (addr3.destination + offset) & effective_addr_mask;
     return  addr3;
 }
 
@@ -156,7 +158,8 @@ bool Kyiv_t::execute_opcode(){
 
     if (opcode == 0) {
         ++C_reg;
-        std::cout << "No operation (opcode 0). Moving to the next command." << std::endl;
+        std::cout << "Zero opcode: idle cycle, then next command." << std::endl;
+        return !T_reg;
     }
 //    std::cout << "opcode: " << opcode << std::endl;
     addr3_t addr3 = word_to_addr3(K_reg); // Парі команд потрібна
@@ -528,12 +531,23 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         }
             break;
         case arythm_operations_t::opcode_div: {
-            if ((abs_val2 == 0) || (abs_val2 < abs_val1)) {
+            // Historical behaviour of division by zero is not yet established.
+            // Emulator policy: stop even if overflow-stop blocking is enabled.
+            if (abs_val2 == 0) {
                 T_reg = true;
                 ++C_reg;
                 return;
             }
             res_mul = ((mul_word_t) abs_val1 << 40) / (mul_word_t) abs_val2;
+            // Quotients with magnitude EXACTLY 1 also overflow sign-magnitude fixed point.
+            if (res_mul >= (mul_word_t(1) << 40)) {
+                if (!overflow_stop_blocked()) {
+                    T_reg = true;
+                    ++C_reg;
+                    return;
+                }
+                ++C_reg; // skip the next instruction, then write low 40 bits below
+            }
             // std::cout << "Div " << res_mul << std::endl;
         }
             break;
@@ -559,7 +573,7 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             // ще на 1, тому тут відбувається перестрибування 1 команди.
             // Так і має бути. Якщо відбувся останов, але тумблер блокування
             // останову встановлений на 1, то пропускається одна команда.
-            if (!B_tumb)
+            if (!overflow_stop_blocked())
             {
                 T_reg = true;
                 ++C_reg;
@@ -575,24 +589,25 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         if (is_negative)
             kmem.write_memory(addr3.destination, kmem.read_memory(addr3.destination) | mask_41_bit);
         //! "Нуль, получаемый как разность двух равных чисел, имеет отрицательный знак" -- стор. 13 Глушко-Ющенко, опис УПЧ
-        if(opcode == arythm_operations_t::opcode_sub && res == 0
-           && abs_val2 == 0 //! TODO: Моє припущення -- перевірити!
-                ){
-            kmem.write_memory(addr3.destination, res | mask_41_bit);
-            std::cout << "NEGATIVE 0" << (res | mask_41_bit) << std::endl;
+        if (opcode == arythm_operations_t::opcode_sub && res == 0) {
+            kmem.write_memory(addr3.destination, mask_41_bit);
+            std::cout << "NEGATIVE 0" << mask_41_bit << std::endl;
         }
     } else if(opcode == arythm_operations_t::opcode_addcmd){
-        kmem.write_memory(addr3.destination, static_cast<uint64_t>(res) & mask_40_bits);
-        if (res<0) {
-            std::cout<<"Since our result is negative,we will add 1 to our result:"<<"1 +"<<"("<<res<<")"<<" = "<<(kmem.read_memory(addr3.destination) & mask_40_bits)<<std::endl;
+        // Command addition: add |source_2| algebraically to source_1,
+        // then use the ORIGINAL sign of source_2 (including negative zero).
+        const word_t sign_of_second = kmem.read_memory(addr3.source_2) & mask_41_bit;
+        const uint64_t magnitude = static_cast<uint64_t>(res < 0 ? -res : res);
+        // G-Y 1962, printed p. 11: command addition stops on overflow.
+        if (magnitude >= mask_41_bit) {
+            if (!overflow_stop_blocked()) {
+                T_reg = true;
+                ++C_reg;
+                return;
+            }
+            ++C_reg; // Blocking emergency stop skips the next instruction.
         }
-        std::cout << "Result written to destination (without sign): "
-          << (kmem.read_memory(addr3.destination) & mask_40_bits)
-          << " (Decimal: " << word_to_number(kmem.read_memory(addr3.destination)) * pow(2, -40) << ")" << std::endl;
-        kmem.write_memory(addr3.destination, kmem.read_memory(addr3.destination) | (kmem.read_memory(addr3.source_2) & mask_41_bit)); // Копіюємо біт знаку з source_2 // edited тут наче так має бути
-        std::cout << "Final result written to destination (with sign): "
-          << kmem.read_memory(addr3.destination)
-          << " (Decimal: " << word_to_number(kmem.read_memory(addr3.destination)) * pow(2, -40) << ")" << std::endl;
+        kmem.write_memory(addr3.destination, (magnitude & mask_40_bits) | sign_of_second);
     } else if(opcode == arythm_operations_t::opcode_addcyc){
         //! TODO: Вияснити, а як ця команда функціонує.
         // "Отличается от обычного сложения лишь тем, что  в нем отсутствует блокировка при выходе

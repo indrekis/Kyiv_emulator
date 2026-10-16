@@ -1,6 +1,14 @@
 #ifndef KYIVEMU_KYIV_H
 #define KYIVEMU_KYIV_H
 
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #include <boost/multiprecision/cpp_int.hpp>
 
 typedef uint64_t addr_t;
@@ -105,7 +113,11 @@ public:
         } else if (addr >= max_RAM_addr){
             throw out_of_range_error("Writing to ROM", addr);
         }
-        mem_array_m[addr] = val;
+        // Cell 0000 is hardwired to zero. Writing there is a no-op,
+        // which also permits using it as a discard destination.
+        if (addr != 0) {
+            mem_array_m[addr] = val;
+        }
     }
 
     void write_rom(addr_t addr, word_t val) {
@@ -143,6 +155,11 @@ struct Kyiv_t{
     // B_tumb is not bool because according to p. 163 Glushkov-Iushchenko it has 3 modes.
     // Maybe there is a better way to handle this?
     bool T_reg = false;
+    // Explicit emergency-overflow stop switch. B_tumb remains a temporary legacy alias
+    // for ISA-02 tests; it is NOT the future control-stop mode selector.
+    bool emergency_stop_blocked = false;
+    bool overflow_stop_blocked() const { return emergency_stop_blocked || (B_tumb != 0); }
+
     size_t h = 0;
     
     int perfo_num = 0;
