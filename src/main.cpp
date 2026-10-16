@@ -609,36 +609,19 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         }
         kmem.write_memory(addr3.destination, (magnitude & mask_40_bits) | sign_of_second);
     } else if(opcode == arythm_operations_t::opcode_addcyc){
-        //! TODO: Вияснити, а як ця команда функціонує.
-        // "Отличается от обычного сложения лишь тем, что  в нем отсутствует блокировка при выходе
-        // из разполагаемого числа разрядов. Перенос из знакового разряда поступает в младший разряд
-        // сумматора".
-        // Питання (нумеруючи біти з 1 до 41):
-        // 1. Перенос із 40 в 41 біт тут можливий? З фрази виглядає, що так.
-        // 2. Якщо додавання переносу до молодшого біту виникло переповнення, що далі?
-        //    Так виглядає, що воно не може виникнути, але чи я не помилився? -- не може, десь через переніс буде 0
-        bool is_negative = (res < 0);
-        if (is_negative)
-            res = -res;
-        assert(res >= 0);
-
-        // std::cout << std::bitset<41> (res) << std::endl;
-        if(res & mask_41_bit){
-            res += 1; // Маємо перенос із знакового біту
-        }
-        kmem.write_memory(addr3.destination, static_cast<uint64_t>(res) & mask_40_bits);
-
-        std::cout<<"We will work with positive numbers"<<" (value Kyive: " << res << ")"<< " (value decimal: " << res*pow(2, -40) << ")"<<std::endl;
-        if (res*pow(2, -40)>1 ) {
-            std::cout<<"Our result out of range [-1,1]"<<std::endl;
-            std::cout<<"We need to sustruct 1 from our result Kyive:"<<res<<" - 1"<<" = "<< (kmem.read_memory(addr3.destination) & mask_40_bits)<<std::endl;
-            std::cout<<"We need to sustruct 1 from our result decimal:"<<res*pow(2, -40)<<" - 1"<<" = "<< (kmem.read_memory(addr3.destination) & mask_40_bits)*pow(2, -40)<<std::endl;
-        }
-        else {
-            std::cout<<"Our value belong to reange [-1,1], so it will stay unchanged"<<" (value Kyive: " << res << ")"<< " (value decimal: " << res*pow(2, -40) << ")"<<std::endl;
-        }
-        if (is_negative)
-            kmem.write_memory(addr3.destination, kmem.read_memory(addr3.destination) | mask_41_bit);
+        // ISA-04 D2: retain the existing *emulator* interpretation of the
+        // end-around carry, but express it solely as exact integer arithmetic.
+        // G-Y (1962), printed p. 11: a carry from the sign position enters
+        // the least-significant summator bit. D-P-S (1964), p. 102 describes
+        // subtraction/addition of one in fractional units. Their agreement
+        // at the final LSB (especially at |sum| == 1) is NOT established.
+        // Until resolved, carry cases remain explicitly marked POLICY/OBS
+        // in the tests, not accepted as historical ISA oracles.
+        const bool negative_sum = (res < 0);
+        const uint64_t magnitude = static_cast<uint64_t>(negative_sum ? -res : res);
+        const bool carry = (magnitude >= mask_41_bit);
+        const uint64_t wrapped = (magnitude + (carry ? 1ULL : 0ULL)) & mask_40_bits;
+        kmem.write_memory(addr3.destination, wrapped | (negative_sum ? mask_41_bit : 0ULL));
 
     } else if(opcode == arythm_operations_t::opcode_mul ||
               opcode == arythm_operations_t::opcode_mul_round
