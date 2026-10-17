@@ -251,7 +251,7 @@ bool Kyiv_t::execute_opcode(){
 
                 int counter = 0;
                 int num_counter = 0;
-                bool flag;
+                bool flag = false;
 
                 while (punch_cards) {
                     std::getline(punch_cards, line);
@@ -354,7 +354,7 @@ bool Kyiv_t::execute_opcode(){
 
             int counter = 0;
             int num_counter = 0;
-            bool flag;
+            bool flag = false;
             while (magnetic_drum) {
                 std::getline(magnetic_drum, line);
                 if(counter == drum_num_read){
