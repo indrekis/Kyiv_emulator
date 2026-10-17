@@ -1,0 +1,6 @@
+gate	entry_pc_octal	next_pc_octal	classification	qualification
+entry	0117	0120	DOC_WORD_POLICY_EXEC	0014=-0 deliberately preloaded and overwritten by original 0117
+first_epoch	0121	0161	P6_POLICY	39 natural cycles of moving-one patterns
+epoch_transition	0162	0120	OPCODE02_STRICT_RESULT_POLICY_CONTROL	0014 becomes -0 by equal subtraction and restart
+second_epoch	0121	0164	P6_POLICY	39 natural cycles of complemented patterns
+terminal_before_dispatch	0164	UNEXECUTED	OPEN_AFTER_BOUNDARY	ROM[3000] unknown operator state
