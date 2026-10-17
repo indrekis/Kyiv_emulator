@@ -1,0 +1,25 @@
+id	printed_page	source	subject	observation	status	boundary
+E001	8	GY62	3000-3007	eight 41-bit manually settable codes	DOC	No fixed universal value for NK3000
+E002	8	GY62	3010-3277	184 permanently wired ROM codes	DOC	Not the 3000-3007 class
+E003	8	GY62	3300-3777	320 replaceable wired ROM codes	DOC	Not the 3000-3007 class
+E004	120	GY62	3000 sign positive	RAM tests I II III IV run in sequence and restart I	DOC	Does not prove hardware switch was actually set positive
+E005	120	GY62	3000 sign negative	Only panel-selected RAM test runs	DOC	No guaranteed destination beyond chosen test
+E006	120	GY62	RAM test I	start address 0022	DOC	Not fourth-test STOP
+E007	120	GY62	RAM test II	start address 0045	DOC	Front-panel entry table
+E008	120	GY62	RAM test III	start address 0100	DOC	Front-panel entry table
+E009	120	GY62	RAM test IV	start address 0117	DOC	P6 starts at 0120: conditional initial segment omitted
+E010	121	GY62	3001 sign negative	RAM test I uses NK3007 custom code	DOC	Additional operator configuration
+E011	121	GY62	3001 other sign	RAM test I uses documented standard code sequence	DOC	First-test control, not fourth-test behavior
+E012	122	GY62	RAM test IV phases	moving-one codes followed by complement codes	DOC	P6 modeled two phases under POLICY
+E013	161	GY62	3000 3001 3002	three panel NK codes paralleled with cabinet NK cells	DOC	Does not describe full 8 panel sources
+E014	161	GY62	panel selector ON	switch up selects panel code	DOC	No CPU panel selection implementation yet
+E015	161	GY62	panel selector OFF	switch down selects corresponding cabinet NK	DOC	No CPU panel selection implementation yet
+E016	170	GY62	0117	01 0000 0000 0014 (sets +0 from hardwired 0000)	DOC	P7 three-step probe assumes current emulator semantics
+E017	170	GY62	0120	01 3012 0000 0017	DOC	ROM3012 content is explicit POLICY fixture
+E018	170	GY62	0121	01 0017 0000 0021	DOC	Third instruction of documented entry
+E019	171	GY62	0164	31 3000 0022 0177	DOC	Outgoing 0177 content still unverified
+E020	170	GY62	0022	31 3001 0025 0023	DOC	First-test code selection depends on NK3001
+E021	repo	REPO	ROM.txt 3000/3001	both absent in shipped file	REPO_OBS	Expected for operator-settable codes; not proof of hardware value
+E022	P6	REPO	P6 starts at 0120	injected RAM0014 plus zero bypasses 0117	REPO_OBS	P7 tests this documented entry independently
+E023	P5	REPO	0164 sign dispatch	conditional branch + =>0022 negative =>0177	POLICY	Targets and panel state not historically authenticated
+E024	P6	REPO	pre-P6 Git blob pin	HEAD P5 auditor blob differs after P6 commit	CORRECTED	P7 now pins 92f5352 and 6fe5999 separately

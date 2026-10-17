@@ -20,8 +20,11 @@ BLOBS = {
     'mem/ROM.txt':'bb6224e130c59564a8ccc4b224c55e41e50784a3',
     'tests/isa/isa06_d8_p4_multi_pattern_probe.cpp':'915715f1c74854cc555b0a7aa114d5c975b176dc',
     'tests/isa/isa06_d8_p5_terminal_dispatch_probe.cpp':'4606e86f4344cf0e1f38b06a98a6bc390233b1eb',
-    'tools/isa06_d8_p5_terminal_dispatch_audit.py':'7179b7d49e1bc92d186218dac6a0a31f5162740b',
 }
+# P6 modified P5 auditor; after P6 is committed, HEAD no longer points to original.
+P5_AUDIT_PRE_P6_REF = '92f5352'
+P5_AUDIT_PRE_P6_BLOB = '7179b7d49e1bc92d186218dac6a0a31f5162740b'
+P5_AUDIT_POST_P6_BLOB = '0b6ddcc5afe930bf3575999ef54a33faa65475e4'
 PDF_SHA = 'a3bf9871dfe05609a7c6ea33e6677c1fd508b6ae57443f152e27ad2be8c21eea'
 WRONG_SCAN_SHA = '81027de0e4e942d0bdf7aad40cfe3501355c251a541814ea0f0a94ad818105b7'
 ROM_FIXTURES = {0o3012:1, 0o3026:1<<40, 0o3042:1<<39}
@@ -33,8 +36,8 @@ def text(path):
     return data.decode('utf-8')
 
 
-def git_blob(rel):
-    return subprocess.check_output(['git','rev-parse','HEAD:'+rel],cwd=ROOT,text=True).strip()
+def git_blob(rel, ref='HEAD'):
+    return subprocess.check_output(['git','rev-parse',ref+':'+rel],cwd=ROOT,text=True).strip()
 
 
 def tsv(path):
@@ -78,13 +81,17 @@ def rom_census():
 def main(show):
     for rel,sha in BLOBS.items():
         assert git_blob(rel)==sha, f'baseline Git blob drift: {rel}'
+    original_p5 = git_blob('tools/isa06_d8_p5_terminal_dispatch_audit.py', P5_AUDIT_PRE_P6_REF)
+    current_p5 = git_blob('tools/isa06_d8_p5_terminal_dispatch_audit.py')
+    assert original_p5 == P5_AUDIT_PRE_P6_BLOB, 'P5 auditor historical blob drift at P5 ref'
+    assert current_p5 == P5_AUDIT_POST_P6_BLOB, 'P5 auditor current blob drift after P6 erratum'
     rows=tsv(MANIFEST)
     assert len(rows)==6
     got={r['source']:r for r in rows}
     assert got['GY62_1962_PDF']['sha256_or_git_blob']==PDF_SHA
     assert got['DPS64_1964_SCAN_NOT_GY62']['sha256_or_git_blob']==WRONG_SCAN_SHA
     for item,key in [('REPO_ROM','mem/ROM.txt'),('P4_CPP','tests/isa/isa06_d8_p4_multi_pattern_probe.cpp'),('P5_CPP','tests/isa/isa06_d8_p5_terminal_dispatch_probe.cpp'),('P5_AUDITOR_ORIGINAL','tools/isa06_d8_p5_terminal_dispatch_audit.py')]:
-        assert got[item]['sha256_or_git_blob']==BLOBS[key]
+        assert got[item]['sha256_or_git_blob']==(P5_AUDIT_PRE_P6_BLOB if key=='tools/isa06_d8_p5_terminal_dispatch_audit.py' else BLOBS[key])
     original=hist_arrays(text(P4))
     fresh=hist_arrays(text(PROBE))
     assert fresh==original and len(fresh)==39, 'P4 machine-word drift'
@@ -116,7 +123,7 @@ def main(show):
             assert line==line.rstrip(b' \t'),f'trailing whitespace: {path.name}:{n}'
     print('ISA-06 D8-P6: GY62 SOURCE CORRECTED; REPO ROM ORIGINS QUALIFIED; NATURAL TERMINAL REACHABILITY IS POLICY')
     print('ORIGIN-CHECK PASS historical_words=39 ledger=12 sources=6 p5_erratum=CORRECTED '
-          'P4_BLOB=PINNED P5_BLOB=PINNED ROM_BLOB=PINNED '
+          'P4_BLOB=PINNED P5_BLOB=PINNED P5_ERRATUM_BLOB=PINNED ROM_BLOB=PINNED '
           'ROM3000=ABSENT ROM3001=ABSENT ROM_FIXTURES=3 terminal_0164=UNEXECUTED CPU=UNCHANGED')
     if show:
         for r in ledger:
