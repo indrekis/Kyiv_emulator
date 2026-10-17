@@ -1,0 +1,23 @@
+id	kind	source	printed_pages	figure_or_section	claim_or_question	confidence	followup
+GY62-A	DOC	GY62-1962	11	01 addition	Algebraic addition specified; exact-zero sign for 01 not specified in this passage	HIGH	Do not extrapolate 02 sign rule
+GY62-B	DOC	GY62-1962	13	02 and 16 and 31	Equal-number subtraction gives -0; exact compare checks sign and magnitude; conditional branch uses sign	HIGH	Regression already in D7
+GY62-C	DOC	GY62-1962	170-171	RAM test 4	Original 0123/0141 01 0021 0000 0020 machine words	HIGH	Do not assume injected RAM is historical initialization
+DPS64-A	DOC	DPS64-1964	94	external number code	External separate sign bit and +0 / -0; comparison orders +0 greater than -0	HIGH	Separate external and internal encoding
+DPS64-B	DOC	DPS64-1964	96-98	summator representation	Internal negatives use per-bit complements; carries and overflow are distinct	HIGH	Evaluate output conversion before inferring sign
+DPS64-C	DOC	DPS64-1964	94	microprogram stages	Stages separate sign receipt; operand transfer; result-sign formation; issuance	HIGH	Not a cycle-accurate waveform
+DPS64-D	DOC	DPS64-1964	100-103	Fig 62 Table 4	I1 I2 I3 I4 and signal-specific addition microoperations	HIGH	Correlate pulses with actual gate inputs
+DPS64-E	DOC	DPS64-1964	101	ordinary addition	First and second codes direct/inverse based on their own signs	HIGH	Trace negative-zero code transfer
+DPS64-F	DOC	DPS64-1964	137-138	Fig 67	P1/P2 bit slices; summator and carry z network; direct/inverse output	HIGH	Trace carry into sign section
+DPS64-G	DOC	DPS64-1964	144-145	Fig 71 Fig 72	Two operand sign triggers distinct from two summator sign triggers; negative correction and z40/z1 paths	HIGH	Need every gate polarity and exact trigger updates
+DPS64-H	DOC	DPS64-1964	145-146	Fig 73	Agreeing sign triggers permit end; disagreeing select overflow; output sign from TЗн2См	HIGH	Evaluate TЗн2См at IVA3 for all six zero cases
+DPS64-I	DOC	DPS64-1964	146	result output	VPK/VOK magnitude-code output selected by second summator sign trigger	HIGH	Record external magnitude conversion
+HYP-M1	HYP	D8 model	-	41-bit ones-complement analogy	Predicts negative-zero-preserving sums; NOT derived from Kyiv netlist	LOW	Do not create STRICT cases from model
+HYP-M2	HYP	D8 model	-	operand-order sign selection	Can distinguish asymmetric zero rules; no source proves this mechanism	LOW	Do not create STRICT cases from model
+OBS-D6	OBS	ISA-06 D6 on 9e2e4d3	-	01 exact-zero	Emulator produces +0 in all six synthetic zero-result pairs	HIGH_FOR_EMULATOR	Independent hardware result still open
+OBS-D7	OBS	ISA-06 D7 on 41a452b	-	16 and 31 after 01	The sign choice changes exact comparison and branch destination	HIGH_FOR_EMULATOR	Synthetic continuation is not historical RAM test
+OBS-D5	OBS	ISA-06 D5 on 9e2e4d3	-	RAM test 4 prefix	Negative-zero read-back diverges and reaches STOP in current emulator	HIGH_FOR_EMULATOR	ROM fixture is not independent oracle
+OPEN-INIT	OPEN	DPS64-1964	137;144-145	Fig 67 Fig 71	Exact initial TЗн1См and TЗн2См before 01	UNRESOLVED	Transcribe reset paths
+OPEN-CORR	OPEN	DPS64-1964	144-145	Fig 71 Fig 72	Exact effect of negative operand correction pulses on both sign triggers	UNRESOLVED	Transcribe C16 C18 and paths
+OPEN-CARRY	OPEN	DPS64-1964	137-138;145	Fig 67 Fig 71	Final z40 and z1 for exact-zero cases	UNRESOLVED	Bit-level microtrace with polarities
+OPEN-OUTPUT	OPEN	DPS64-1964	145-146	Fig 71 Fig 73	Final TЗн2См sign for -0 plus +0 and other cancellations	UNRESOLVED	Prove from gate netlist before any CPU change
+OPEN-ROM	OPEN	current emulator	-	inc/kyiv.h ROM loading	Constructor opens ../mem/ROM.txt relative to CWD silently	CONFIRMED_EMULATOR	Separate loader remediation milestone
