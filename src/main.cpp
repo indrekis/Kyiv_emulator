@@ -569,6 +569,14 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         // Тут я зробив, ніби ні -- але ХЗ, могло. Щоб точно знати -- треба моделювати на рівні схем ;=) --
         // як ви і поривалися. Але це не має бути важливим.
         bool is_negative = (res < 0);
+        // ISA-06 D8-P1: provisional signed-zero POLICY, not a historical oracle.
+        // The bitwise-complement/end-around-carry candidate preserves a negative
+        // zero on a zero sum whenever either operand has its sign bit set.
+        // Keep nonzero arithmetic and opcode 02's documented -0 unchanged.
+        if (opcode == arythm_operations_t::opcode_add && res == 0 &&
+            (sign1 < 0 || sign2 < 0)) {
+            is_negative = true;
+        }
         if (is_negative)
             res = -res;
         assert(res >= 0);
