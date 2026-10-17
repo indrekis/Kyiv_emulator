@@ -1,0 +1,17 @@
+id	printed_page	figure_or_text	basis	claim	classification	qualification
+H4-001	144	Fig71 C16	SOURCE_FIGURE	C16 has a visibly labelled -Ч1 input	SOURCE_CONFIRMED	Line is visible; no asserted enabled pulse
+H4-002	144	Fig71 C18	SOURCE_FIGURE	C18 has a visibly labelled -Ч2 input	SOURCE_CONFIRMED	Line is visible; no asserted enabled pulse
+H4-003	144	Fig71 C17	SOURCE_FIGURE	C17 separately feeds correction group	SOURCE_CONFIRMED	Does not establish contribution for opcode 01
+H4-004	144	Fig71 group P	SOURCE_FIGURE	C16 C17 C18 feed one drawn Р correction glyph	SOURCE_CONFIRMED	H1 editorial alias P_CORR; not a verified voltage waveform
+H4-005	144	Fig71 correction label	SOURCE_FIGURE	Combined line bears printed +1 ЗнСм label	SOURCE_CONFIRMED	+ is a label; pulse active polarity not inferred
+H4-006	145	Prose after Fig72	SOURCE_TEXT	-Ч1 and -Ч2 through C16 and C18 create +1 ЗнСм	SOURCE_CONFIRMED	Gate enabling and acceptance remain open
+H4-007	145	Prose after Fig72	SOURCE_TEXT	+1 ЗнСм goes to count inputs of both sign triggers	SOURCE_CONFIRMED	Neither final trigger state nor exact switching rule established
+H4-008	144	Addition prose	SOURCE_TEXT	First and second number reception use separate pulses И1 and И2	SOURCE_CONFIRMED	No complete correction pulse waveform
+H4-009	145	Two-stage adder prose	SOURCE_TEXT	Carry transfer follows initial modulo-two sum stage	SOURCE_CONFIRMED	Not a fully timed state sequence
+H4-010	145	z40 and z1 prose	SOURCE_TEXT	z40 enters first sign position; carry out produces z1	SOURCE_CONFIRMED	H2 E022 remains retracted
+H4-011	41	Fig6	SOURCE_TEXT	Potential С denotes AND and Р denotes OR in documented examples	SOURCE_CONFIRMED_SCOPED	Pulse and control semantics need separate evidence
+H4-012	52	Fig14	SOURCE_TEXT	Counter bit toggles on accepted pulse and carries when prior 1	SOURCE_CONFIRMED_SCOPED	Not proven identical to sign triggers
+H4-013	146	Output-sign prose	SOURCE_TEXT	ТЗн2См supplies final output sign at ИВА3	SOURCE_CONFIRMED	Terminal state for exact zero unresolved
+H4-014	144	C16 C18 grouped enable glyph	SOURCE_FIGURE	Companion input at both C16 C18 is labelled by operation mnemonic group	SOURCE_CONFIRMED_LIMITED	Glyph semantics for opcode 01 not verified
+H4-015	144	C18 to P connection	OPEN	A small dash near C18 branch may affect interpretation	OPEN	No source proof for NOT or pulse polarity
+H4-016	144-145	C17 and source text	OPEN	C17 contribution to opcode 01 event sequence remains unknown	OPEN	Cannot equate correction count to number of negative operands

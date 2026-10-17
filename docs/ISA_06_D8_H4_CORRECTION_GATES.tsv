@@ -1,0 +1,6 @@
+node_id	figure	printed_page	kind	drawn_input_or_interface	evidence_type	conclusion	unresolved
+F71.C16	71	144	COINCIDENCE_GATE	-Ч1; companion control label П1,П2,Ср3	FIGURE_AND_P145_TEXT	negative first-number transfer contributes to +1 ЗнСм through C16	enable decode; active edge; exact mixed pulse polarity
+F71.C17	71	144	COINCIDENCE_GATE	И1; companion operation mnemonic partly legible	FIGURE_ONLY	additional depicted input into correction Р	opcode 01 enable; exact mnemonic; contribution and active edge
+F71.C18	71	144	COINCIDENCE_GATE	-Ч2; companion control label П1,П2,Ср3	FIGURE_AND_P145_TEXT	negative second-number transfer contributes to +1 ЗнСм through C18	enable decode; small dash near output; active edge
+F71.P_CORR	71	144	SEPARATION_GLYPH_ALIAS	C16; C17; C18	FIGURE_AND_P41_GATE_CONVENTION	diagram collects three C outputs into labelled +1 ЗнСм path	pulse merging; output timing; small mark polarity
+F71.COUNT_INTERFACE	71	145	FUNCTIONAL_INTERFACE	+1 ЗнСм to count inputs of TZn1Sm and TZn2Sm	P145_TEXT	both summator sign triggers receive correction control	init state; counting semantics; interaction with z40 and z1

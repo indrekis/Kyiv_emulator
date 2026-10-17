@@ -1,0 +1,13 @@
+id	blocking_topic	why_it_blocks_a_terminal_sign	next_evidence_or_test	priority	status
+H4-O01	C16 companion gate enable	Cannot assert each -Ч1 produces accepted correction event	Decode П1 П2 Ср3 and operation controls using instruction tables and Fig71	HIGH	OPEN
+H4-O02	C18 companion gate enable	Cannot assert each -Ч2 produces accepted correction event	Same independent decode check for the second number	HIGH	OPEN
+H4-O03	C17 operation inputs	Correction can have an unmodelled additional contribution	Transcribe and decode all C17 labels independently	HIGH	OPEN
+H4-O04	C18 branch dash	Potential polarity or annotation ambiguity remains	Inspect the original trace and contemporary symbol conventions	MEDIUM	OPEN
+H4-O05	Pulse overlap and width	OR of pulses may merge events and change count	Find detailed I1 I2 timing and correction waveform	HIGH	OPEN
+H4-O06	Sign-trigger count-port action	An impulse need not imply the Fig14 counting behaviour	Resolve Fig71 trigger wiring and physical count-port action	HIGH	OPEN
+H4-O07	Sign-trigger initial state	Terminal sign cannot be derived from event count alone	Identify explicit reset/init in table 4 and sign-block controls	HIGH	OPEN
+H4-O08	z40 interactions	Carry may change first sign trigger	Resolve summator bit/carry logic in Fig67 and Fig71	HIGH	OPEN
+H4-O09	z1 generation and disposition	Previously assumed E022 direction is retracted	Trace generated cyclic z1 without repairing E022 by inference	HIGH	OPEN
+H4-O10	Order before ИВА3	Sign sampled after unknown intermediate trigger events	Construct source-attributed phase/edge schedule from Fig72/73	HIGH	OPEN
+H4-O11	C gate transfer to pulse convention	Potential-level AND does not fix mixed pulse widths	Locate source on pulse coincidence and electrical diagrams	MEDIUM	OPEN
+H4-O12	Independent blind review	Repeated readings share a researcher and possible bias	Second reader transcribe same full-size diagram before seeing H1-H4	MEDIUM	OPEN
