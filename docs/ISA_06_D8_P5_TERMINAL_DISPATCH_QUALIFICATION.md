@@ -4,7 +4,7 @@
 
 ## Original source and literal words
 
-Glushkov–Yushchenko (1962), Appendix 2, **printed p. 171** (scan `kiev0086.png`): `0157 = 16 0017 3042 0161`; `0161 = 31 0014 0162 0164`; `0164 = 31 3000 0022 0177`; `0165 = 33 0000 0001 0077`; `0166 = 33 0000 0003 0177`. The C++ probe copies these exact octal words, independently checked against the prior P4 transcript and pinned Git blobs. No new historical instruction is inferred.
+Glushkov–Yushchenko (1962), Appendix 2, **printed p. 171** (scan in `Vychislitelnaya-mashyna-Kiev_VHlushkov_EYushchenko_1962.pdf`, printed p.171; **not** `kiev0086.png`, which belongs to the 1964 monograph): `0157 = 16 0017 3042 0161`; `0161 = 31 0014 0162 0164`; `0164 = 31 3000 0022 0177`; `0165 = 33 0000 0001 0077`; `0166 = 33 0000 0003 0177`. The C++ probe copies these exact octal words, independently checked against the prior P4 transcript and pinned Git blobs. No new historical instruction is inferred.
 
 ## Interpretation and controlled cases
 
@@ -23,3 +23,7 @@ P4's regression tests remain the integration qualification for consecutive 896-c
 `python tools/isa06_d8_p5_terminal_dispatch_audit.py --check --show-gates` validates the five original octal words against the committed P4 arrays, verifies Git object IDs (independent of Windows LF/CRLF), checks the scan digest literal and gate-table constraints, and rejects trailing whitespace. `--show-gates` uses `next_pc=...` rather than a shell-redirection-like arrow in output.
 
 C++ probe: `g++ -std=c++17 -O0 -g -Iinc src/main.cpp tests/isa/isa06_d8_p5_terminal_dispatch_probe.cpp -o tempkyiv/isa06_d8_p5_terminal_dispatch_probe.exe`. Run the executable and preserve its complete result. On any discrepancy, do not change CPU to satisfy test policy without further source evidence; report the first failing PC and decoded word.
+
+## Source-attribution erratum (D8-P6)
+
+The previous P5 manifest incorrectly assigned `kiev0086.png` to GY62. It actually depicts DPS64 (1964) printed pp.170–171 (control-unit schematics). GY62 (1962), printed pp.170–171, in the dedicated 1962 PDF is the historical authority for the original program words. D8-P6 replaces the manifest hash and corrects the auditor. This changes **source metadata only**; historical K words, P5 test logic, all POLICY gates, and the CPU are unchanged.

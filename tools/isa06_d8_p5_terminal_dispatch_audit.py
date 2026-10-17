@@ -14,7 +14,7 @@ GATES = ROOT / 'docs/ISA_06_D8_P5_TERMINAL_DISPATCH_GATES.tsv'
 MANIFEST = ROOT / 'docs/ISA_06_D8_P5_SOURCE_MANIFEST.tsv'
 P4_BLOB = '915715f1c74854cc555b0a7aa114d5c975b176dc'
 P4_AUDIT_BLOB = 'bbe8e1db89c405daedb61417117e895b58ba7fd9'
-SCAN_SHA256 = '81027de0e4e942d0bdf7aad40cfe3501355c251a541814ea0f0a94ad818105b7'
+GY62_PDF_SHA256 = 'a3bf9871dfe05609a7c6ea33e6677c1fd508b6ae57443f152e27ad2be8c21eea'
 WORDS = {
     0o157: "0'16'0017'3042'0161ULL",
     0o161: "0'31'0014'0162'0164ULL",
@@ -67,7 +67,7 @@ def main(show):
     assert all(r['qualification']=='0022_UNEXECUTED' for r in gates[:1])
     assert all(r['qualification']=='0177_UNEXECUTED' for r in gates[1:3])
     assert all(r['qualification']=='UNPROVEN_REACHABILITY' for r in gates[3:])
-    assert [r['sha256_or_git_blob'] for r in sources]==[SCAN_SHA256,P4_BLOB,P4_AUDIT_BLOB]
+    assert [r['sha256_or_git_blob'] for r in sources]==[GY62_PDF_SHA256,P4_BLOB,P4_AUDIT_BLOB]
     assert 'cpu.kmem.write_rom(03000,rom3000);' in source
     assert 'cpu.kmem.write_memory(0014,SIGN);' in source
     assert 'terminal_dispatch("rom3000_plus_zero_routes_0022",0,0022)' in source
