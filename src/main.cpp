@@ -253,8 +253,7 @@ bool Kyiv_t::execute_opcode(){
                 int num_counter = 0;
                 bool flag = false;
 
-                while (punch_cards) {
-                    std::getline(punch_cards, line);
+                while (std::getline(punch_cards, line)) {
                     if (counter == perfo_num) {
                         perfo = line.substr(addr3_shifted.destination, line.size());
                         boost::split(argv, perfo, boost::is_any_of(" "), boost::algorithm::token_compress_off);
@@ -355,8 +354,7 @@ bool Kyiv_t::execute_opcode(){
             int counter = 0;
             int num_counter = 0;
             bool flag = false;
-            while (magnetic_drum) {
-                std::getline(magnetic_drum, line);
+            while (std::getline(magnetic_drum, line)) {
                 if(counter == drum_num_read){
                     data = line.substr(drum_zone_read, line.size());
                     boost::split(argv, data, boost::is_any_of(" "), boost::algorithm::token_compress_off);
