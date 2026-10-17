@@ -1,0 +1,7 @@
+interface_id	printed_page	observed_interface	grade	known	missing_link	opcode01_enable
+RK.operation_bits	158	first five opcode-trigger outputs	DOC	5-bit code available at decoder input	F71 external gate wires not shown	OPEN
+COMM.individual	159	operation commutator	DOC	individual decoded operation potentials generated	actual Boolean terms / polarities not provided	OPEN
+COMM.group	159	operation commutator	DOC	some combined operation potentials generated	membership + Fig71 companion terminal wiring not provided	OPEN
+F71.C16	144-145	minus first transfer and potential qualifier	DOC_SCOPED	minus-Ch1 correction path named	qualifier term/opcode01 gate enable unknown	OPEN
+F71.C17	144;147	I1 and logical-operation qualifier	DOC_SCOPED	L+ uses I1 through F71.C17	exclusivity to opcode01 and admitted pulses unknown	OPEN
+F71.C18	144-145	minus second transfer and potential qualifier	DOC_SCOPED	minus-Ch2 correction path named	qualifier term/opcode01 gate enable unknown	OPEN

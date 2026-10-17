@@ -1,0 +1,7 @@
+case_id	sign1	sign2	I1_pulse	I2_pulse	TZn1Sm_after_reset	TZn2Sm_after_reset	decoder_interface	C16_admission	C17_admission	C18_admission	TZn2Sm_at_IVA3	historical_01_zero_sign
+plus_zero_plus_zero	+	+	+Ч1	+Ч2	0	0	INDIVIDUAL_AND_GROUP_POTENTIALS_ONLY	OPEN	OPEN	OPEN	OPEN	OPEN
+plus_zero_minus_zero	+	-	+Ч1	−Ч2	0	0	INDIVIDUAL_AND_GROUP_POTENTIALS_ONLY	OPEN	OPEN	OPEN	OPEN	OPEN
+minus_zero_plus_zero	-	+	−Ч1	+Ч2	0	0	INDIVIDUAL_AND_GROUP_POTENTIALS_ONLY	OPEN	OPEN	OPEN	OPEN	OPEN
+minus_zero_minus_zero	-	-	−Ч1	−Ч2	0	0	INDIVIDUAL_AND_GROUP_POTENTIALS_ONLY	OPEN	OPEN	OPEN	OPEN	OPEN
+plus_five_minus_five	+	-	+Ч1	−Ч2	0	0	INDIVIDUAL_AND_GROUP_POTENTIALS_ONLY	OPEN	OPEN	OPEN	OPEN	OPEN
+minus_five_plus_five	-	+	−Ч1	+Ч2	0	0	INDIVIDUAL_AND_GROUP_POTENTIALS_ONLY	OPEN	OPEN	OPEN	OPEN	OPEN

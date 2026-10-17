@@ -1,0 +1,21 @@
+id	printed_page	locator	grade	supported_claim	explicit_limit
+H8-001	158	prose	DOC	first five triggers of register hold operation code	NOT a direct input of F71 triggers
+H8-002	158	prose	DOC	operation-register trigger outputs feed operation decoder	electrical term equations not shown
+H8-003	159	commutator paragraph	DOC	operation potential generated from first five register triggers	which bit pattern selects any named F71 group unresolved
+H8-004	159	commutator paragraph	DOC	individual operation potentials described	individual op selection != all downstream group enables
+H8-005	159	commutator paragraph	DOC	combined operation potentials described	no constituent set for Fig71 groups derived
+H8-006	159	commutator paragraph	DOC	negative or complemented operation potentials mentioned	NOT license to presume active-low F71 gate
+H8-007	159	commutator paragraph	DOC	one common AU operation potential referenced for several operations	not a proof this potential reaches Fig71 companion input
+H8-008	160	Fig75 and prose	DOC	global IVA timing and interval generation	not an AU sign-correction waveform
+H8-009	161	Fig76 and prose	FIGURE_LABEL	central-control pulse-generation network	local gate numbers are NOT Fig71 gate IDs
+H8-010	162	Fig77 and prose	DOC	routing of memory IVA depends on operation and mode	NOT a C16/C17/C18 enable equation
+H8-011	163	Fig77 and prose	DOC	IVA3 generated using operation-dependent conditions	does not prescribe sign-trigger state before IVA3
+H8-012	164	Table 6 left	DOC	operation-family control sequences differ by column	not a Boolean gate input to Fig71
+H8-013	165	Table 6 right	DOC	group flags and footnotes condition signals	no direct Fig71 companion terminal mapping
+H8-014	144	Fig71	FIGURE_LABEL	F71.C16/C17/C18 have different pulse inputs	companion glyph and physical potential still partly unresolved
+H8-015	145	prose after Fig72	DOC	minus transfers through C16 and C18 contribute +1 ZnSm	admission per opcode and exact pulse shape remain open
+H8-016	147	logical addition prose	DOC	logical addition L+ has I1 through F71.C17	NOT proof C17=0 for arithmetic 01
+H8-017	148	exact comparison prose	DOC	Sr3 is a separate exact-comparison operation	printed group near Fig71 not proved to be same net
+H8-018	159	Fig71 versus commutator	NEGATIVE_SCOPE	reviewed text supplies no explicit wire map to C16-C18	not claim such schematic never existed
+H8-019	164-165	Table 6	NEGATIVE_SCOPE	reviewed table has no C16-C18 companion gate equations	not license to fill missing zeros
+H8-020	145	carry prose	DOC	carry z40 enters first sign position and ensuing carry forms z1	H2 E022 direct edge remains retracted

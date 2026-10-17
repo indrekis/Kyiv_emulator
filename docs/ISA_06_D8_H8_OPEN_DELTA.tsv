@@ -1,0 +1,13 @@
+parent_id	topic	disposition	new_evidence_or_limit	next_requirement
+H4-O01	C16 companion qualifier	OPEN	p159 decoder can form group potentials but no physical map to C16	get commutator group decoder net and wire
+H4-O02	C18 companion qualifier	OPEN	same architectural finding no dedicated C18 group equation	get C18-specific connection and polarity
+H4-O03	C17 family exclusivity	PARTIALLY_RESOLVED	p147 L+ documented; p159 individual/group decoder does not establish exclusion of 01	trace L+ group potential and prove opcode exclusivity
+H4-O04	C18 printed short mark	OPEN	p158-165 do not decode this glyph	second independent visual source
+H4-O05	pulse overlap	OPEN	p160 central timings and p102 AU microtiming not complete gate waveform	actual C16-C18 interval and pulse widths
+H4-O06	count input behavior	OPEN	operation decoder is upstream only	sequential sign-trigger and carry trace
+H4-O07	initial state	PARTIALLY_CLOSED	H6 documented reset-only state unaffected	measure/derive sign transitions after reset
+H4-O08	z40 carry	OPEN	p145 states destination but not per-zero carry	derive exact bit-slice carries
+H4-O09	z1 carry direction	OPEN	H2 E022 remains retracted	check original electrical path
+H4-O10	event order	OPEN	p160 global clock not sufficient for F71 sign timeline	correlate AU stages with original waveform
+H4-O11	gate polarity	OPEN	p41 potential AND/OR convention not whole pulse polarity	trace gates and trigger clock edges
+H4-O12	independent reread	OPEN	same researcher has read figures	second blind transcriber
