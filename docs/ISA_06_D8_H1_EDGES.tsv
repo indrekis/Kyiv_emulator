@@ -1,0 +1,82 @@
+edge_id	from_node	to_node	evidence_class	source_locator	observation_or_limitation
+E001	F71.C01	F71.P_TZ1_ZERO	DIAGRAM_GROUP	p144 Fig71	source symbol enters 0-side grouping of TZ1
+E002	F71.C02	F71.P_TZ1_ONE	DIAGRAM_GROUP	p144 Fig71	source symbol enters 1-side grouping of TZ1
+E003	F71.C03	F71.P_TZ1_ONE	DIAGRAM_GROUP	p144 Fig71	source symbol enters 1-side grouping of TZ1
+E004	F71.P_TZ1_ZERO	F71.TZ1	PHOTO_CLEAR	p144 Fig71	to 0 input, not an assertion on electric pulse polarity
+E005	F71.P_TZ1_ONE	F71.TZ1	PHOTO_CLEAR	p144 Fig71	to 1 input
+E006	F71.C04	F71.P_TZ2_ZERO	DIAGRAM_GROUP	p144 Fig71	0-side grouping
+E007	F71.C05	F71.P_TZ2_ZERO	DIAGRAM_GROUP	p144 Fig71	0-side grouping
+E008	F71.C06	F71.P_TZ2_ZERO	DIAGRAM_GROUP	p144 Fig71	0-side grouping
+E009	F71.C07	F71.P_TZ2_ONE	DIAGRAM_GROUP	p144 Fig71	1-side grouping
+E010	F71.C08	F71.P_TZ2_ONE	DIAGRAM_GROUP	p144 Fig71	1-side grouping
+E011	F71.P_TZ2_ZERO	F71.TZ2	PHOTO_CLEAR	p144 Fig71	to 0 input
+E012	F71.P_TZ2_ONE	F71.TZ2	PHOTO_CLEAR	p144 Fig71	to 1 input
+E013	F71.C14	F71.P_TZ2_COUNT	DIAGRAM_GROUP	p144 Fig71	common count input to TZ2
+E014	F71.C15	F71.P_TZ2_COUNT	DIAGRAM_GROUP	p144 Fig71	common count input to TZ2
+E015	F71.P_TZ2_COUNT	F71.TZ2	PHOTO_CLEAR	p144 Fig71 / text	counts second operand sign when receiving sign
+E016	F71.C16	F71.P_CORR	DIAGRAM_GROUP	p144 Fig71	correction pulse grouping +1 ZnCM
+E017	F71.C17	F71.P_CORR	DIAGRAM_GROUP	p144 Fig71	correction pulse grouping +1 ZnCM
+E018	F71.C18	F71.P_CORR	DIAGRAM_GROUP	p144 Fig71	correction pulse grouping +1 ZnCM
+E019	F71.P_CORR	F71.P_TZ1SM_CTRL	DIAGRAM_GROUP	p144 Fig71	correction bus branches; sign targets require review
+E020	F71.P_CORR	F71.P_TZ2SM_CTRL	DIAGRAM_GROUP	p144 Fig71	correction bus branches; sign targets require review
+E021	F71.Z40	F71.P_TZ1SM_CTRL	TEXT_CONFIRMED	p145 last third, p144 Fig71	z40 enters first sign position
+E022	F71.Z1	F71.P_TZ2SM_CTRL	TEXT_CONFIRMED	p145 last third, p144 Fig71	carry from first sign position enters second
+E023	F71.P_TZ1SM_CTRL	F71.TZ1SM	DIAGRAM_GROUP	p144 Fig71	control inputs of first summator sign trigger
+E024	F71.P_TZ2SM_CTRL	F71.TZ2SM	DIAGRAM_GROUP	p144 Fig71	control inputs of second summator sign trigger
+E025	F71.TZ2SM	F71.KSZ41	TEXT_CONFIRMED	p146 / Fig71	external sign driven by second summator sign trigger on IVA3
+E026	F72.C01	F72.P_PLUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number direct-code transfer group
+E027	F72.C02	F72.P_PLUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number direct-code transfer group
+E028	F72.C03	F72.P_PLUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number direct-code transfer group
+E029	F72.C04	F72.P_PLUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number direct-code transfer group
+E030	F72.C06	F72.P_MINUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number inverted-code transfer group
+E031	F72.C07	F72.P_MINUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number inverted-code transfer group
+E032	F72.C08	F72.P_MINUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number inverted-code transfer group
+E033	F72.C09	F72.P_MINUS_CH1	DIAGRAM_GROUP	p145 Fig72	first-number inverted-code transfer group
+E034	F72.C05	F72.C04	PHOTO_CLEAR	p145 Fig72	branch of shared fifth gate to first number transfer
+E035	F72.C05	F72.C06	PHOTO_CLEAR	p145 Fig72	branch of shared fifth gate to first number transfer
+E036	F72.C12	F72.P_MINUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number inverted-code transfer group
+E037	F72.C13	F72.P_MINUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number inverted-code transfer group
+E038	F72.C15	F72.P_MINUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number inverted-code transfer group
+E039	F72.C17	F72.P_PLUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number direct-code transfer group
+E040	F72.C18	F72.P_PLUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number direct-code transfer group
+E041	F72.C20	F72.P_PLUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number direct-code transfer group
+E042	F72.C21	F72.P_PLUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number direct-code transfer group
+E043	F72.C22	F72.P_PLUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number direct-code transfer group
+E044	F72.C23	F72.P_PLUS_CH2	DIAGRAM_GROUP	p145 Fig72	second-number direct-code transfer group
+E045	F72.C14	F72.C13	PHOTO_CLEAR	p145 Fig72	nested node feeding second-number inverse selection
+E046	F72.C16	F72.C15	PHOTO_CLEAR	p145 Fig72	shared gate fans to opposite second-number group
+E047	F72.C16	F72.C17	PHOTO_CLEAR	p145 Fig72	shared gate fans to direct second-number group
+E048	F72.C19	F72.C18	PHOTO_CLEAR	p145 Fig72	nested node feeding second-number direct selection
+E049	F72.C10	F72.PLUS_CH3	TEXT_CONFIRMED	p145 Fig72	+Ч3 after indicated 1.6 us delay
+E050	F72.C11	F72.MINUS_CH3	TEXT_CONFIRMED	p145 Fig72	-Ч3 after indicated 1.6 us delay
+E051	F72.P_PLUS_CH1	F72.PLUS_CH1	PHOTO_CLEAR	p145 Fig72	labelled code-transfer output (not an electrical gate polarity)
+E052	F72.P_MINUS_CH1	F72.MINUS_CH1	PHOTO_CLEAR	p145 Fig72	labelled code-transfer output (not an electrical gate polarity)
+E053	F72.P_PLUS_CH2	F72.PLUS_CH2	PHOTO_CLEAR	p145 Fig72	labelled code-transfer output (not an electrical gate polarity)
+E054	F72.P_MINUS_CH2	F72.MINUS_CH2	PHOTO_CLEAR	p145 Fig72	labelled code-transfer output (not an electrical gate polarity)
+E055	F67.C03	F67.TP1k	TEXT_CONFIRMED	p137 Fig67 text	kth bit arrives to TP1 through C3
+E056	F67.C06	F67.TP2k	TEXT_CONFIRMED	p137 Fig67 text	kth bit arrives to TP2 through C6
+E057	F67.C09	F67.P_TCM_SET	DIAGRAM_GROUP	p137 Fig67	-Ч1 path into summator
+E058	F67.C10	F67.P_TCM_SET	DIAGRAM_GROUP	p137 Fig67	+Ч1 path into summator
+E059	F67.C07	F67.P_TCM_SET	DIAGRAM_GROUP	p137 Fig67	+Ч2 path into summator
+E060	F67.C08	F67.P_TCM_SET	DIAGRAM_GROUP	p137 Fig67	-Ч2 path into summator
+E061	F67.P_TCM_SET	F67.TCMk	PHOTO_CLEAR	p137 Fig67	input of bit summator
+E062	F67.Z_K_MINUS1	F67.C14	TEXT_CONFIRMED	p138 text	carry from prior bit enters C14
+E063	F67.C13	F67.P_ZK	DIAGRAM_GROUP	p137 Fig67	C13 contributes generation of z_k
+E064	F67.C14	F67.P_ZK	DIAGRAM_GROUP	p137 Fig67	C14 contributes generation of z_k
+E065	F67.P_ZK	F67.Z_K	PHOTO_CLEAR	p137 Fig67	carry to next bit
+E066	F67.C15	F67.P_KSZ	PHOTO_CLEAR	p137 Fig67	direct/inverted output selector channel
+E067	F67.C16	F67.P_KSZ	PHOTO_CLEAR	p137 Fig67	direct/inverted output selector channel
+E068	F73.C01	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E069	F73.C02	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E070	F73.C03	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E071	F73.C04	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E072	F73.C05	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E073	F73.C06	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E074	F73.C07	F73.P_IKOP	DIAGRAM_GROUP	p146 Fig73	operation completion group; no per-input truth claim
+E075	F73.C08	F73.P_IPR	DIAGRAM_GROUP	p146 Fig73	skip/overflow group
+E076	F73.C09	F73.P_IPR	DIAGRAM_GROUP	p146 Fig73	skip/overflow group
+E077	F73.C10	F73.P_IPR	DIAGRAM_GROUP	p146 Fig73	skip/overflow group
+E078	F73.P_IKOP	F73.IKOP	PHOTO_CLEAR	p146 Fig73	completion signal
+E079	F73.P_IPR	F73.IPR	PHOTO_CLEAR	p146 Fig73	skip signal
+E080	F73.C11	F73.VOK	TEXT_CONFIRMED	p146 paragraph and Fig73	inverse output when Zn2SM=1 via C11 and IVA3
+E081	F73.C12	F73.VPK	TEXT_CONFIRMED	p146 paragraph and Fig73	direct output when Zn2SM=0 via C12 and IVA3

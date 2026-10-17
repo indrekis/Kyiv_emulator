@@ -1,0 +1,17 @@
+id	figure	source	target	action_or_unknown	state
+H1-001	F71	p144 Fig71	C10 label near first-summator sign-trigger region	Need independent high-resolution second reading; numbering in top region overlaps signal typography	NOT_TRANSCRIBED
+H1-002	F71	p144 Fig71	Input labels and fan-in of C01-C08	Trace every wire to original printed signal label; several glyphs are small/angled	PARTIAL
+H1-003	F71	p144 Fig71	Wire crossings, C09/C10 and z1 near TZ1SM	Confirm contact nodes vs non-contact wire crossing; no guessed connections	OPEN
+H1-004	F71	pp144-145	Exact effect of C16 / C18 negative correction pulses	p145 text says -Ч1/-Ч2 create +1 ZnCM; map active edge to each target trigger	OPEN
+H1-005	F71	pp144-145	Zero and one trigger inputs for TZ1SM and TZ2SM	Map all reset/set/count entrances with pulse type; distinguish input 0/1 vs output potential labels	OPEN
+H1-006	F72	p145 Fig72	Every leaf label and short horizontal splice around C04/C05/C06	Restore labels and check fanout without assuming crossing connection	PARTIAL
+H1-007	F72	p145 Fig72	Electrical function of C and P glyphs	Find original diagram symbol legend and pulse conventions; do not map by modern AND/OR intuition	OPEN
+H1-008	F72	pp144-145 Fig72	Exact 1.6 us delay positions and pulse widths	Text establishes delay after +Ч2/-Ч2 before +Ч3/-Ч3; electrical pulse timing not complete	OPEN
+H1-009	F67	pp137-138 Fig67	Per-bit carry truth function and propagation delays	z_k function depends on C11/C12/C13/C14 and TCm; must trace 0/1 pulse directions	PARTIAL
+H1-010	F67	p137 Fig67	Bit-index orientation and z40->sign mapping	Relate k=40 stage and sign input physical layout, not just numeric analogy	OPEN
+H1-011	F73	pp145-146 Fig73	Precise gating at И4 for all sign combinations	p145 gives match/mismatch; need verify polarity/control lines for all C01-C10	PARTIAL
+H1-012	F73	p146 Fig73	C11/C12 dependence on TЗн2См and IVA3	p146 text confirms output channels; needs edge-level diagram fan-in and timing check	PARTIAL
+H1-013	CROSS	p138 and p146	Do not confuse TCm bit output VPK/VOK and summator SIGN output VPK/VOK	Different state elements at different scopes; verify names and routing on final output	OPEN
+H1-014	HARDWARE	pp101-103,137-146	Complete six-case sign-trigger transition matrix	Requires reset/init state, all correction pulses, carries z40/z1, IVA3 sampling	OPEN
+H1-015	TEST	GY62 p13; D8	Equal subtraction yields negative zero	Cross-check once circuit reconstructed; never use subtraction to set 01 addition policy automatically	OPEN
+H1-016	SOURCE	Project scans, D8 manifest	Cross-validation of transcription	Second reader must inspect original PDF scan or extracted archival PNG; typed netlist is not independent evidence	OPEN
