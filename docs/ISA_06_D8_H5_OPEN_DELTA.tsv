@@ -1,0 +1,13 @@
+parent_id	topic	disposition	new_constraint	still_needed
+H4-O01	C16 other enable	NARROWED_NOT_CLOSED	-Ch1 decoded at I1 for opcode 01	Determine Fig71 companion enable for opcode 01
+H4-O02	C18 other enable	NARROWED_NOT_CLOSED	-Ch2 decoded at I2 for opcode 01	Determine Fig71 companion enable for opcode 01
+H4-O03	C17 role	OPEN	C17 visible and partly labelled I1 but not decoded	Trace C17 operation labels to source controller
+H4-O04	C18 short dash	OPEN	No new source fixes interpretation of mark	Read original with blind independent reviewer
+H4-O05	pulse overlap	NARROWED_NOT_CLOSED	I1 and I2 nominally distinct; correction waveform not known	Resolve propagation/width at Fig71 R output
+H4-O06	trigger count input	OPEN	Fig14 counter logic not yet tied to Fig71 trigger	Trace accepted edge and trigger circuit
+H4-O07	initial sign state	OPEN	Table4 transfer decode does not give summator sign triggers initial state	Find Fig71 initialization logic
+H4-O08	z40 handling	OPEN	Carry cannot be derived from sign pulses alone	Decode Fig67 bit and Fig71 sign position
+H4-O09	z1 handling	OPEN	E022 remains retracted	Trace first sign position carry to cyclic z1
+H4-O10	pre-IVA3 timing	NARROWED_NOT_CLOSED	I4 timing published; IVA3 sampling still not established	Trace F73 result issue phase
+H4-O11	mixed pulse gates	OPEN	AND convention lacks pulse electrical details	Find pulse coincidence circuit and timing
+H4-O12	independent review	OPEN	Same model reader	Independent blinded image transcription

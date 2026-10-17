@@ -1,0 +1,21 @@
+id	printed_page	locator	grade	claim	qualification
+H5-E01	101	addition narrative	SOURCE_TEXT	Opcode 01 uses I1 for first-number code transfer; I2 for second	bounded to opcode 01
+H5-E02	101	addition narrative	SOURCE_TEXT	First positive sign selects +Ch1; first negative selects -Ch1	source transfer only
+H5-E03	101	addition narrative	SOURCE_TEXT	Second positive sign selects +Ch2; second negative selects -Ch2	source transfer only
+H5-E04	102	Table 4 row 01 +Ch1	SOURCE_TABLE	+Ch1 = I1 AND sign1-is-zero	not gate C16 output
+H5-E05	102	Table 4 row 01 -Ch1	SOURCE_TABLE	-Ch1 = I1 AND sign1-is-one	not gate C16 output
+H5-E06	102	Table 4 row 01 +Ch2	SOURCE_TABLE	+Ch2 = I2 AND sign2-is-zero	not gate C18 output
+H5-E07	103	Table 4 row 01 -Ch2	SOURCE_TABLE	-Ch2 = I2 AND sign2-is-one	continuation of same row across spread
+H5-E08	103	Table 4 row 01 +Ch3/-Ch3	SOURCE_TABLE	+Ch3/-Ch3 use delayed +Ch2/-Ch2 starred entries	delay defined as 1.6 microseconds
+H5-E09	100	Fig62; signals paragraph	SOURCE_TEXT_FIGURE	I1 before I2 before I3 before I4 nominally	not physical gate arrival ordering
+H5-E10	100	Fig62; signals paragraph	SOURCE_TEXT	I3 is delayed by 1.6 microseconds relative to I2	not a pulse-width assertion
+H5-E11	100	end of micro-operation paragraph	SOURCE_TEXT	Nominal I2-to-I4 interval 6 microseconds, total 7.6 microseconds	does not fix sign-correction event count
+H5-E12	144	Fig71 sign-block	SOURCE_FIGURE	-Ch1 present at C16; -Ch2 at C18	other gate inputs unresolved
+H5-E13	145	correction paragraph	SOURCE_TEXT	-Ch1/-Ch2 through C16/C18 form +1 ZnSm for both sign-trigger count ports	not evidence of admitted pulse count
+H5-E14	144	Fig71 C17	SOURCE_FIGURE	C17 is a separate input to combination gate R; at least one input marked I1	operation qualification undecoded
+H5-E15	145	carry paragraph	SOURCE_TEXT	z40 arrives at first sign position; emerging carry creates cyclic z1	E022 retracted as directed edge
+H5-E16	146	result issue paragraph	SOURCE_TEXT	Output sign comes from second summator sign trigger	not a zero sign outcome
+H5-E17	102-103	Table 4 opcode 01 vs Fig71 enables	OPEN	No proved equation from opcode 01 decode to g16 and g18	H4-O01 H4-O02 remain open
+H5-E18	144	Fig71 C17 label	OPEN	C17 operation-mnemonic input and opcode 01 active state unresolved	H4-O03 remains open
+H5-E19	100;145	Fig62 and carry narrative	OPEN	Counting-input accepted-edge behavior and correction/transfer overlap unresolved	H4-O05 H4-O06 remain open
+H5-E20	144-146	Figs71-73	OPEN	Terminal signed-zero outcome cannot be inferred	no historic 01 oracle

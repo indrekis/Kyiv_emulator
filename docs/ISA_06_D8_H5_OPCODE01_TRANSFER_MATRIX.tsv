@@ -1,0 +1,7 @@
+case_id	sign1	sign2	I1_selected	I2_selected	minus_Ch1	minus_Ch2	g16	g18	C17	trigger_sign
+plus_zero_plus_zero	+	+	plus	plus	0	0	OPEN	OPEN	OPEN	OPEN
+plus_zero_minus_zero	+	-	plus	minus	0	1	OPEN	OPEN	OPEN	OPEN
+minus_zero_plus_zero	-	+	minus	plus	1	0	OPEN	OPEN	OPEN	OPEN
+minus_zero_minus_zero	-	-	minus	minus	1	1	OPEN	OPEN	OPEN	OPEN
+plus_five_minus_five	+	-	plus	minus	0	1	OPEN	OPEN	OPEN	OPEN
+minus_five_plus_five	-	+	minus	plus	1	0	OPEN	OPEN	OPEN	OPEN
