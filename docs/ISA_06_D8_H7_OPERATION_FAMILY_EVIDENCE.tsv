@@ -1,0 +1,21 @@
+id	printed_page	locator	evidence_kind	statement	status	boundary
+H7-001	102-103	Table 4, 01	DOC	01 uses I1-selected ±Ч1 and I2-selected ±Ч2 according to operand sign	TRANSFER_ONLY	No C16/C18 enable or sign-trigger state certified
+H7-002	144	Fig.71 C16	PHOTO_LABEL	C16 receives −Ч1 and companion legend visually resembling П1,П2,Ср3	LABEL_ONLY	Exact glyphs/group electrical decoding require independent verification
+H7-003	144	Fig.71 C17	PHOTO_LABEL	C17 receives И1 and a DIFFERENT operation group resembling Л+,Л×,Р	LABEL_ONLY	No opcode01 enable value follows merely from a label
+H7-004	144	Fig.71 C18	PHOTO_LABEL	C18 receives −Ч2 and a companion legend resembling П1,П2,Ср3	LABEL_ONLY	The other input and its potential are not decoded
+H7-005	145	paragraph after Fig.72	DOC	For ordinary arithmetic addition negative code-transfer pulses −Ч1 and −Ч2 via C16 and C18 form +1 ЗнСм	DOC_SCOPED	Text establishes participation, NOT exact per-case admission/edge count
+H7-006	145	same paragraph	DOC	+1 ЗнСм reaches count inputs of both ТЗн1См and ТЗн2См	DOC_SCOPED	Accepted-edge semantics and resulting state remain open
+H7-007	147	Logical addition (Л+) paragraph	DOC	At logical addition И1 through C17 produces +1 ЗнСм and sets both summator sign triggers to 1	DOC_SCOPED	Explicit logical path; cannot be substituted as an arithmetic 01 rule
+H7-008	147	Logical multiplication (Л×) paragraph	DOC	Logical multiplication is described next to logical addition using the inverted code path	DOC_SCOPED	Does not explicitly name C17 for every logical operation
+H7-009	147-148	Равнозначно (Р) paragraph	DOC	Р is described in the same logical-operation family; logical-operation control differs from arithmetic addition	DOC_SCOPED	No full gate-level operation-group decoder is supplied
+H7-010	148	Точное сравнение (Ср3) paragraph	DOC	Ср3 is explicitly called exact comparison, separately from the logical family	DOC_SCOPED	Visual С16/С18 group glyph cannot be mapped solely by mnemonic similarity
+H7-011	102	Table 4, rows 14,15,17	DOC	Logical addition, logical multiplication and Р belong to different instruction rows from 01	DOC_SCOPED	Does not prove operation-selector exclusivity on Fig.71 wires
+H7-012	159	Коммутатор операций	DOC	Commutator emits individual and combined operation-control potentials	DOC_SCOPED	No printed direct wire equation to F71.C16/C17/C18 identified
+H7-013	142	initialization	INHERITED_DOC	У«0»См establishes a reset of summator before normal operations	INHERITED_H6	Initial (0,0) is valid only immediately after effective reset
+H7-014	146	issue result sign	INHERITED_DOC	Sign at ИВА3 issued from ТЗн2См	INHERITED_D8	Still requires every intervening accepted event
+H7-015	145	z40 and cyclic z1	INHERITED_DOC	z40 enters first sign position; its carry generates cyclic z1	INHERITED_H2	E022 direct z1→ТЗн2См remains retracted
+H7-016	144-145	C16/C18 legend versus prose	ANALYSIS	Visible companion labels do not by themselves spell arithmetic Сл although prose explicitly assigns ordinary addition to C16/C18	TENSION_OPEN	A qualified interface must not erase either source statement
+H7-017	144,147	C17 group and explicit logical route	DERIVED	C17 role is demonstrably not merely an unidentified generic input: one documented path serves Л+	DERIVED_SCOPED	C17=0 for opcode 01 has not been proven electrically
+H7-018	144-159	control potential logic	OPEN	Which companion potentials C16/C18 admit during opcode01 remains undetermined	OPEN	Find decoding of grouped labels and connection to operation commutator
+H7-019	144-159	C17 exclusivity	OPEN	Whether C17 cannot also pulse during normal arithmetic 01 remains unproven	OPEN	Prove operation-group disjointness with gate decode, not prose alone
+H7-020	144-147	sign triggers	OPEN	Complete accepted correction pulses and end state at ИВА3 for each zero-sum case remain undetermined	OPEN	No historical sign oracle; no CPU correction

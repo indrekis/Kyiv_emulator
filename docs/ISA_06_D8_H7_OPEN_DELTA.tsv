@@ -1,0 +1,13 @@
+parent_id	topic	disposition	new_evidence_or_limit	next_requirement
+H4-O01	C16 companion qualifier	OPEN	p145 explicit arithmetic-addition path; p144 grouped glyph remains undecoded	Trace control potential generation/selection with actual F71 electrical link
+H4-O02	C18 companion qualifier	OPEN	Same as C16; group print does not certify admission per negative operand	Trace second transfer timing, control-potential enable and physical gate
+H4-O03	C17 logical operation family	PARTIALLY_RESOLVED	p147 explicitly uses F71.C17 for logical addition Л+ at И1; group resembles Л+,Л×,Р	Prove exclusive decode / non-operation in arithmetic 01; do not assert C17=0
+H4-O04	C18 short mark	OPEN	Glyph still uninterpreted	Independent scan review with gate-symbol dictionary
+H4-O05	pulse overlap and width	OPEN	Nominal I1 and I2 are in different stages; gate edge data absent	Trace waveform and interval through C16-C18
+H4-O06	count input action	OPEN	F71 sign triggers have count inputs but transitions untraced	Trace sign-bit node and carry circuit on Fig71
+H4-O07	initial state	PARTIALLY_CLOSED	H6 documented (0,0) directly after effective reset	Follow all events before I1, I2, IVA3
+H4-O08	z40 carry	OPEN	Documented carry enters first sign position	Calculate bit-adder carry per exact input code
+H4-O09	z1 carry direction	OPEN	H2 E022 still RETRACTED	Electrical trace independent of inherited claim
+H4-O10	event order to IVA3	OPEN	C17 logical path identified, not ordinary-addition timeline	Event-resolved sign/carry timeline
+H4-O11	pulse gate polarity	OPEN	C AND/P OR conventions only for described devices	Confirm F71 active potential and pulse thresholds
+H4-O12	independent source rereading	OPEN	Same investigator reviewed primary pages	Blinded second review

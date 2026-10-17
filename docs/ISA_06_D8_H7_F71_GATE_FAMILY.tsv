@@ -1,0 +1,4 @@
+node_id	visible_pulse	companion_group	prose_family	path_evidence	opcode01_enable	accepted_event	non_conclusion
+F71.C16	−Ч1	П₁,П₂,Ср3 (tentative glyphs)	arithmetic addition named at p145	TEXT_SUPPORT_PATH	OPEN	OPEN	Text/figure group decoder mismatch must be resolved
+F71.C17	И1	Л+,Л×,Р (read with p147 corroboration)	logical addition Л+ explicitly named at p147	DOC_LOGICAL_PATH	OPEN	OPEN	Do not assert absent for arithmetic opcode01
+F71.C18	−Ч2	П₁,П₂,Ср3 (tentative glyphs)	arithmetic addition named at p145	TEXT_SUPPORT_PATH	OPEN	OPEN	Short dash and enable polarity not decoded
