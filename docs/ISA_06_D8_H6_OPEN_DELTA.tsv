@@ -1,0 +1,13 @@
+parent_id	topic	disposition	new_evidence_or_limit	next_requirement
+H4-O01	C16 companion enable	OPEN	Fig71 group label P1 P2 Sr3 more legible; NO functional opcode01 decode	Resolve group labels in operation control; primary source interconnect needed
+H4-O02	C18 companion enable	OPEN	Same visible grouped label; same net and assertion time not established	Independent group decode and timing
+H4-O03	C17 role	OPEN	I1 and a separate Pplus Px R grouped label visible	Map control-group source; show opcode01 selection explicitly
+H4-O04	C18 short mark	OPEN	Reexamined high-resolution correction branch; small dash still not decoded	Second unprimed reviewer plus notation source
+H4-O05	overlap and pulse width	OPEN	I1/I2 nominal windows known; no Fig71 accepted-edge timing	Waveform or gate-level electrical reconstruction
+H4-O06	sign-trigger count action	OPEN	Both counted by +1ZnSm per p145	Explicit trigger circuit and accepted-edge convention
+H4-O07	initial sign state	PARTIALLY_CLOSED	p142 U0Sm zeroes summator; Fig71 labels its 0 input at both TZnSm	Establish state AFTER reset only; thereafter count/carry changes remain open
+H4-O08	z40 event	OPEN	p145 says z40 enters first sign digit	Full actual bit-adder carry calculation
+H4-O09	z1 path	OPEN	H2 E022 still retracted	Independent first-sign carry generation and destination tracing
+H4-O10	pre-IVA3 event order	OPEN	After-reset initial state now documented, completion timing not sufficient	Need time-resolved sign-trigger netlist to IVA3
+H4-O11	mixed pulse gates	OPEN	Fig6 C/P logical convention established, no active electrical gate edge	Pulse coincidence electrical scheme
+H4-O12	independent review	OPEN	Current reread performed by same investigator	Blinded second reviewer

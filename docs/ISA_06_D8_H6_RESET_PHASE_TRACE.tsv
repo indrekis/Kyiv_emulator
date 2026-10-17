@@ -1,0 +1,9 @@
+phase_id	event	relative_order	supported_state_or_event	grade	source	non_conclusion
+P00	operation code accepted	pre	operation decoding	DOC	DPS64 p142	No sign output
+P01	IVA1 / U0AU / U0Sm	reset	TZn1Sm=0; TZn2Sm=0 immediately after effective reset	DERIVED	DPS64 p142 + Fig69 p143 + Fig71 p144	No edge/settling interval claimed
+P02	first operand sign latched	after reset / before I1	TZn1 sign code selected; TZn1Sm after reset may see other control later	DOC_SCOPED	DPS64 pp101,144	Order relative to every correction/carry event not fully measured
+P03	I1 first code transfer	I1	plus or minus Ch1 selected; C16/C17 admission unknown	DOC_SCOPED	DPS64 p101 Table4 p102 and Fig71 p144	Final TZn1Sm/TZn2Sm states OPEN
+P04	second operand sign latched	before I2	TZn2 sign code selected; previous corrections may alter sign summator	DOC_SCOPED	DPS64 pp101,144	No claim about sign-summator value here
+P05	I2 second code transfer	I2	plus or minus Ch2 selected; C18 admission unknown	DOC_SCOPED	DPS64 pp101-103 and Fig71 p144	Pulse waveform/accepted count OPEN
+P06	I3 delayed transfer and carries	after I2	z40 to first sign digit; resulting z1 generated; intermediate sign codes OPEN	DOC_SCOPED	DPS64 pp100-103,145	No directed E022 repair
+P07	I4 and result issue IVA3	completion / output	output sign from TZn2Sm; its state OPEN	DOC_SCOPED	DPS64 pp101,145-146	IVA3 sampling edge unspecified

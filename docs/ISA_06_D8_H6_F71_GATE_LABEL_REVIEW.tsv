@@ -1,0 +1,7 @@
+node_id	visible_pulse_or_input	visible_group_or_control	evidence_scope	conclusion	unresolved
+F71.C16	-Ч1	П1,П2,Ср3	label-only	source from opcode01 sign1 at I1; gate enable OPEN	F71.C16 != F72.C16
+F71.C17	И1	П+,П×,Р	label-only	I1 is a source; gate enable for opcode01 OPEN	Do not assume absent for opcode01
+F71.C18	-Ч2	П1,П2,Ср3	label-only	source from opcode01 sign2 at I2; gate enable OPEN	Short mark near R path remains uninterpreted
+F71.P_CORR	C16 output; C17 output; C18 output	+1ЗнСм	FIGURE_TOPOLOGY	combined correction reaches two sign-trigger counting inputs	No exact waveform or number of accepted pulses
+F71.TZ1SM	U0См to 0 entry; +1ЗнСм count; carry networks	not applicable	DOC+FIG	initial code=0 immediately after reset	Later state UNKNOWN
+F71.TZ2SM	U0См to 0 entry; +1ЗнСм count; carry networks	not applicable	DOC+FIG	initial code=0 immediately after reset; issued at ИВА3	Later state UNKNOWN
