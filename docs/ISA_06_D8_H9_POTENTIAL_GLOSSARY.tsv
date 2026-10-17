@@ -1,0 +1,12 @@
+id	symbol_id	printed_pages	grade	source_supported	missing_link	excluded_inference
+G01	RK5	158	DOC	first five instruction register triggers supply opcode to operation decoder	five trigger positions to decoder	not a F71 sign-gate wire
+G02	OP_INDIVIDUAL	159	DOC	individual potential for corresponding operation	named decoder output to physical terminal	a named operation is not a Fig71 companion net
+G03	OP_NEGATED	159	DOC	negative-of-operation potentials for selected named operations	sense and connection at Fig71	not safe to infer absent pulse from absence of name
+G04	OP_COMBINED	159	DOC	combined potentials for multiple operations including НГО+ОГО and МЗбп+Вывод	specific Boolean set and polarity	group membership cannot be inferred by typography alone
+G05	UU_ARITH_O	159	DOC	fifteen arithmetic operations are controlled uniformly in УУ using shared potential «О» with Т₅АОп (Т₄₁РК) reference	electrical link from УУ common control to F71 sign block	the label «О» is not numeric zero and does not identify F71 enable
+G06	OP01_IN_UU_ARITH_FAMILY	144;159	DERIVED_LIMITED	01 is documented as addition and fits the arithmetic-operation family controlled uniformly by УУ	УУ-common-to-F71 connection and timing	does not prove C16/C18 pass every negative-zero pulse
+G07	SR3_EXACT_COMPARISON	148	DOC	operation Ср3 (exact comparison) has its own procedure on printed p148	electrical identity if compared to generic Ср output	Ср3 printed near F71 is not automatically the generic p159 Ср wire
+G08	F71_C16_NEG_CH1	144-145	DOC_SCOPED	−Ч1 correction path named through F71.C16 for arithmetic addition	second input Boolean qualifier for opcode01	admitted impulse on exact zero OPEN
+G09	F71_C17_LOGICAL	144;147	DOC_SCOPED	Л+ explicitly uses И1 through F71.C17	proof this route is electrically inactive for opcode01	logical-use evidence is not exclusivity proof
+G10	F71_C18_NEG_CH2	144-145	DOC_SCOPED	−Ч2 correction path named through F71.C18 for arithmetic addition	second input Boolean qualifier for opcode01	admitted impulse on exact zero OPEN
+G11	TABLE6_GLOBAL_SCHEDULE	164-165	DOC_SCOPED	Table 6 lists operation-dependent global control signals and modes	Fig71 terminal-level gate equation	global timing row is not a local circuit truth table

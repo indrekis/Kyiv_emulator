@@ -1,0 +1,9 @@
+id	original_scan	printed_pages	reviewed_subject	scope_status	bounded_result
+S01	kiev0052.png	102-103	Table 4 AU microoperations	reviewed	sign-dependent transfer selection; no unique Fig71 group-enabling equation
+S02	kiev0073.png	144-145	Fig71 and textual arithmetic-add correction	reviewed	C16/C18 pulse roles; group qualifier wiring not verified
+S03	kiev0074.png	146-147	sign issue and logical-add C17 description	reviewed	output sign sampled from TЗн2См; logical path not opcode01 exclusion
+S04	kiev0075.png	148-149	Ср3 exact comparison and multiplication	reviewed	comparison named; no decoder electrical mapping
+S05	kiev0080.png	158-159	command-register bits and operation commutator	reviewed	individual negated combined and AU-common «О» classes; no F71 net
+S06	kiev0081.png	160-161	central timing and Fig75	reviewed	global cycle; not gate qualifier netlist
+S07	kiev0082.png	162-163	central control figures 76-77	reviewed	routing and coordination; not specific Fig71 enable term
+S08	kiev0083.png	164-165	Table 6 control schedule	reviewed	schedule is not Boolean enable equation

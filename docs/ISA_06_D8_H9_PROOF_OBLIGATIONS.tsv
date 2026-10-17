@@ -1,0 +1,8 @@
+id	target	requirement	status	required_evidence	related_glossary_ids	guardrail
+P01	F71.C16	resolve companion net at C16	OPEN	original circuit or unequivocal textual electrical connection	G08	no alias to UU_ARITH_O without proof
+P02	F71.C18	resolve companion net at C18	OPEN	original circuit or unequivocal textual electrical connection	G10	do not set C18=1 solely from −Ч2
+P03	F71.C17	establish opcode01 group exclusion or inclusion	OPEN	decoder Boolean terms plus confirmed wire	G09	do not set C17=0 from Л+ usage alone
+P04	commutator	decode combined group membership for opcode01	OPEN	diode matrix or explicit group truth table	G02,G03,G04,G05	individual decoder truth alone insufficient
+P05	sign triggers	establish transition under counted correction pulses	OPEN	timed state-machine gates and exact count input behavior	G08,G10	fig14 counting is not proven for F71
+P06	carry	derive z40 and cyclic z1 in exact-zero cases	OPEN	bit-level AU carry trace and trigger timing	G08,G10	H2 E022 remains RETRACTED
+P07	output	uniquely predict TЗн2См at ИВА3	OPEN	P01..P06 closure with source-backed timing	G06	without this no new STRICT opcode01 zero-sign oracle
