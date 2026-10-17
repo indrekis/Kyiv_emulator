@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <boost/multiprecision/cpp_int.hpp>
+#include "kyiv_nk_panel.h"
 
 typedef uint64_t addr_t;
 typedef uint64_t word_t;
@@ -81,6 +82,7 @@ public:
 class Kyiv_memory_t {
 private:
     word_t mem_array_m[04000] = {0}; // 0AAAA -- octal constant};
+    Kyiv_NK_panel_t nk_panel_; // Operator source overlay; default CABINET.
 
 
     //! Оператор може змінювати деякі значення  ROM
@@ -105,6 +107,9 @@ public:
         if(addr >= max_ROM_addr){
             throw out_of_range_error("Wrong address while reading", addr);
         }
+        if (Kyiv_NK_panel_t::is_selectable(addr) && nk_panel_.is_panel_selected(addr)) {
+            return nk_panel_.panel_word(addr);
+        }
         return mem_array_m[addr];
     }
     void write_memory(addr_t addr, word_t val){
@@ -127,6 +132,18 @@ public:
             throw out_of_range_error("Writing to RAM", addr);
         }
         mem_array_m[addr] = val;
+    }
+
+    // Operator NK source: only 03000..03002 have documented individual switches.
+    // The cabinet source remains the existing write_rom()/mem_array_m storage.
+    void set_panel_nk_word(addr_t addr, word_t value) {
+        nk_panel_.set_panel_word(addr, value);
+    }
+    void select_panel_nk(addr_t addr, bool enabled) {
+        nk_panel_.select_panel(addr, enabled);
+    }
+    bool is_panel_nk_selected(addr_t addr) const {
+        return nk_panel_.is_panel_selected(addr);
     }
 
 };

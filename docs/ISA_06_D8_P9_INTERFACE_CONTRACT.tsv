@@ -1,0 +1,4 @@
+address_octal	configured_default	selected_default	cabinet_source	panel_source	failure_mode	class
+3000	false	CABINET	mem_array_m[03000]	explicit_41_bit_word	UNCONFIGURED_PANEL_SELECTED_REJECT	POLICY_IMPLEMENTATION
+3001	false	CABINET	mem_array_m[03001]	explicit_41_bit_word	UNCONFIGURED_PANEL_SELECTED_REJECT	POLICY_IMPLEMENTATION
+3002	false	CABINET	mem_array_m[03002]	explicit_41_bit_word	UNCONFIGURED_PANEL_SELECTED_REJECT	POLICY_IMPLEMENTATION
