@@ -416,6 +416,7 @@ bool Kyiv_t::execute_opcode(){
             C_reg = addr3_shifted.destination;
             K_reg = kmem.read_memory(C_reg);
         }
+            break;
 
 
         case IO_operations_t::opcode_write_magnetic_drum:{
