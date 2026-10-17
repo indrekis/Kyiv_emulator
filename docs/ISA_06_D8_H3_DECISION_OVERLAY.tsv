@@ -1,0 +1,7 @@
+decision_id	h1_issue	h2_review	topic	disposition	new_evidence	non_conclusion
+H3-O01	H1-007	R009	C/P glyph logical function	PARTIAL_RESOLUTION	DPS64 p41 Fig6 directly defines coincidence as AND and separation as OR for potential inputs.	Only gate-level operation class is established; circuit-specific input/pulse polarities and all fan-in remain open.
+H3-O02	H1-005	R005	summator sign-trigger count input	CONSTRAINED_NOT_CLOSED	DPS64 p52 Fig14 establishes a conditional toggling mechanism for an explicitly depicted binary counter.	Do not automatically transfer Fig14 counter microcircuit semantics to F71.TZ1SM/F71.TZ2SM.
+H3-O03	H1-004	R004	negative correction pulses	CONFIRMS_INTERFACE_ONLY	DPS64 p145 says C16/C18 form correction pulse reaching count inputs of both sign triggers.	Correction active polarity and interaction with z40 and other pulses remain OPEN.
+H3-O04	H1-009	R011	carry network truth function	REMAINS_OPEN	Fig6 p41 defines gate family; Fig67 p137 still needs individual netlist verification.	No complete C13/C14 carry truth function or sign transition graph.
+H3-O05	H1-014	R017	six signed-zero results	REMAINS_OPEN	Evidence about combinational gates/counting establishes necessary constraints only.	No historical 01 zero sign oracle, no CPU patch and no STRICT promotion.
+H3-O06	H1-003	R002	E022 previously retracted	RETRACTION_PRESERVED	H2 O001 E022 remains retracted despite newly documented C/P convention.	Never restore E022 by inference from generic gate operations.
