@@ -1,0 +1,7 @@
+source	identity	sha256_or_git_blob	use
+src/main.cpp	GIT_BLOB_AT_f30644f	eef2d92ce5c39205960aa64bc8839d924730d882	C++ opcode 20..25 control flow
+inc/kyiv.h	GIT_BLOB_AT_f30644f	ff4aa592f12b07d32b4961b49cb97b15289d38e0	opcode declarations, machine state
+tests/isa/isa07_d2_io_characterization_probe.cpp	GIT_BLOB_AT_f30644f	95b71b0f01d4befacc886afdef11c506327dfea8	prior one-step probe contract
+docs/ISA_07_D1_OPEN_ISSUES.tsv	GIT_BLOB_AT_f30644f	013549da8348b0575f960387715fb1cc5ec95121	prior open IO issues
+docs/ISA_07_D6_GATES.tsv	GIT_BLOB_AT_f30644f	f08b70a074b40cc19974f39eb604f8754ec0a35d	immediate predecessor qualification
+Vychislitelnaya-mashyna-Kiev_VHlushkov_EYushchenko_1962.pdf	SHA256_EXTERNAL_SOURCE	a3bf9871dfe05609a7c6ea33e6677c1fd508b6ae57443f152e27ad2be8c21eea	GY62 printed pages 15-16 (PDF pages 15-16)
