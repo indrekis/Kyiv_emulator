@@ -337,6 +337,7 @@ bool Kyiv_t::execute_opcode(){
                 if(flag){
                     break;
                 }
+                ++counter;
             }
             h += com_counter;
         }
