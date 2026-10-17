@@ -1,0 +1,3 @@
+id	kind	path_or_label	sha256	scope
+GY62_1962_PDF	source_pdf	Vychislitelnaya-mashyna-Kiev_VHlushkov_EYushchenko_1962.pdf	a3bf9871dfe05609a7c6ea33e6677c1fd508b6ae57443f152e27ad2be8c21eea	GY62 printed pp 170-171; out-of-repo project source
+D5_CPP_REFERENCE	source_code	tests/isa/isa06_d5_historical_ram_iterations_probe.cpp	47782a5eee5f649e6e0a94608bc99060bcfdacc020cabd34f3c26c6d5dfd99e6	Committed D5 historical instruction transcription; must remain unchanged
