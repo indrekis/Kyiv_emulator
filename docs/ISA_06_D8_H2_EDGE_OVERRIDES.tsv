@@ -1,0 +1,2 @@
+override_id	h1_edge_id	h1_from	h1_to	h1_class	disposition	source_image	printed_page	bbox_px	rationale	implementation_rule
+O001	E022	F71.Z1	F71.P_TZ2SM_CTRL	TEXT_CONFIRMED	RETRACT_AS_DIRECTED_EDGE	kiev0073.png	145	1860,1250,3480,1890	Direct p145 prose says first sign digit carry GENERATES cyclic carry z1. This does not establish H1 z1 -> TZ2SM direction.	Keep source rows unmodified for audit; consumer must apply this overlay before drawing physical netlist.
