@@ -446,6 +446,8 @@ bool Kyiv_t::execute_opcode(){
                 drum_num_write = addr3_shifted.source_2;
                 drum_zone_write = addr3_shifted.destination;
             }
+            ++C_reg;
+            K_reg = kmem.read_memory(C_reg);
         }
             break;
 //==========================================================================================================
