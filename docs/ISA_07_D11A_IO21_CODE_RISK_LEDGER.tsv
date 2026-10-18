@@ -1,0 +1,12 @@
+id	classification	basis	finding	D11A_witness	follow_up
+D11A-S01	SOURCE_STRICT	GY62 printed p.16	IO21 imports machine codes without decimal conversion into inclusive RAM interval	valid,single	Preserve instruction word bits and inclusive endpoints
+D11A-S02	SOURCE_STRICT	GY62 printed p.58	On completed IO21 C increments then K prefetches the following word	valid,h1,single	Preserve C/K success semantics
+D11A-S03	SOURCE_STRICT	GY62 printed pp.7-8	41-bit words include an independent sign bit; physical RAM is 0000-1777	word41,overwide	Guard 41-bit range and physical RAM in D11-B
+D11A-C01	CODE_OBSERVATION	src/main.cpp IO21	Missing punched_tape stream currently falls through to success without words	missing	Explicit missing stream HOST_POLICY error
+D11A-C02	CODE_DEFECT	src/main.cpp IO21	Writes occur before full validation; bad late record can leave partial RAM mutation	short,malformed	Whole-command staged input and atomic rejection
+D11A-C03	CODE_OBSERVATION	src/main.cpp IO21	std::stol accepts trailing non-octal suffix without full token consumption	suffix	Strict full token grammar
+D11A-C04	CODE_OBSERVATION	src/main.cpp IO21	std::stol parses signed negative text and stores a noncanonical 64-bit negative value	negative	Treat host text as raw unsigned machine code
+D11A-C05	CODE_DEFECT	src/main.cpp IO21	std::stol long range is platform dependent and may reject valid 41-bit codes	word41,overwide	Parse unsigned 64-bit text and limit to 41 bits
+D11A-C06	CODE_RISK	src/main.cpp IO21	No reversed interval or physical RAM limit guard	static only	Prevalidate intervals before touching memory
+D11A-C07	CODE_OBSERVATION	src/main.cpp IO21	Counter h is a host file position, not documented physical tape index	valid,h1	Preserve as HOST_POLICY pending media model
+D11A-U01	OPEN	GY62 printed pp.15-17,58	Physical encoding of 41-bit binary words and heads selector not specified	static only	Do not invent source encoding
