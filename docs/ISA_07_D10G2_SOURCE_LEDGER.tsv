@@ -1,0 +1,15 @@
+id	source	printed_pages	pdf_spread_zero_based	statement	classification	limit
+G2-S01	DPS64-1964	86-87	43	Fig.61 simplified arithmetic unit: registers P1 P2 adder Sm; control logic	SOURCE_STRICT	Does not specify all bit widths or complete wiring
+G2-S02	DPS64-1964	88-90	44-45	Multi-cycle timing and steering; numeric input in table 2 at 264 us arithmetic-unit time	SOURCE_STRICT	Does not determine IO20 rounding or bit pattern
+G2-S03	DPS64-1964	104-105	52	Kyiv uses abbreviated multiplication shifting multiplicand; maintains partial sum in adder	SOURCE_STRICT	IO20 usage inferred from shared micro-operation section
+G2-S04	DPS64-1964	106-108	53-54	Precision analysis of discarded multiplicand low bits in abbreviated multiply	SOURCE_STRICT	Calculation is about multiplication, not an IO20 trace
+G2-S05	DPS64-1964	109	54	For q=2 n=40, five extra bits m=5 chosen in adder	SOURCE_STRICT_MULTIPLY	Does not specify decimal coefficient registers precision
+G2-S06	DPS64-1964	120-121	60	BCD digit weights and left-shift plus abbreviated/right-shift alternatives	SOURCE_STRICT	Literal E_s,l initialization vs bit order underdetermined
+G2-S07	DPS64-1964	122	61	Shared multipler micro-operations; around 270 us max decimal conversion	SOURCE_STRICT	No final rounding or stored E_s values documented
+G2-S08	DPS64-1964	124-125	62	Fig.63 table 5 includes opcode 20 numeric input and opcode 21	SOURCE_STRICT	Control table not a full bit-accurate conversion trace
+G2-S09	GY62-1962	10-11	-	Separate multiplication commands 10 unrounded 11 rounded	SOURCE_STRICT	Cannot ascribe 11 rounding to IO20
+G2-I01	CROSS_SOURCE	105;121-122	52;60-61	Preferred IO20 circuit family is shortened multiplier with multiplicand shifts	INFERRED_HIGH	Exact microstep instruction 20 signal train open
+G2-I02	CROSS_SOURCE	109;121	54;60	Guard-bit context makes 45-bit sensitivity experiments interesting	INFERRED_PROVISIONAL	Adder guard bits not verified input coefficient bits
+G2-M01	DERIVED_MATH	-	-	Forty BCD weighted bits represent exact N over 10^10	DERIVED_MATH	Not a hardware proof
+G2-H01	HYPOTHETICAL_MODEL	-	-	Compare digitwise bitwise and per-shift fixed-point quantization	COUNTERFACTUAL	Not actual hardware observations
+G2-D01	DECISION	-	-	Retain F2/F3 ideal final truncation as emulator policy	INFERRED_PROVISIONAL	Historical low bits remain OPEN
