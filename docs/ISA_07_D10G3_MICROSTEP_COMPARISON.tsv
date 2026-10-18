@@ -1,0 +1,15 @@
+id	digits	ideal_octal	popcount	P40_floor_delta	P45_floor_delta	P45_nearest_delta	P48_nearest_delta	shift_pulses_30_40	literal_unscaled_ratio
+zero	0000000000	00000000000000	0	0	0	0	0	30_or_40	1/8_when_nonzero
+tiny	0000000001	00000000000155	1	0	0	0	0	30_or_40	1/8_when_nonzero
+one-tenth	1000000000	01463146314631	1	0	0	0	0	30_or_40	1/8_when_nonzero
+three-tenths	3000000000	04631463146314	2	0	0	0	0	30_or_40	1/8_when_nonzero
+five-eighths	6250000000	12000000000000	5	-2	-1	-1	-1	30_or_40	1/8_when_nonzero
+one-quarter	2500000000	04000000000000	3	-1	-1	-1	-1	30_or_40	1/8_when_nonzero
+one-half	5000000000	10000000000000	2	-1	-1	0	-1	30_or_40	1/8_when_nonzero
+max	9999999999	17777777777622	20	-9	-1	-1	0	30_or_40	1/8_when_nonzero
+random-like	1234567890	01763267233471	15	-6	0	0	0	30_or_40	1/8_when_nonzero
+reverse-like	9876543210	17632672360162	15	-5	0	0	0	30_or_40	1/8_when_nonzero
+high-bits	8888888888	16161616161454	10	-3	0	0	0	30_or_40	1/8_when_nonzero
+low-bits	1111111111	01616161616145	10	-5	0	0	0	30_or_40	1/8_when_nonzero
+exact-small	0009765625	00010000000000	14	-6	-1	-1	-1	30_or_40	1/8_when_nonzero
+exact-large	9990234375	17770000000000	17	-8	-1	-1	-1	30_or_40	1/8_when_nonzero

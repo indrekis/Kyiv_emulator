@@ -1,0 +1,16 @@
+id	source	printed_pages	pdf_spread_zero_based	statement	classification	limitation
+G3-S01	DPS64-1964	120	60	Ten BCD digits decompose into forty bits with within-digit weights 8 4 2 1	SOURCE_STRICT	Mathematical weights not register bit-order timing
+G3-S02	DPS64-1964	121	60	Shortened multiplier recurrence with conditional accumulate and shifting multiplicand	SOURCE_STRICT	No specified coefficient bit representation or sign
+G3-S03	DPS64-1964	121	60	Published E_(s,1)=10^-s followed by halving	SOURCE_STRICT_TEXT	Unscaled MSB-first reading inconsistent with p120 unless compensated
+G3-S04	DPS64-1964	121	60	Numbered load conditional-transfer shift repeat and reload steps	SOURCE_STRICT	Fourth terminal shift and exact pulse count unresolved
+G3-S05	DPS64-1964	122	61	Reuses numbered multiplier micro-operations 2 and 3 and states around 270 us max	SOURCE_STRICT	Not a 40-bit hardware trace
+G3-S06	DPS64-1964	105	52	Kyiv multiplier shifts multiplicand in shortened multiplication	SOURCE_STRICT	Mapping specific bits to IO20 is inference
+G3-S07	DPS64-1964	109	54	For 40-bit multiplication five extra adder bits selected	SOURCE_STRICT_MULTIPLY	Does not establish decimal input constant width
+G3-S08	DPS64-1964	86-90	43-45	Registers P1 P2 adder and multi-cycle control scheme	SOURCE_STRICT	Not complete gate signal schedules
+G3-S09	DPS64-1964	124-125	62	Fig63 and table5 distinguish decimal number input opcode 20 and code input 21	SOURCE_STRICT	Cannot reconstruct every pulse from table row
+G3-S10	DPS64-1964	124-125	62	Opcode20 row uses common reception and control signal families	SOURCE_STRICT	Not all conditional symbols fully disambiguated
+G3-M01	DERIVED_MATH	120-121	60	Unscaled MSB-first 10^-s then halving gives precisely x over eight	DERIVED_MATH	Falsifies only literal unscaled combination
+G3-I01	CROSS_SOURCE	105;120-121	52;60	MSB-first scaled 8*10^-s then halving matches source weights and shifted multiplicand	INFERRED_HIGH	Coefficient register prep and scale hardware OPEN
+G3-I02	CROSS_SOURCE	121	60	Four shifted bit evaluations per digit; final shift may be redundant	INFERRED_PROVISIONAL	Actual shift pulse count 30 vs 40 OPEN
+G3-H01	HYPOTHESIS	-	-	40-45-48-64 fractional bit simulated accumulator with floor nearest	COUNTERFACTUAL	Not actual hardware register widths
+G3-D01	DECISION	-	-	Leave F2 F3 ideal-final-truncation CPU model unchanged	PROVISIONAL	No hardware low-bit oracle
