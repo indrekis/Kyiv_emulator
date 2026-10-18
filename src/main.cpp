@@ -25,7 +25,6 @@ constexpr addr3_t word_to_addr3(word_t w){
     constexpr word_t Addr_1_mask = 0b11'111'111'111ULL << (Addr_1_mask_shift);  // also was -1
     constexpr word_t Addr_2_mask_shift = (40-6-12-11)+1;
     constexpr word_t Addr_2_mask = 0b11'111'111'111ULL << (Addr_2_mask_shift);  // also was -1
-    constexpr word_t Addr_3_mask_shift = 0; // Для одноманітності
     constexpr word_t Addr_3_mask = 0b11'111'111'111ULL;
 
     addr3_t res;
@@ -84,14 +83,6 @@ signed_word_t word_to_number(word_t w){
     signed_word_t sign1 = (is_negative(w) ? -1 : 1);
     signed_word_t abs_val1 = get_absolute(w);
     return sign1 * abs_val1;
-}
-
-static word_t parse_kyiv_number(const char* str) {
-    long long val = std::stoll(str);
-    if (val < 0) {
-        return to_negative(static_cast<word_t>(-val));
-    }
-    return static_cast<word_t>(val);
 }
 
 constexpr bool get_A1(word_t w){
@@ -330,7 +321,7 @@ bool Kyiv_t::execute_opcode(){
             magnetic_drum.open("../../mem/drum_in.txt");
 
             int counter = 0;
-            int num_counter = 0;
+            addr_t num_counter = 0;
             bool flag = false;
             while (std::getline(magnetic_drum, line)) {
                 if(counter == drum_num_read){
@@ -629,7 +620,6 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             res_mul = -res_mul;
         assert(res_mul >= 0);
 
-        uint16_t leftmost = leftmost_one(res_mul);
 
         if (opcode == arythm_operations_t::opcode_mul_round) {
             res_mul += 1ULL << 39;

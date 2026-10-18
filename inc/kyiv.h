@@ -39,7 +39,7 @@ constexpr addr3_t shift_addr3_byA(addr3_t addr3, uint64_t offset, word_t w);
 
 
 struct aproxy {
-    aproxy(word_t& r, addr_t addres) : mPtr(&r), ref(addres) {}
+    aproxy(word_t& r, addr_t addres) : ref(addres), mPtr(&r) {}
     void operator = (word_t n) const {
         if (ref > 03000) {
             throw "ROM!";
