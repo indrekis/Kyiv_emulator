@@ -1,0 +1,16 @@
+id	source	printed_pages	pdf_spread_zero_based	evidence_or_inference	status	limitation
+G4-S01	DPS64	124-125	62	Fig63 common multicyle timing signals; Table5 has separate opcode20 numeric and opcode21 command rows	SOURCE_STRICT	Not individual 40-BCD-bit timing
+G4-S02	DPS64	124	62	Opcode20 and opcode21 both have dashes in PCh1/PCh2	SOURCE_STRICT_TEXT	A dash not proof of globally disabled circuit
+G4-S03	DPS64	124-125	62	Some opcode20 signal conditions for clearing P2 and UE differ from opcode21	READING_QUALIFIED	Read subscripts and Boolean terms against higher-quality facsimile
+G4-S04	DPS64	125	62	Common arithmetic control clocks and standard register clearing described	SOURCE_STRICT	No exact IO20 clock trace specified
+G4-S05	DPS64	121	60	Conversion stated given a set of equivalent codes Es then load and shift multiplicand	SOURCE_STRICT_TEXT	No source storage or coefficient encoding specified
+G4-S06	DPS64	86-87	43	Fig61 identifies P1 P2 and adder Sm	SOURCE_STRICT	Block diagram does not locate Es ROM
+G4-S07	DPS64	105;121-122	52;60-61	Kyiv shortened multiplication shifts the multiplicand and shared conversion operations	SOURCE_STRICT_CONTEXT	Specific IO20 net connections remain OPEN
+G4-S08	DPS64	109	54	Five extra adder bits discussed for abbreviated multiplication	SOURCE_STRICT_MULTIPLY	Not a 45-bit Es coefficient storage proof
+G4-S09	DPS64	120-121	60	Weights 8 4 2 1 and printed Es1=10^-s require effective scale or different mapping	SOURCE_STRICT_TEXT	Physical compensation method OPEN
+G4-S10	DPS64	88-90;122	44-45;61	264 us table and approx 270 us text in distinct contexts	SOURCE_STRICT	Does not fix 30-versus-40 shift pulse count
+G4-I01	CROSS_SOURCE	105;121-122	52;60-61	Use existing shifted-multiplicand AU as principal architectural hypothesis	INFERRED_HIGH	Exact register wiring and binary codes OPEN
+G4-I02	CROSS_SOURCE	120-121	60	Effective factor eight for MSB-first BCD model	PROVISIONAL	Could be compensation elsewhere
+G4-I03	CROSS_SOURCE	121	60	Set of predefined equivalents more economical than assuming new hardware	INFERRED	Storage location unknown; generation alternative possible
+G4-D01	DECISION	-	-	Retain mathematically truncated IO20 as stable emulator policy	INFERRED_PROVISIONAL	Not machine LSB oracle
+G4-D02	DECISION	-	-	No CPU or converter change based on incomplete controller table	STOP_GATE	Await electrical or device source evidence

@@ -1,0 +1,10 @@
+signal	opcode20_numeric	opcode21_commands	confidence	source
+ПЧ1	—	—	CLEAR_PRINT	p.124, table 5
+ПЧ2	—	—	CLEAR_PRINT	p.124, table 5
+У<0>Р1	ИВА1	ИВА1	CLEAR_PRINT	p.124, table 5
+У<0>Р2	ИВА1; НИ1∧П_s	ИВА1	READING_QUALIFIED	p.124, table 5
+У<0>См	ИВА1	same-as-20 (ditto)	CLEAR_PRINT	p.124, table 5
++Ч2,+Ч3	ИКЛ	ИКЛ	CLEAR_PRINT	p.125, table 5
+У<1>Р1	ИК	ИК	CLEAR_PRINT	p.125, table 5
+УЭ	ИК; НИ3∧П_s∧ИК	ИК	READING_QUALIFIED	p.125, table 5
+ИКОп	ИСдв∧<1>Т40Р1	same-as-20 (ditto)	READING_QUALIFIED	p.125, table 5
