@@ -10,6 +10,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include "kyiv.h"
+#include "kyiv_decimal_input_plan.h"
 #include "asm_disasm.h"
 typedef uint64_t addr_t;
 typedef uint64_t word_t;
@@ -241,60 +242,49 @@ bool Kyiv_t::execute_opcode(){
             break;
 //==========================================================================================================
         case IO_operations_t::opcode_read_perfo_data:{
-                std::ifstream punch_cards;
-                std::string line;
-                std::string perfo;
-                std::vector<std::string> argv;
-                signed_word_t number;
+            // GY62 p.58: numeric input occupies the INCLUSIVE RAM interval.
+            // The stream path, physical-line selector and byte offset are
+            // HOST_POLICY, not a representation of the punched-card device.
+            if (perfo_num < 0)
+                throw std::runtime_error("IO20: INVALID_PERFO_NUM");
+            if (addr3_shifted.source_1 > addr3_shifted.source_2)
+                throw std::runtime_error("IO20: INVALID_INTERVAL");
+            // GY62 p.8: physical RAM is 0000..1777, not the host memory
+            // class's broader currently writable interval ending at 03000.
+            if (addr3_shifted.source_2 >= 02000ULL)
+                throw std::runtime_error("IO20: INVALID_RAM_ADDRESS");
 
-                punch_cards.open("../../mem/punch_cards_in.txt");
-
-                int counter = 0;
-                int num_counter = 0;
-                bool flag = false;
-
-                while (std::getline(punch_cards, line)) {
-                    if (counter == perfo_num) {
-                        perfo = line.substr(addr3_shifted.destination, line.size());
-                        boost::split(argv, perfo, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-                        for(auto num : argv){
-                            if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
-                                flag = true;
-                                break;
-                            }
-                            number = std::stol(num, nullptr, 8);
-                            if(number >= 0){
-                                kmem.write_memory(addr3_shifted.source_1 + num_counter, number);
-                            }else{
-                                kmem.write_memory(addr3_shifted.source_1 + num_counter, to_negative(std::abs(number)));
-                            }
-                            num_counter++;
-                        }
-                    }else if(counter > num_counter){
-                        perfo = line;
-                        boost::split(argv, perfo, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-                        for(auto num : argv){
-                            if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
-                                flag = true;
-                                break;
-                            }
-                            number = std::stoi(num, nullptr, 8);
-                            if (number >= 0) {
-                                kmem.write_memory(addr3_shifted.source_1 + num_counter, number);
-                            } else {
-                                kmem.write_memory(addr3_shifted.source_1 + num_counter, to_negative(std::abs(number)));
-                            }
-                            num_counter ++;
-                        }
-                    }
-                    if(flag == true){
-                        break;
-                    }
-                    counter++;
+            std::ifstream punch_cards("../../mem/punch_cards_in.txt",
+                                     std::ios::in | std::ios::binary);
+            const auto staged = kyiv_decimal_input_plan::collect(
+                punch_cards, static_cast<std::size_t>(perfo_num),
+                static_cast<std::size_t>(addr3_shifted.destination),
+                static_cast<std::size_t>(addr3_shifted.source_2 -
+                                         addr3_shifted.source_1 + 1));
+            if (staged.state != kyiv_decimal_input_plan::status::exact) {
+                const char* reason = "UNKNOWN";
+                using S = kyiv_decimal_input_plan::status;
+                switch (staged.state) {
+                case S::invalid_count: reason = "INVALID_COUNT"; break;
+                case S::unavailable_stream: reason = "UNAVAILABLE_STREAM"; break;
+                case S::missing_start_line: reason = "MISSING_START_LINE"; break;
+                case S::invalid_first_offset: reason = "INVALID_FIRST_OFFSET"; break;
+                case S::empty_record: reason = "EMPTY_RECORD"; break;
+                case S::invalid_token: reason = "INVALID_TOKEN"; break;
+                case S::nonexact: reason = "NONEXACT"; break;
+                case S::short_input: reason = "SHORT_INPUT"; break;
+                case S::read_error: reason = "READ_ERROR"; break;
+                case S::exact: break;
                 }
-                punch_cards.close();
-                ++C_reg;
-                K_reg = kmem.read_memory(C_reg);
+                throw std::runtime_error(std::string("IO20: ") + reason);
+            }
+            // All words have been parsed and every destination prevalidated.
+            // Do not update CPU memory on a failed host transfer.
+            for (std::size_t i = 0; i < staged.words.size(); ++i)
+                kmem.write_memory(addr3_shifted.source_1 + i, staged.words[i]);
+            // GY62 p.58: sequential control and next-command prefetch.
+            ++C_reg;
+            K_reg = kmem.read_memory(C_reg);
         }
             break;
 
