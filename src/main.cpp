@@ -293,6 +293,8 @@ bool Kyiv_t::execute_opcode(){
                     counter++;
                 }
                 punch_cards.close();
+                ++C_reg;
+                K_reg = kmem.read_memory(C_reg);
         }
             break;
 
@@ -340,6 +342,8 @@ bool Kyiv_t::execute_opcode(){
                 ++counter;
             }
             h += com_counter;
+            ++C_reg;
+            K_reg = kmem.read_memory(C_reg);
         }
             break;
 

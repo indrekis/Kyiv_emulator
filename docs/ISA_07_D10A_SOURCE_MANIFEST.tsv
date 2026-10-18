@@ -1,0 +1,9 @@
+source	identity	sha256_or_git_blob	usage
+src/main.cpp	GIT_BLOB_AT_da84dee	757740c7e52adc4ee5e17ed563c989c9496ae96f	exact CPU baseline before IO20/21 PC fix
+inc/kyiv.h	GIT_BLOB_AT_da84dee	ff4aa592f12b07d32b4961b49cb97b15289d38e0	pinned unchanged memory/control declaration
+tests/isa/isa07_d9b_io25_sequential_probe.cpp	GIT_BLOB_AT_da84dee	9fabacc0b0767d9cb594b79824f62a29b8b19171	pinned unchanged D9B witness
+tools/isa07_d9b_io25_sequential_audit.py	GIT_BLOB_AT_da84dee	acd37781c585656ab2d5bac0f3d6ad89faf91caf	pinned unchanged D9B audit
+docs/ISA_07_D9B_SOURCE_MANIFEST.tsv	GIT_BLOB_AT_da84dee	d49b8560b0209d948633f5944f077f763bd8cfcf	pinned unchanged D9B source provenance
+tests/isa/isa07_d8a_inclusive_input_probe.cpp	GIT_BLOB_AT_da84dee	a47e33601d05ca94fa38f769a78054813a00c1da	pinned pre-fix D8A fixture
+docs/ISA_07_D7_DOCUMENTED_IO_BOUNDARIES.md	GIT_BLOB_AT_da84dee	debc8a21a73e4a0e2ab965f938b6b46e90f5323b	pinned historical D7 prior OPEN conclusion
+GY62_1962_PDF	SHA256	a3bf9871dfe05609a7c6ea33e6677c1fd508b6ae57443f152e27ad2be8c21eea	printed pp 17 and 58 numeric format and input PC rules
