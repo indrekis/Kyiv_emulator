@@ -258,7 +258,7 @@ bool Kyiv_t::execute_opcode(){
                         perfo = line.substr(addr3_shifted.destination, line.size());
                         boost::split(argv, perfo, boost::is_any_of(" "), boost::algorithm::token_compress_off);
                         for(auto num : argv){
-                            if(num_counter == addr3_shifted.source_2 - addr3_shifted.source_1){
+                            if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
                                 flag = true;
                                 break;
                             }
@@ -274,7 +274,7 @@ bool Kyiv_t::execute_opcode(){
                         perfo = line;
                         boost::split(argv, perfo, boost::is_any_of(" "), boost::algorithm::token_compress_off);
                         for(auto num : argv){
-                            if(num_counter == addr3_shifted.source_2 - addr3_shifted.source_1){
+                            if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
                                 flag = true;
                                 break;
                             }
@@ -317,7 +317,7 @@ bool Kyiv_t::execute_opcode(){
                 std::getline(punch_cards, line);
                 int pos = 0;
                 if(counter == num){
-                    if(com_counter < addr3_shifted.source_2 - addr3_shifted.source_1){
+                    if(com_counter <= addr3_shifted.source_2 - addr3_shifted.source_1){
                         kmem.write_memory(addr3_shifted.source_1 + com_counter, std::stol(line, 0, 8));
                         com_counter++;
                     }else{
@@ -325,7 +325,7 @@ bool Kyiv_t::execute_opcode(){
                         break;
                     }
                 }else if(counter > num){
-                    if(com_counter < addr3_shifted.source_2 - addr3_shifted.source_1){
+                    if(com_counter <= addr3_shifted.source_2 - addr3_shifted.source_1){
                         kmem.write_memory(addr3_shifted.source_1 + com_counter, std::stol(line, 0, 8));
                         com_counter ++;
                     }else{
@@ -360,7 +360,7 @@ bool Kyiv_t::execute_opcode(){
                     data = line.substr(drum_zone_read, line.size());
                     boost::split(argv, data, boost::is_any_of(" "), boost::algorithm::token_compress_off);
                     for(const auto& num : argv){
-                        if(num_counter == addr3_shifted.source_2 - addr3_shifted.source_1){
+                        if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
                             flag = true;
                             break;
                         }
@@ -376,7 +376,7 @@ bool Kyiv_t::execute_opcode(){
                     data = line;
                     boost::split(argv, data, boost::is_any_of(" "), boost::algorithm::token_compress_off);
                     for(const auto& num : argv){
-                        if(num_counter == addr3_shifted.source_2 - addr3_shifted.source_1){
+                        if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
                             flag = true;
                             break;
                         }
