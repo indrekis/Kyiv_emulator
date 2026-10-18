@@ -261,7 +261,10 @@ bool Kyiv_t::execute_opcode(){
                 static_cast<std::size_t>(addr3_shifted.destination),
                 static_cast<std::size_t>(addr3_shifted.source_2 -
                                          addr3_shifted.source_1 + 1));
-            if (staged.state != kyiv_decimal_input_plan::status::exact) {
+            // D10-F2 truncation is PROVISIONAL, not a proven IO20 hardware rule.
+            // Both exact and truncated inputs are commit-ready after full validation.
+            if (staged.state != kyiv_decimal_input_plan::status::exact &&
+                staged.state != kyiv_decimal_input_plan::status::truncated) {
                 const char* reason = "UNKNOWN";
                 using S = kyiv_decimal_input_plan::status;
                 switch (staged.state) {
@@ -275,6 +278,7 @@ bool Kyiv_t::execute_opcode(){
                 case S::short_input: reason = "SHORT_INPUT"; break;
                 case S::read_error: reason = "READ_ERROR"; break;
                 case S::exact: break;
+                case S::truncated: break;
                 }
                 throw std::runtime_error(std::string("IO20: ") + reason);
             }

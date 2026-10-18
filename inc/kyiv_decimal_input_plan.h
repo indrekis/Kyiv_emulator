@@ -18,7 +18,7 @@ namespace kyiv_decimal_input_plan {
 enum class status {
     exact, invalid_count, unavailable_stream, missing_start_line,
     invalid_first_offset, empty_record, invalid_token, nonexact,
-    short_input, read_error
+    short_input, read_error, truncated
 };
 
 struct result {
@@ -34,7 +34,8 @@ struct result {
 // * no blank consumed records and no skipping bad records.
 // * exactly 'count' output words, at most the 1024-word RAM capacity.
 // * extra valid tokens on the last consumed record are ignored.
-// * failure discards ALL staged words; caller must commit only on 'exact'.
+// * errors discard ALL staged words; 'exact' and 'truncated' are commit-ready.
+// * 'truncated' applies only to STORED words, not surplus validated tokens.
 // Not a historical assertion about a3, card zones, punch framing or errors.
 inline result collect(std::istream& stream, std::size_t start_line,
                       std::size_t first_offset, std::size_t count) {
@@ -51,6 +52,7 @@ inline result collect(std::istream& stream, std::size_t start_line,
 
     std::vector<std::uint64_t> staged;
     staged.reserve(count);
+    bool any_truncated = false;
     bool first = true;
     while (staged.size() < count) {
         if (!std::getline(stream, line)) {
@@ -74,10 +76,13 @@ inline result collect(std::istream& stream, std::size_t start_line,
         if (parsed.state == kyiv_decimal_ascii::record_status::nonexact)
             return {status::nonexact, {}};
         const auto n = std::min(count - staged.size(), parsed.values.size());
-        for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t i = 0; i < n; ++i) {
+            any_truncated |= parsed.values[i].state == kyiv_decimal_ascii::status::truncated;
             staged.push_back(parsed.values[i].word);
+        }
     }
-    return {status::exact, std::move(staged)};
+    return {any_truncated ? status::truncated : status::exact,
+            std::move(staged)};
 }
 
 } // namespace kyiv_decimal_input_plan
