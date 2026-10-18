@@ -11,6 +11,7 @@
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include "kyiv.h"
 #include "kyiv_decimal_input_plan.h"
+#include "kyiv_binary_input_plan.h"
 #include "asm_disasm.h"
 typedef uint64_t addr_t;
 typedef uint64_t word_t;
@@ -293,49 +294,27 @@ bool Kyiv_t::execute_opcode(){
             break;
 
         case IO_operations_t::opcode_read_perfo_binary:{
-            std::ifstream punch_cards;
-            std::ifstream heads;
-            std::string head;
-            std::string line;
-
-            punch_cards.open("../punched_tape.txt");
-            heads.open("../heads.txt");
-
-            std::getline(heads, head);
-            std::getline(heads, head);
-            // int num = std::stoi(head);
-            size_t num = h;
-            int counter = 0;
-            int com_counter = 0;
-            bool flag = false;
-
-            while(punch_cards){
-                std::getline(punch_cards, line);
-                int pos = 0;
-                if(counter == num){
-                    if(com_counter <= addr3_shifted.source_2 - addr3_shifted.source_1){
-                        kmem.write_memory(addr3_shifted.source_1 + com_counter, std::stol(line, 0, 8));
-                        com_counter++;
-                    }else{
-                        flag = true;
-                        break;
-                    }
-                }else if(counter > num){
-                    if(com_counter <= addr3_shifted.source_2 - addr3_shifted.source_1){
-                        kmem.write_memory(addr3_shifted.source_1 + com_counter, std::stol(line, 0, 8));
-                        com_counter ++;
-                    }else{
-                        flag = true;
-                        break;
-                    }
-
-                }
-                if(flag){
-                    break;
-                }
-                ++counter;
-            }
-            h += com_counter;
+            // D11-B: strict raw 41-bit OCTAL text is HOST_POLICY, not the
+            // encoding of real perforated tape. Validate the entire command
+            // before writing a single destination cell or changing C/K/h.
+            if (addr3_shifted.source_1 > addr3_shifted.source_2)
+                throw std::runtime_error("IO21: INVALID_INTERVAL");
+            // Physical Kyiv RAM: 0000..1777 octal. Cell zero discards writes.
+            if (addr3_shifted.source_2 >= 02000ULL)
+                throw std::runtime_error("IO21: INVALID_RAM_ADDRESS");
+            const std::size_t count = static_cast<std::size_t>(
+                addr3_shifted.source_2 - addr3_shifted.source_1 + 1);
+            std::ifstream punch_cards("../punched_tape.txt",
+                                    std::ios::in | std::ios::binary);
+            const auto staged = kyiv_binary_input_plan::collect(
+                punch_cards, static_cast<std::size_t>(h), count);
+            if (staged.state != kyiv_binary_input_plan::status::exact)
+                throw std::runtime_error(std::string("IO21: ") +
+                    kyiv_binary_input_plan::status_text(staged.state));
+            for (std::size_t i = 0; i < staged.words.size(); ++i)
+                kmem.write_memory(addr3_shifted.source_1 + i, staged.words[i]);
+            h += staged.words.size(); // host physical-line cursor policy
+            // GY62 printed p.58: C+1 -> C and memory[C] -> K.
             ++C_reg;
             K_reg = kmem.read_memory(C_reg);
         }
