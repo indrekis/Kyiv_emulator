@@ -396,6 +396,8 @@ bool Kyiv_t::execute_opcode(){
             }
 
             magnetic_drum.close();
+            C_reg = addr3_shifted.destination;
+            K_reg = kmem.read_memory(C_reg);
         }
             break;
 
