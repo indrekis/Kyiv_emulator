@@ -404,8 +404,8 @@ bool Kyiv_t::execute_opcode(){
             myfile.open("../punc_cards_out.txt");
             if (myfile.is_open())
             {
-                for(uint64_t i = 0; i <= addr3_shifted.source_2; i++){
-                    myfile << word_to_number(kmem.read_memory(addr3_shifted.source_1 + i));
+                for(uint64_t i = addr3_shifted.source_1; i <= addr3_shifted.source_2; i++){
+                    myfile << word_to_number(kmem.read_memory(i));
                     myfile << ' ';
                 }
                 myfile.close();
@@ -423,8 +423,8 @@ bool Kyiv_t::execute_opcode(){
             myfile.open("../magnetic_drum.txt");
             if (myfile.is_open())
             {
-                for(uint64_t i = 0; i <= addr3_shifted.source_2; i++){
-                    myfile << word_to_number(kmem.read_memory(addr3_shifted.source_1 + i));
+                for(uint64_t i = addr3_shifted.source_1; i <= addr3_shifted.source_2; i++){
+                    myfile << word_to_number(kmem.read_memory(i));
                     myfile << ' ';
                 }
                 myfile.close();
