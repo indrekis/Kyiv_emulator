@@ -1,0 +1,17 @@
+id	classification	opcode	baseline_evidence	observation_or_risk	gate	limitation
+D12A-S01	SOURCE_STRICT	24	GY62 printed p.15	Inclusive destination interval [a1 a2] and branch to a3	D9A and D12A positive	Does not specify host grammar or errors
+D12A-S02	SOURCE_STRICT	25	GY62 printed p.15	Preparation precedes drum read or write; next instruction in sequence	D9B	Not physical timing
+D12A-B01	CODE_OBS	24	src/main.cpp at c67c1e5	std::stoi signed int not 41-bit word parser	word41 over32	32-bit int bound not original peripheral format
+D12A-B02	CODE_OBS	24	src/main.cpp at c67c1e5	Writes before validation of subsequent tokens	malformed double-space	Host failure not historical device oracle
+D12A-B03	CODE_OBS	24	src/main.cpp at c67c1e5	Missing and empty streams branch without writing	missing empty	Status is current host convention
+D12A-B04	CODE_OBS	24	src/main.cpp at c67c1e5	Short stream branches after partial input	short	Not a qualified success rule
+D12A-B05	CODE_OBS	24	src/main.cpp at c67c1e5	std::stoi accepts valid prefix with garbage suffix	suffix	HOST_POLICY should reject or define
+D12A-B06	CODE_OBS	24	src/main.cpp at c67c1e5	Negative decimal host tokens stored as sign-magnitude	negative negative-zero	Negative zero sign not preserved by stoi
+D12A-B07	CODE_OBS	24	src/main.cpp at c67c1e5	Double space produces an empty split token	double-space	BOOST token_compress_off used
+D12A-B08	HOST_POLICY	24	src/main.cpp at c67c1e5	Selected track interpreted as text line	track1 track-missing	Not physical track layout
+D12A-B09	HOST_POLICY	24	src/main.cpp at c67c1e5	Initial zone interpreted as text byte offset	zone2	Not physical sector code
+D12A-B10	HOST_POLICY	24	src/main.cpp at c67c1e5	First line and continuation lines parsed differently	multiline	Not validated drum rollover
+D12A-B11	STATIC_RISK	24	src/main.cpp at c67c1e5	Unsigned subtract source2-source1 can wrap for reversed endpoints	not executed	No runtime witness deliberately
+D12A-B12	CODE_OBS	24	src/main.cpp and inc/kyiv.h at c67c1e5	Nonphysical RAM 02000 can be written via broad host memory API	outside-physical	Physical address decode OPEN
+D12A-B13	CODE_OBS	24	src/main.cpp at c67c1e5	Successful IO24 sets C to a3 and prefetches K	full alternate	Hardware K-timing not independently established
+D12A-D01	DECISION	24	D12-A	No production changes until 20/20 real CPU observations and D12-A audit	precommit	D12-B grammar and error semantics remain decisions
