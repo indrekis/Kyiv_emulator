@@ -1,0 +1,15 @@
+id	source	printed_pages	pdf_spread_zero_based	claim	classification	remaining_gap
+G1-S01	DPS64-1964	119	59-right	Input from punched tape/cards is BCD; direct decimal-to-binary input is hardware-mediated	SOURCE_STRICT	Physical cards and timing not reconstructed
+G1-S02	DPS64-1964	120	60-left	40 input bits are 10 groups of four; a_(s,l) weighted by 2^(4-l)*10^-s	SOURCE_STRICT	Physical wiring/bit order needs independent schematics
+G1-S03	DPS64-1964	120-121	60-left/right	s=floor((i+3)/4); E_s=10^-s/2^(40-4s); x=sum_i a_i*2^(40-i)*E_s	SOURCE_STRICT	Fixed-point location of E_s in physical multiplier register unknown
+G1-S04	DPS64-1964	121	60-right	Left-shift recurrence x_i=2*x_(i-1)+a_i*E_s; alternative right-shift and abbreviated-multiplication recurrences	SOURCE_STRICT	Device-specific variant not unambiguously identified in text
+G1-S05	DPS64-1964	121	60-right	Descriptive six-stage equivalent-load/conditional-add/shift/repeat procedure	SOURCE_STRICT	Precision and exact handling of carry/overflow not stated
+G1-S06	DPS64-1964	122	61-left	Substantial sharing of decimal conversion and multiplication microoperations; ~270 microseconds quoted	SOURCE_STRICT	Timing does not determine low bits or intermediate precision
+G1-S07	DPS64-1964	124-125	62-left/right	Multicycle operation control-signal table includes instruction 20 numeric input	SOURCE_STRICT	Table does not expose numeric E_s ROM constants or final rounding
+G1-S08	GY62-1962	10-11	10-11	Opcodes 10 multiplication without rounding and 11 multiplication with rounding are separate	SOURCE_STRICT	Neither behavior may simply be attributed to numeric input 20
+G1-S09	GY62-1962	17	16	Manual decimal-to-machine conversion continues until zero remainder or sufficient precision	SOURCE_STRICT	Manual algorithm is not a trace of IO20 microcode
+G1-S10	GY62-1962	117-118	116-117	Rounding in software floating-point (mode II) discussed in separate context	SOURCE_STRICT	Not a numeric-input rounding definition
+G1-H01	DERIVED_MATH	-	-	For ten digits N: ideal magnitude=floor(N*2^30/5^10); exact iff N divisible by 5^10	DERIVED_MATH	Low bits from historical finite precision remain unknown
+G1-H02	HYPOTHETICAL_MODEL	-	-	Naive 40-fraction-bit unscaled E_s constants produce huge numerical error	COUNTERFACTUAL_REJECTED	Cannot infer actual physical scaling/precision from this rejection
+G1-H03	HYPOTHETICAL_MODEL	-	-	P=80 floor/nearest E_s constants give -1..0/0..+1 output ULPs in sampled vectors	COUNTERFACTUAL	No independent evidence for 80 fractional internal bits or coefficient rounding
+G1-D01	RECONSTRUCTION_DECISION	-	-	Preserve ideal final truncation as default IO20 host reconstruction pending historic constant widths	INFERRED_PROVISIONAL	Upgrade only with independently grounded device evidence
