@@ -1,0 +1,28 @@
+id	classification	claim_or_decision	source	status
+PHYS_3_DRUMS	SOURCE_STRICT	Three magnetic drums	GY62 p5; DPS64 p229	QUALIFIED
+PHYS_24_TRACKS	SOURCE_STRICT	Last track is track 24 per drum	GY62 p16	QUALIFIED
+PHYS_TOTAL_9864	SOURCE_STRICT	9864 codes maximum overall capacity	GY62 p5	QUALIFIED
+PHYS_PER_TRACK_511	SOURCE_STRICT	1964 states 511 codes per track	DPS64 p231 (PDF spread 116 right)	QUALIFIED_AS_SOURCE_CLAIM_NOT_RESOLVED
+PHYS_PER_TRACK_137	INFERRED	9864 divided by 3*24 equals 137	Arithmetic using GY62 p5 p16	NOT_PHYSICAL_ORACLE
+GEOMETRY_CONFLICT	OPEN	9864 and 511 not reconciled	GY62 p5; DPS64 p231	BLOCKER
+RAW_WORD_41	SOURCE_STRICT	Preserve exact 41-bit sign-magnitude code	GY62 p5 p16	QUALIFIED
+PHYS_7X6_LAYOUT	SOURCE_STRICT	41-bit code written on seven tracks in six rows	DPS64 p229 (PDF spread 115 right)	QUALIFIED
+MZ_PREP_DIRECTION	SOURCE_STRICT	25 I field 0 read 1 write	GY62 p15 and p59	QUALIFIED
+MZ_PREP_FIELD_II	SOURCE_STRICT	25 raw II field designates drum and track	GY62 p15	QUALIFIED_AT_SEMANTIC_LEVEL
+MZ_PREP_FIELD_III	SOURCE_STRICT	25 raw III field designates initial word position	GY62 p15	QUALIFIED_AT_SEMANTIC_LEVEL
+MZ_PREP_BIT_MAPPING	OPEN	Exact encoding of drum and track in 11-bit II field	GY62 p15 and p59; DPS64 p231	BLOCKER
+MZ_MZ_INTERNAL_COUNTERS	SOURCE_STRICT	Internal starting number split to place bits 1-8 track bits 9-13	DPS64 p231	NOT_YET_CROSS_MAPPED_TO_25
+MZ_PREP_SEQUENTIAL	SOURCE_STRICT	25 continues at next instruction then 23 or 24	GY62 p15 and p59	QUALIFIED
+MZ_TRANSFER_INTERVAL	SOURCE_STRICT	23 and 24 use inclusive a1..a2	GY62 p15 and p59	QUALIFIED
+MZ_TRANSFER_BRANCH	SOURCE_STRICT	23 and 24 transfer to a3	GY62 p15 and p59	QUALIFIED
+MZ_AUTO_NEXT_TRACK	SOURCE_STRICT	Auto switch to next tract until last 24th	GY62 p15-16; DPS64 p232-233	QUALIFIED
+MZ_LAST_TRACK_OVERFLOW	OPEN	Effect of transfer past last tract	GY62 p16	BLOCKER
+MZ_ROM_SOURCE	SOURCE_CONFLICT	GY62 p15 permits RAM or ROM for 23; p59 describes RAM	GY62 p15 versus p59	REVIEW
+MZ_DEST_RAM	SOURCE_STRICT	24 reads to RAM only	GY62 p15	QUALIFIED
+MZ_ADDR_MOD_REG	SOURCE_STRICT	All group external commands destroy address modification register	GY62 p15	CURRENT_CPU_MISMATCH_REVIEW
+MZ_HARDWARE_LATENCY	SOURCE_STRICT	Approximate 60 us per code and 1500 rpm are documented	GY62 p6	NOT_TIMING_ORACLE_FOR_DIGITAL_API
+MZ_OLD_TEXT_PATHS	HOST_POLICY	Separate decimal input and output paths were temporary stubs	D12-B and D13-B; user clarification	REPLACE_NOT_PRESERVE
+MZ_NEW_BINARY_IMAGE	HOST_POLICY	Versioned self-describing checked binary serialization	D14-A proposal	NOT_IMPLEMENTED
+MZ_UNWRITTEN_READ	OPEN	Undefined reading unwritten positions; recommend fail-closed policy	No device oracle	DECISION_PENDING
+MZ_ATOMIC_TRANSFER	HOST_POLICY	Stage full transfer before committing media or RAM	D14-A design	NOT_IMPLEMENTED
+MZ_POWERLOSS	OPEN	Crash consistency and concurrent writes not established	Design limitation	OPEN
