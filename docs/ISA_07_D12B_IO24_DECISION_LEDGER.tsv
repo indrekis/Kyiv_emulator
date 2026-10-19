@@ -1,0 +1,15 @@
+id	classification	decision	source_or_evidence
+IO24_INTERVAL	SOURCE_STRICT	Inclusive [a1,a2] after effective address decoding	GY62 printed p.15; D8-A
+IO24_BRANCH	SOURCE_STRICT	Successful input branches to a3	GY62 printed p.15; D9-A
+IO24_WORD_WIDTH	SOURCE_STRICT	41-bit sign/magnitude word	GY62 printed pp.7-8
+IO24_RECORD_GRAMMAR	HOST_POLICY	Signed decimal ASCII tokens; 40-bit magnitude; distinct -0	D12-A prior current-code observations; user-selected file adapter
+IO24_TRACK_LINE	HOST_POLICY	zero-based text line via drum_num_read	current host adapter; not device encoding
+IO24_ZONE_BYTE	HOST_POLICY	byte offset first selected line via drum_zone_read	current host adapter; not device encoding
+IO24_ERRORS	HOST_POLICY	fail closed before writes and C/K changes	D12-A malformed/double-space partial writes
+IO24_UNMAPPED_RAM	HOST_CODE_GUARD	Reject target above physical RAM 1777	GY62 printed p.8; D12-A outside-physical observation
+IO24_NEGATIVE_ZERO	HOST_POLICY	-0 encodes sign bit with zero magnitude	machine sign-magnitude permits -0, host decimal notation optional
+IO24_OVERFLOW	HOST_CODE_GUARD	Reject magnitude >= 2^40 and malformed values	GY62 printed pp.7-8 and D12-A over32
+IO24_PREFETCH	EMULATOR_CONVENTION	C=a3 and K=memory[C] on success	D9-A; not physical timing proof
+IO23_NEGZERO_OUTPUT	OPEN	IO23 text output loses negative-zero sign	src/main.cpp word_to_number output, no physical oracle
+IO25_TRACK_ENCODING	OPEN	Real drum track/zone encoding and I-field direction	GY62 printed p.15; D9-B host policy
+IO24_MEDIA_ERRORS	OPEN	Physical drum failure and incomplete sector behavior	No source-qualified device oracle

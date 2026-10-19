@@ -12,6 +12,7 @@
 #include "kyiv.h"
 #include "kyiv_decimal_input_plan.h"
 #include "kyiv_binary_input_plan.h"
+#include "kyiv_drum_input_plan.h"
 #include "asm_disasm.h"
 typedef uint64_t addr_t;
 typedef uint64_t word_t;
@@ -312,58 +313,29 @@ bool Kyiv_t::execute_opcode(){
             break;
 
         case IO_operations_t::opcode_read_magnetic_drum:{
-            std::ifstream magnetic_drum;
-            std::string line;
-            std::string data;
-            std::vector<std::string> argv;
-            signed_word_t number;
-
-            magnetic_drum.open("../../mem/drum_in.txt");
-
-            int counter = 0;
-            addr_t num_counter = 0;
-            bool flag = false;
-            while (std::getline(magnetic_drum, line)) {
-                if(counter == drum_num_read){
-                    data = line.substr(drum_zone_read, line.size());
-                    boost::split(argv, data, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-                    for(const auto& num : argv){
-                        if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
-                            flag = true;
-                            break;
-                        }
-                        number = std::stoi(num);
-                        if(number >= 0){
-                            kmem.write_memory(addr3_shifted.source_1 + num_counter, number);
-                        }else{
-                            kmem.write_memory(addr3_shifted.source_1 + num_counter, to_negative(std::abs(number)));
-                        }
-                        num_counter ++;
-                    }
-                }else if(counter > drum_num_read){
-                    data = line;
-                    boost::split(argv, data, boost::is_any_of(" "), boost::algorithm::token_compress_off);
-                    for(const auto& num : argv){
-                        if(num_counter > addr3_shifted.source_2 - addr3_shifted.source_1){
-                            flag = true;
-                            break;
-                        }
-                        number = std::stoi(num);
-                        if(number >= 0){
-                            kmem.write_memory(addr3_shifted.source_1 + num_counter, number);
-                        }else{
-                            kmem.write_memory(addr3_shifted.source_1 + num_counter, to_negative(std::abs(number)));
-                        }
-                        num_counter ++;
-                    }
-                }
-                if(flag){
-                    break;
-                }
-                counter ++;
-            }
-
-            magnetic_drum.close();
+            // D12-B: decimal host text is NOT historical drum encoding.
+            // Check the entire input before any memory/control-state change.
+            if (addr3_shifted.source_1 > addr3_shifted.source_2)
+                throw std::runtime_error("IO24: INVALID_INTERVAL");
+            if (addr3_shifted.source_2 >= 02000ULL)
+                throw std::runtime_error("IO24: INVALID_RAM_ADDRESS");
+            if (drum_num_read < 0)
+                throw std::runtime_error("IO24: INVALID_TRACK");
+            if (drum_zone_read < 0)
+                throw std::runtime_error("IO24: INVALID_ZONE");
+            const std::size_t count = static_cast<std::size_t>(
+                addr3_shifted.source_2 - addr3_shifted.source_1 + 1);
+            std::ifstream magnetic_drum("../../mem/drum_in.txt",
+                                        std::ios::in | std::ios::binary);
+            const auto staged = kyiv_drum_input_plan::collect(
+                magnetic_drum, static_cast<std::size_t>(drum_num_read),
+                static_cast<std::size_t>(drum_zone_read), count);
+            if (staged.state != kyiv_drum_input_plan::status::exact)
+                throw std::runtime_error(std::string("IO24: ") +
+                    kyiv_drum_input_plan::status_text(staged.state));
+            for (std::size_t i = 0; i < staged.words.size(); ++i)
+                kmem.write_memory(addr3_shifted.source_1 + i, staged.words[i]);
+            // GY62 p.15: branch to a3; prefetch K is emulator convention.
             C_reg = addr3_shifted.destination;
             K_reg = kmem.read_memory(C_reg);
         }
