@@ -1,0 +1,14 @@
+id	classification	decision	evidence
+IO23_INTERVAL	SOURCE_STRICT	Inclusive effective [a1,a2]	GY62 printed p.15
+IO23_SUCCESS_PC	SOURCE_STRICT	Successful write branches to a3	GY62 printed p.15
+IO23_PREFETCH	EMULATOR_CONVENTION	K=memory[a3] on success	D8-B; D13-A
+IO23_SOURCE_BOUNDS	HOST_CODE_GUARD	0000..1777 RAM; reject reverse/ROM/unmapped	GY62 printed p.8; D13-A observations
+IO23_FORMAT	HOST_POLICY	Unscaled signed decimal tokens, trailing ASCII spaces	Existing adapter; NOT physical drum format
+IO23_NEGZERO	HOST_POLICY	Sign-magnitude -0 outputs literal -0	D13-A confirmed old sign loss
+IO23_WORD_WIDTH	HOST_CODE_GUARD	Reject any source bits above 40	GY62 printed pp.7-8; D13-A highbits observation
+IO23_WRITE_COMMIT	HOST_POLICY	Write temporary sibling; flush; close; filesystem rename	D13-A overwrite/open-error observations
+IO23_WRITE_FAILURE	HOST_POLICY	Throw IO23 reason; no PC transfer or modification of original file	D13-A old continuation observation
+IO23_DRUM_PREPARATION	HOST_POLICY	Current writer still ignores drum_num_write/drum_zone_write	D9-B and D13-A; shared drum deferred
+IO23_CRASH_DURABILITY	OPEN	No fsync/power-loss guarantee	std::filesystem rename alone insufficient
+IO23_CONCURRENCY	OPEN	No writer serialization between processes	Single-writer adapter
+IO23_PHYSICAL_IMAGE	OPEN	No authenticated physical track/zone encoding	Future shared-drum project

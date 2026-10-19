@@ -13,6 +13,7 @@
 #include "kyiv_decimal_input_plan.h"
 #include "kyiv_binary_input_plan.h"
 #include "kyiv_drum_input_plan.h"
+#include "kyiv_drum_output_plan.h"
 #include "asm_disasm.h"
 typedef uint64_t addr_t;
 typedef uint64_t word_t;
@@ -361,18 +362,28 @@ bool Kyiv_t::execute_opcode(){
 
 
         case IO_operations_t::opcode_write_magnetic_drum:{
-            std::ofstream myfile;
-            myfile.open("../magnetic_drum.txt");
-            if (myfile.is_open())
-            {
-                for(uint64_t i = addr3_shifted.source_1; i <= addr3_shifted.source_2; i++){
-                    myfile << word_to_number(kmem.read_memory(i));
-                    myfile << ' ';
-                }
-                myfile.close();
-            }else {
-                std::cout << "Unable to open file";
-            }
+            // D13-B: checked decimal HOST_POLICY, not historical drum encoding.
+            // Stage the complete payload before touching the destination file.
+            if (addr3_shifted.source_1 > addr3_shifted.source_2)
+                throw std::runtime_error("IO23: INVALID_INTERVAL");
+            if (addr3_shifted.source_2 >= 02000ULL)
+                throw std::runtime_error("IO23: INVALID_RAM_ADDRESS");
+            std::vector<std::uint64_t> words;
+            words.reserve(static_cast<std::size_t>(
+                addr3_shifted.source_2 - addr3_shifted.source_1 + 1));
+            for (addr_t i = addr3_shifted.source_1;
+                 i <= addr3_shifted.source_2; ++i)
+                words.push_back(kmem.read_memory(i));
+            const auto staged = kyiv_drum_output_plan::prepare(words);
+            if (staged.state != kyiv_drum_output_plan::status::exact)
+                throw std::runtime_error(std::string("IO23: ") +
+                    kyiv_drum_output_plan::status_text(staged.state));
+            const auto written = kyiv_drum_output_plan::commit(
+                "../magnetic_drum.txt", staged.bytes);
+            if (written != kyiv_drum_output_plan::status::exact)
+                throw std::runtime_error(std::string("IO23: ") +
+                    kyiv_drum_output_plan::status_text(written));
+            // GY62 p.15: branch a3; K prefetch is emulator convention.
             C_reg = addr3_shifted.destination;
             K_reg = kmem.read_memory(C_reg);
         }
