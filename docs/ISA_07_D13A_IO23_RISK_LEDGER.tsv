@@ -1,0 +1,18 @@
+id	classification	observation	future_work
+IO23_INCLUSIVE	SOURCE_STRICT	RAM inclusive [a1,a2] and success branch a3 (GY62 printed p15)	Preserve successful digital behavior
+IO23_PREFETCH	EMULATOR_CONVENTION	K loaded from selected branch target	Keep emulator two-step gate
+IO23_HOST_PATH	HOST_POLICY	../magnetic_drum.txt, distinct from IO24 ../../mem/drum_in.txt	Versioned shared logical image only after decision
+IO23_TRUNCATE	CODE_OBS	Opening output overwrites preexisting file; bytes end with space	Preserve old host contract until replacement approved
+IO23_OPEN_ERROR	CODE_OBS	Open failure reports text but still branches C=a3	Define fail-closed host error policy
+IO23_WRITE_ERROR	STATIC_RISK	No write, flush or close error check	Add safe bounded failure witnesses
+IO23_NEGATIVE_ZERO	CODE_OBS	40-bit zero with sign bit serializes as 0	Retain sign using lossless representation
+IO23_FULL_MAGNITUDE	CODE_OBS	40-bit signed-magnitude max serializes as decimal 1099511627775	Check 41-bit roundtrip in future adapter
+IO23_REVERSE	CODE_OBS	Reversed inclusive loop writes zero words and branches	Reject invalid interval in D13-B
+IO23_BEYOND_RAM	CODE_OBS	02000 source accepted despite physical RAM ending 01777	Reject outside documented RAM
+IO23_ROM_SOURCE	CODE_OBS	03010 ROM host cell can be exported	Decide policy relative to physical RAM
+IO23_HIGH_BITS	CODE_OBS	Bits above 41 are ignored by word_to_number	Reject overwide raw words or define masking policy
+IO23_WRITE_COORD	CODE_OBS	Current write ignores drum_num_write and drum_zone_write	Shared image needs explicit track/zone mapping
+IO25_IO23_SEQ	SOURCE_STRICT_PLUS_HOST	25 setup then 23 branch is genuinely executed; coordinate mapping unqualified	Retain real multi-step witness
+IO23_ADDRESS_MOD	CODE_OBS	Effective addresses respond to A1/A2 selectors	Preserve independently established address modification
+IO23_ATOMICITY	OPEN	No guarantee of atomicity after output file open/truncate	Provisional host-side staging and rename protocol
+IO23_MEDIA_FORMAT	OPEN	Physical drum words, sectors, rotation/timing not established	No hardware claims
