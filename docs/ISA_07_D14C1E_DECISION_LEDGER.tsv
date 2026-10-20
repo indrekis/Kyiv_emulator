@@ -1,0 +1,13 @@
+id	classification	claim	status	basis
+C1E_01	SOURCE_STRICT	GY62 opcode 10 at 0011 multiplies NK3000 by NK3040 into 0060	QUALIFIED	GY62 pp.177-179
+C1E_02	SOURCE_STRICT	NK3040 fixed-point +2^-12 raw 1<<28	QUALIFIED	GY62 p.83
+C1E_03	SOURCE_STRICT	GY62 opcode 03 at 0016 and 0017 adds NK3002 to prepared 25	QUALIFIED	GY62 pp.177-179
+C1E_04	SOURCE_STRICT	GY62 opcode 03 at 0035 and 0036 adds memory0060 to prepared 25	QUALIFIED	GY62 pp.177-179
+C1E_05	SOURCE_DERIVED	For synthetic NK3000=n<<24 raw0060=n<<12	CONDITIONAL	41-bit fixed point; zero other NK bits
+C1E_06	SOURCE_DERIVED	NK3002=(drum<<18)|start source-inspired setup	CONDITIONAL	GY62 p.124; values controlled by probe
+C1E_07	CODE_OBS	Actual real Kyiv_t opcode 10 result	PENDING_MSYS2	real CPU probe
+C1E_08	CODE_OBS	Actual real Kyiv_t opcode 03 command addition result	PENDING_MSYS2	real CPU probe
+C1E_09	CODE_OBS	Actual C/K/A/T changes after each isolated instruction	PENDING_MSYS2	real CPU probe
+C1E_10	OPEN	Program-visible track decoding and 64-boundary carry semantics	NOT_SOLVED	D14-C1d
+C1E_11	HOST_POLICY	Panel versus cabinet explicit source selection	EXPERIMENT	Kyiv_NK_panel_t interface
+C1E_12	HOST_POLICY	No CPU or C1b/B1/B2/B3 changes and no 23-25 I/O	REQUIRED	project regression scope
