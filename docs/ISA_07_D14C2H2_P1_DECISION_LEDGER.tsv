@@ -1,0 +1,14 @@
+id	classification	decision	status
+C2H2P1-01	HOST_POLICY	Opt-in attachment of existing validated KYIVDRM1 image	IMPLEMENTED
+C2H2P1-02	HOST_POLICY	Exact profile and 3-drum explicit geometry required	IMPLEMENTED
+C2H2P1-03	HOST_POLICY	Separate validated read and write preparation states	IMPLEMENTED
+C2H2P1-04	HOST_POLICY	Selected a3_linear_v1 and pinned drum at attach	IMPLEMENTED
+C2H2P1-05	HOST_POLICY	Staged full-image copy for save-then-noexcept-move	IMPLEMENTED
+C2H2P1-06	HOST_POLICY	Read side effects none; unwritten rejected	IMPLEMENTED
+C2H2P1-07	HOST_POLICY	No implicit provisioning and no legacy-text fallback	IMPLEMENTED
+C2H2P1-08	HOST_POLICY	CPU RAM 0000 conservative rejection pending H2/P2	PROPOSED
+C2H2P1-09	CODE_OBS	K_reg is fetched at start of execute_opcode	CONFIRMED
+C2H2P1-10	SOURCE_STRICT	Opcode25 uses raw II and III fields	RETAIN
+C2H2P1-11	OPEN	Historical II track mask, 9864 vs 511	BLOCKER_TO_HISTORICAL
+C2H2P1-12	OPEN	ROM source, A modifier, crash durability, concurrent writer protection	OPEN
+C2H2P1-13	RELEASE_GATE	Genuine CPU and regression gates required for H2/P2	PENDING
