@@ -1,0 +1,16 @@
+id	class	decision	state
+C2H1-01	SOURCE_DERIVED	Qualified initial selectors 0100/0200/0300 octal	C1F_PINNED
+C2H1-02	OPEN	Hardware mapping of full II address onto track	RETAIN
+C2H1-03	HOST_POLICY	Explicit opt-in a3_linear_v1 mapping	PROPOSED_TESTABLE
+C2H1-04	HOST_POLICY	Require exactly three drums and explicit B1 geometry	PROPOSED_TESTABLE
+C2H1-05	HOST_POLICY	Raw II exactly k*0100 octal, k=1..3	PROPOSED_TESTABLE
+C2H1-06	HOST_POLICY	Reject modification marks without claiming historical inadmissibility	PROPOSED_TESTABLE
+C2H1-07	HOST_POLICY	External pin must match decoded drum; reject collision-driven switches	PROPOSED_TESTABLE
+C2H1-07b	HOST_POLICY	A3 zero-based linear position in selected drum	PROPOSED_TESTABLE
+C2H1-08	HOST_POLICY	Reject out-of-range and unqualified II, no silent cross-drum	PROPOSED_TESTABLE
+C2H1-09	HOST_POLICY	Reuse B2 atomic transfers, UNWRITTEN and END_OF_DRUM errors	PROPOSED_TESTABLE
+C2H1-10	HOST_POLICY	Only KYIVDRM1 binary media when CPU integration is enabled	H2_PENDING
+C2H1-11	HOST_POLICY	Separate prepared read/write state and C/K/A error semantics	H2_PENDING
+C2H1-12	OPEN	GY62 9864 versus DPS64 511 and KShP internal 8+5	RETAIN
+C2H1-13	CODE_OBS	Legacy independent text files are temporary stubs	H2_REPLACE
+C2H1-14	SCOPE	No CPU, B1, B2, B3, C1b mutation	REQUIRED
