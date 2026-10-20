@@ -6,11 +6,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
+#include <filesystem>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <boost/multiprecision/cpp_int.hpp>
 #include "kyiv_nk_panel.h"
+#include "kyiv_drum_transaction_v1.h"
 
 typedef uint64_t addr_t;
 typedef uint64_t word_t;
@@ -192,6 +195,25 @@ struct Kyiv_t{
     //! Найпростіше, певне, буде створити свій клас, який перевизначає оператор [], і все це реалізовує.
     //! Тоді решта коду не потребуватиме зміни.
     Kyiv_memory_t kmem;
+
+    // D14-C2-H2/P2: opt-in, explicitly attached HOST_POLICY device.
+    // Existing text adapters are preserved when this pointer is null.
+    std::unique_ptr<kyiv_drum_transaction_v1::session> experimental_drum;
+
+    void attach_experimental_drum(
+        const std::filesystem::path& existing_image,
+        kyiv_drum_media::geometry expected_geometry,
+        kyiv_drum_host_address::policy selected,
+        unsigned pinned_drum) {
+        // Construction/validation precedes replacing any existing attachment.
+        auto candidate = std::make_unique<kyiv_drum_transaction_v1::session>(
+            existing_image, std::move(expected_geometry), selected, pinned_drum);
+        experimental_drum = std::move(candidate);
+    }
+    void detach_experimental_drum() noexcept { experimental_drum.reset(); }
+    bool has_experimental_drum() const noexcept {
+        return static_cast<bool>(experimental_drum);
+    }
 
     //! TODO: Придумати адекватні мнемоніки
     enum arythm_operations_t{

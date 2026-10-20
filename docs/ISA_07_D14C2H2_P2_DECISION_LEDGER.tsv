@@ -1,0 +1,12 @@
+id	claim	class	gate
+P2-01	real CPU opcodes 25/23/24 use opt-in P1 session only	HOST_POLICY	MSYS2_REAL_CPU_PENDING
+P2-02	unattached behavior of legacy decimal adapters unchanged	EMULATOR_COMPAT	REGRESSION_PENDING
+P2-03	address 0000 and ROM group source/destination refused	HOST_POLICY	MSYS2_REAL_CPU_PENDING
+P2-04	25 consumes raw K word; 23/24 group bounds use effective addresses	SOURCE_DERIVED+HOST_POLICY	MSYS2_REAL_CPU_PENDING
+P2-05	prefetch K from new RAM when 24 branches into overwritten span	HOST_POLICY	MSYS2_REAL_CPU_PENDING
+P2-06	K fetch at execute_opcode entry before failure, C/A preserved after failure	EMULATOR_OBS+HOST_POLICY	MSYS2_REAL_CPU_PENDING
+P2-07	FS replacement failure preserves in-memory media and CPU branch state	HOST_POLICY	MSYS2_REAL_CPU_PENDING
+P2-08	KYIVDRM1 remains binary logical host image; historical surface bytes unknown	HOST_POLICY	HARDWARE_ORACLE=0
+P2-09	physical track mapping and historical 9864 vs 511 geometry unknown	OPEN	TRACK_MAPPING=OPEN
+P2-10	modifier A clearing after external group operations not reconstructed	OPEN	HISTORICAL_ORACLE=0
+P2-11	byte-perfect image cannot claim crash durability or multiwriter safety	OPEN	FS_GUARANTEE_LIMITED

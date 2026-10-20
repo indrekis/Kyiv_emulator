@@ -314,6 +314,30 @@ bool Kyiv_t::execute_opcode(){
             break;
 
         case IO_operations_t::opcode_read_magnetic_drum:{
+            if (experimental_drum) {
+                // Limited HOST policy: 0000 and ROM sources/destinations are
+                // not qualified. Stage and validate everything before RAM commit.
+                const addr_t first = addr3_shifted.source_1;
+                const addr_t last = addr3_shifted.source_2;
+                if (first < 1 || first > last || last >= 02000ULL)
+                    throw std::runtime_error("IO24: HOST_INVALID_RAM_INTERVAL");
+                const std::size_t count = static_cast<std::size_t>(last-first+1);
+                // Prevalidate the branch address (unless staged group overwrites
+                // it; in that case K must come from the NEW contents).
+                const addr_t target = addr3_shifted.destination;
+                const bool branch_overlaps = target >= first && target <= last;
+                const word_t old_prefetch = branch_overlaps ? 0 : kmem.read_memory(target);
+                const auto staged = experimental_drum->read_words(count);
+                const word_t next_k = branch_overlaps
+                    ? staged[static_cast<std::size_t>(target-first)] : old_prefetch;
+                // Each destination is verified writable RAM, so these writes
+                // have no exceptions, hence they are an all-or-none commit.
+                for (std::size_t i=0; i<count; ++i)
+                    kmem.write_memory(first+i, staged[i]);
+                C_reg = target;
+                K_reg = next_k;
+                break;
+            }
             // D12-B: decimal host text is NOT historical drum encoding.
             // Check the entire input before any memory/control-state change.
             if (addr3_shifted.source_1 > addr3_shifted.source_2)
@@ -362,6 +386,27 @@ bool Kyiv_t::execute_opcode(){
 
 
         case IO_operations_t::opcode_write_magnetic_drum:{
+            if (experimental_drum) {
+                const addr_t first = addr3_shifted.source_1;
+                const addr_t last = addr3_shifted.source_2;
+                if (first < 1 || first > last || last >= 02000ULL)
+                    throw std::runtime_error("IO23: HOST_INVALID_RAM_INTERVAL");
+                // Validate branch and prefetch BEFORE persistence can succeed.
+                const word_t next_k = kmem.read_memory(addr3_shifted.destination);
+                std::vector<std::uint64_t> words;
+                words.reserve(static_cast<std::size_t>(last-first+1));
+                for (addr_t addr=first; addr<=last; ++addr) {
+                    const auto word = kmem.read_memory(addr);
+                    if ((word & ~((std::uint64_t{1}<<41)-1)) != 0)
+                        throw std::runtime_error("IO23: INVALID_WORD");
+                    words.push_back(word);
+                }
+                (void)experimental_drum->write_words(words);
+                // Neither assignment nor the cached prefetch can throw.
+                C_reg = addr3_shifted.destination;
+                K_reg = next_k;
+                break;
+            }
             // D13-B: checked decimal HOST_POLICY, not historical drum encoding.
             // Stage the complete payload before touching the destination file.
             if (addr3_shifted.source_1 > addr3_shifted.source_2)
@@ -390,6 +435,16 @@ bool Kyiv_t::execute_opcode(){
             break;
 
         case IO_operations_t::opcode_init_magnetic_drum:{
+            if (experimental_drum) {
+                // Opcode 25 consumes RAW a2/a3, never addr3_shifted: GY62 p15.
+                // Validate next fetch before changing preparation state.
+                const addr_t next = C_reg + 1;
+                const word_t next_k = kmem.read_memory(next);
+                experimental_drum->prepare(K_reg);
+                C_reg = next;
+                K_reg = next_k;
+                break;
+            }
             if (addr3_shifted.source_1 == 0) {
                 drum_num_read = addr3_shifted.source_2;
                 drum_zone_read = addr3_shifted.destination;
