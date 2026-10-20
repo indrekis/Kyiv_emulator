@@ -1,0 +1,12 @@
+id	classification	finding	status
+C1C_01	SOURCE_STRICT	25 raw II selects drum and track	QUALIFIED
+C1C_02	SOURCE_STRICT	25 raw III selects initial place	QUALIFIED
+C1C_03	SOURCE_DERIVED	NK3002 contains 0k00 and b	QUALIFIED
+C1C_04	SOURCE_DERIVED	0016 and 0017 add NK3002 to 0024 and 0026	QUALIFIED
+C1C_05	SOURCE_DERIVED	0035 and 0036 add cell0060 to both preparations	QUALIFIED
+C1C_06	SOURCE_DERIVED	0020 and 0021 modify group transfer commands	QUALIFIED
+C1C_07	OPEN	Exact track encoding in raw II field	BLOCKER
+C1C_08	OPEN	Exact 0060 value and carry semantics	BLOCKER
+C1C_09	OPEN	9864 total versus 511 per track	BLOCKER
+C1C_10	OPEN	Historical last-track overflow behavior	BLOCKER
+C1C_11	HOST_POLICY	No unqualified CPU track mapping	RETAIN
