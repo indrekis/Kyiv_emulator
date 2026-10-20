@@ -1,0 +1,14 @@
+id	classification	claim	evidence	status
+C1D_001	SOURCE_STRICT	NK3000 I field holds section size n up to 500 codes	GY62 p124	QUALIFIED
+C1D_002	SOURCE_STRICT	Instruction 0011 multiplies NK3000 by ROM 3040 into 0060	GY62 p177-178	QUALIFIED
+C1D_003	SOURCE_STRICT	ROM3040 equals 2^-12 and raw 00 0020 0000 0000	GY62 p83 table2	QUALIFIED
+C1D_004	SOURCE_STRICT	Instructions 0035/0036 add 0060 to 0024/0026	GY62 p178	QUALIFIED
+C1D_005	SOURCE_DERIVED	With other NK3000 fields zero raw0060=n<<12	GY62 p83 p124 p177-178 + arithmetic	QUALIFIED_CONDITIONAL
+C1D_006	SOURCE_DERIVED	Conditional increment modifies raw second address rather than third	41-bit opcode field arithmetic	QUALIFIED_CONDITIONAL
+C1D_007	SOURCE_TENSION	Increment n>=64 changes interpreted drum digit of C1b	Arithmetic numeric witness	BLOCKER_FOR_NAIVE_CPU
+C1D_008	SOURCE_TENSION	GY62 p15 II contains drum+track while p59 encodes drum alone	GY62 p15 p59	OPEN
+C1D_009	SOURCE_STRICT	DPS64 KShP1-8 place KShP9-13 track and 612 to 2,100	DPS64 p231	QUALIFIED_INTERNAL_ONLY
+C1D_010	SOURCE_TENSION	DPS64 states 511 codes per track and 8-bit internal place counter	DPS64 p231	OPEN
+C1D_011	OPEN	Real NK3000 remaining fields and CPU multiplication transfer semantics	GY62 program + ROM table	PENDING_CPU_WITNESS
+C1D_012	OPEN	Mapping raw II III to internal physical geometry and 9864 versus 511	GY62 p5 p15 DPS64 p231	BLOCKER
+C1D_013	HOST_POLICY	Keep production CPU and C1b unchanged; no silent track mapping	D14-C1d gate	RETAIN
