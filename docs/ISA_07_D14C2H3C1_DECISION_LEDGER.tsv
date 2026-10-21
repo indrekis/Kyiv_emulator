@@ -1,0 +1,8 @@
+id	classification	decision	basis	limitations
+C1-01	HOST_POLICY	Qualify normal-process recovery from failed replacement using a prior nonempty committed image	B3 save_atomic + H2/P1 staging + H3/B2 production persistence	Does not prove power-loss durability
+C1-02	EMULATOR_OBS	A directory blocking the target path produces REPLACE_FAILED in the test sandbox	Native C++ test-only fault injector	Filesystem-specific; actual MSYS2 qualification pending
+C1-03	HOST_POLICY	On reopen use named final .kdr only; do not auto-promote or auto-delete sibling files	Explicit attach A2; no recovery/GC design	Synthetic orphan artifacts, not real crash traces
+C1-04	OPEN	Durability across abrupt power loss and torn writes	No fsync of data/directory or controlled power-cut test	Do not infer from rename success
+C1-05	OPEN	Concurrent writer synchronization, stale-session detection and conflict handling	Session caches media; no locking or conflict check	Only a single coordinated writer is qualified
+C1-06	OPEN	Historical track/slot mapping and physical recording format	GY62/DPS64 source review unresolved; HARDWARE_ORACLE=0	HOST a3_linear_v1 only
+C1-07	HOST_POLICY	No modification to production runtime in C1	Existing B3/H2/P2/B1/B2 code pinned at H3/B2	Test and documentation scope only
