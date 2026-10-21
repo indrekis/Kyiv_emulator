@@ -1,0 +1,10 @@
+id	claim	class	gate
+B2-01	create/write/restart/read uses three independent subprocesses	HOST_POLICY	MSYS2_REAL_RESTART_PENDING
+B2-02	production CLI binary is compiled from src/main.cpp and src/asm_disasm.cpp	EMULATOR_OBS	MSYS2_REAL_RESTART_PENDING
+B2-03	entire persisted .kdr verified by independent Python header bitmap payload and CRC oracle	HOST_POLICY	MSYS2_REAL_RESTART_PENDING
+B2-04	+0/-0 distinguished by opcode 014 OR-with-address-0000 raw output	HOST_POLICY+EMULATOR_OBS	MSYS2_REAL_RESTART_PENDING
+B2-05	restart read and cross-pin isolation preserve earlier written groups	HOST_POLICY	MSYS2_REAL_RESTART_PENDING
+B2-06	duplicate create missing corrupt and geometry mismatch fail without mutation	HOST_POLICY	MSYS2_REAL_RESTART_PENDING
+B2-07	test-only addition does not change tracked production code	SOURCE_STRICT	AUDIT_PENDING
+B2-08	linear a3 mapping and test geometry are host policies not historical fact	OPEN	HISTORICAL_MAPPING=OPEN
+B2-09	no crash fsync or concurrent writer guarantee	OPEN	HARDWARE_ORACLE=0
