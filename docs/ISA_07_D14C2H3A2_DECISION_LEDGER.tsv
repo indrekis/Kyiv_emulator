@@ -1,0 +1,9 @@
+id	claim	class	gate
+A2-01	main() explicitly opts in through the audited A1 CLI parser	HOST_POLICY	PRODUCTION_CLI_PENDING
+A2-02	legacy positional grammar and trailing --block-overflow-stop preserved	EMULATOR_COMPAT	PRODUCTION_CLI_PENDING
+A2-03	no implicit image, geometry, drum selection or creation	HOST_POLICY	PRODUCTION_CLI_PENDING
+A2-04	failed explicit attachment rejects before CPU execution; no fallback	HOST_POLICY	PRODUCTION_CLI_PENDING
+A2-05	actual production main() executes 25→23→25→24 with byte-exact .kdr	HOST_POLICY	MSYS2_REAL_CLI_PENDING
+A2-06	CPU and B1/B2/B3/C1b/H1/P1/P2 sources unchanged	RELEASE_SCOPE	SOURCE_MATCH_GATE
+A2-07	historical II/III physical track mapping unresolved	OPEN	HISTORICAL_MAPPING=OPEN
+A2-08	no crash-durability or concurrent-writer guarantee	OPEN	HARDWARE_ORACLE=0

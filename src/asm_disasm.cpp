@@ -6,6 +6,7 @@
 #include <boost/algorithm/string.hpp>
 #include "kyiv.h"
 #include "asm_disasm.h"
+#include "kyiv_drum_cli_v1.h"
 
 #define COMMAND_SIZE 4
 
@@ -490,14 +491,32 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     std::string mode = argv[1];
-    // Parse only the optional *last* argument. Preserve all legacy positionals.
-    bool block_overflow_stop = (argc > 2 &&
-        std::string(argv[argc - 1]) == "--block-overflow-stop");
-    if (block_overflow_stop) {
-        --argc;
+    // D14-C2-H3/A2: explicit HOST-only suffix; legacy positionals survive.
+    kyiv_drum_cli_v1::parsed_suffix parsed;
+    try {
+        parsed = kyiv_drum_cli_v1::parse(argc, argv);
+    } catch (const std::exception& e) {
+        std::cerr << "D14C2H3A2-CLI-ERROR " << e.what() << std::endl;
+        return 2;
     }
+    argc = parsed.legacy_argc;
+    const bool block_overflow_stop = parsed.block_overflow_stop;
     Kyiv_t machine;
     machine.emergency_stop_blocked = block_overflow_stop;
+    if (parsed.drum) {
+        // Construction fully validates an EXISTING KYIVDRM1 image. No creation,
+        // historical geometry selection or fallback to a decimal text file.
+        try {
+            machine.attach_experimental_drum(
+                parsed.drum->existing_image,
+                parsed.drum->expected_geometry,
+                kyiv_drum_host_address::policy::a3_linear_v1,
+                parsed.drum->pinned_drum);
+        } catch (const std::exception& e) {
+            std::cerr << "D14C2H3A2-ATTACH-ERROR " << e.what() << std::endl;
+            return 3;
+        }
+    }
     if (mode == "command") {
         if (argc != 5) {
             std::cerr << "Usage: " << argv[0] << " command <num1> <num2> <operation_code> " << std::endl;
