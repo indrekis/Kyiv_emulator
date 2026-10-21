@@ -1,0 +1,11 @@
+id	claim	class	gate
+B1-01	standalone explicit create-new-only tool separate from attach	HOST_POLICY	MSYS2_PENDING
+B1-02	exactly three logical drums and explicit profile/tracks/slots	HOST_POLICY	B1_GEOMETRY_VALIDATION
+B1-03	all newly provisioned slots UNWRITTEN; distinct from WRITTEN +0	SOURCE_DERIVED+HOST_POLICY	B3_BYTE_ORACLE_PENDING
+B1-04	B3 save_atomic is replace-capable; never target final name	HOST_POLICY	SOURCE_AUDIT
+B1-05	create_hard_link atomically publishes or refuses existing final path	HOST_POLICY	MSYS2_RACE_PENDING
+B1-06	no hardlink support means reject, never fall back to unsafe copy	HOST_POLICY	FILESYSTEM_NEGATIVE_PENDING
+B1-07	no changes to CPU, B1/B2/B3 or production CLI	EMULATOR_COMPAT	GIT_PINS
+B1-08	crash durability and adversarial pathname races not proven	OPEN	HARDWARE_ORACLE=0
+B1-09	physical track encoding / 9864 vs 511 geometry unresolved	OPEN	HISTORICAL_MAPPING=OPEN
+B1-10	full user restart journey deferred to separately gated B2	PLAN	B2_PENDING
