@@ -1,0 +1,9 @@
+id	claim	classification	acceptance
+H3A1-01	production CLI has no P2 session attach call	CODE_OBS	SOURCE_SHA_PIN
+H3A1-02	legacy positional argv unaffected by recognized suffix	EMULATOR_COMPAT	INDEPENDENT_CLI_TEST
+H3A1-03	explicit profile, geometry, and drum pin with no defaults	HOST_POLICY	INDEPENDENT_CLI_TEST
+H3A1-04	Windows path is separate argument, including colon and spaces	HOST_POLICY	INDEPENDENT_CLI_TEST
+H3A1-05	strict decimal, no signed values, validation via B1	HOST_POLICY	INDEPENDENT_CLI_TEST
+H3A1-06	parse does no disk I/O or session attachment	HOST_POLICY	FILE_CREATION=0
+H3A1-07	production CLI opt-in remains unimplemented in A1	OPEN	H3A2_REQUIRED
+H3A1-08	physical address mapping and capacity historically unresolved	OPEN	HARDWARE_ORACLE=0
