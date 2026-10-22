@@ -1,0 +1,9 @@
+step	decision	evidence	classification
+D15A3P1-01	Do not equate legacy implicit ROM loading with a verified reproducible baseline	Pinned inc/kyiv.h constructor and D15/A2 report	OPEN
+D15A3P1-02	Use Git-object bytes rather than CRLF-translated worktree file	Pinned 846c450 mem/ROM.txt Git blob	ACCEPTED_HOST
+D15A3P1-03	Classify 3121 and 3123 as invalid raw-word records; do not guess code	Strict octal syntax and literal efbfbd byte sequences	UNRESOLVED
+D15A3P1-04	Classify 3200 as absent; do not insert 00000000000000	Interval 3010..3277 and missing address 3200	UNRESOLVED
+D15A3P1-05	Export only 181 strictly parseable records to a private provisional k41 file	Independent source census plus image hash	PROVISIONAL_HOST
+D15A3P1-06	No CPU/CLI/ROM mutation in this stage	Pinned source audit and exact add-only scope	PINNED
+D15A3P1-07	Validate explicit ROM source and hole policy before historical program execution	D15/A3-P2 planned	NEXT_STAGE
+D15A3P1-08	Per-word verification from GY62/DPS64 remains required	HISTORICAL_GY1962_TESTS_PLAN.md	HARDWARE_ORACLE=0
