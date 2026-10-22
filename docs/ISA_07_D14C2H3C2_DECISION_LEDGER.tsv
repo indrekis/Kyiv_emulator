@@ -1,0 +1,8 @@
+id	classification	finding	status
+H3C2-01	SOURCE_DERIVED	B3 uses same-directory temporary, stream close, then filesystem rename	PINNED
+H3C2-02	HOST_POLICY	Instrument only a private copied header and test-only writer	SELECTED
+H3C2-03	HOST_POLICY	Externally kill at partial temp, pre-rename, post-rename handshake	TEST_REQUIRED
+H3C2-04	EMULATOR_OBS	Fresh production reattach reads canonical old or new target only	TEST_REQUIRED
+H3C2-05	OPEN	Power loss durability, fsync and parent sync	OPEN
+H3C2-06	OPEN	Concurrent attached writers, crash cleanup or sidecar promotion	OPEN
+H3C2-07	OPEN	Physical track mapping and actual historical hardware behavior	OPEN
