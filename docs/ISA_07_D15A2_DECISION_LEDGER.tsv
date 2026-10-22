@@ -1,0 +1,7 @@
+step	decision	evidence	classification
+D15A2-01	Share A1 parser/runner with real CLI image mode	A1 user native 21/21; independent A2 parity test required	PENDING_NATIVE
+D15A2-02	Pin old production code and preserve exact behavior of legacy expression mode	Build old CLI from pinned Git tree; compare results and diagnostics	PENDING_NATIVE
+D15A2-03	Keep image-mode experimental drum and overflow suffix combinations unsupported	They require separate functional and historical qualifications	ACCEPTED_HOST
+D15A2-04	Keep exact HOST KYIV41-OCT1 numeric parser and ROM opt-in policy	A1 verified; new shared header qualification pending	PENDING_NATIVE
+D15A2-05	Do not modify src/main.cpp, inc/kyiv.h, device emulation, media/ROM	Exact blob pins plus narrow additive CLI branch	PINNED
+D15A2-06	Do not claim historical test or ROM baseline	GY62 transcription and relative constructor ROM path unresolved	OPEN

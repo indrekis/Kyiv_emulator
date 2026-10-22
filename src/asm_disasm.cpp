@@ -7,6 +7,7 @@
 #include "kyiv.h"
 #include "asm_disasm.h"
 #include "kyiv_drum_cli_v1.h"
+#include "kyiv_host_image_v1.h"
 
 #define COMMAND_SIZE 4
 
@@ -484,6 +485,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "./kyivemu command <num1> <num2> <operation_code> " << std::endl;
         std::cerr << "./kyivemu expression (<reg1>,<num1>) (<reg2>,<num2>) ... <C_reg> " << std::endl;
         std::cerr<< "./kyivemu removable_memory <file> (<reg1>,<num1>) ... <C_reg> "<< std::endl;
+        std::cerr << "./kyivemu image <file.k41> <start-octal> <max-steps-decimal> [--allow-rom] [--watch ADDR]..." << std::endl;
         std::cerr << "Optional trailing flag for all modes: --block-overflow-stop" << std::endl;
         std::filesystem::path docPath = std::filesystem::current_path() / "../documentation/documentation.txt";
         std::cerr << "For a list of supported commands and detailed instructions, please refer to the documentation file: "
@@ -501,6 +503,24 @@ int main(int argc, char *argv[]) {
     }
     argc = parsed.legacy_argc;
     const bool block_overflow_stop = parsed.block_overflow_stop;
+    if (mode == "image") {
+        try {
+            if (parsed.drum || block_overflow_stop)
+                throw std::runtime_error("IMAGE_SUFFIX_UNSUPPORTED");
+            const auto cfg = kyiv_host_image_v1::parse(argc - 1, argv + 1);
+            const auto image = kyiv_host_image_v1::load_file(cfg.filename,
+                                                             cfg.allow_rom);
+            Kyiv_t image_machine;
+            return kyiv_host_image_v1::execute(image_machine, cfg, image,
+                                                "D15A2");
+        } catch (const std::exception& e) {
+            std::cerr << "D15A2-ERROR " << e.what() << '\n';
+            return 2;
+        } catch (...) {
+            std::cerr << "D15A2-ERROR UNKNOWN_EXCEPTION\n";
+            return 2;
+        }
+    }
     Kyiv_t machine;
     machine.emergency_stop_blocked = block_overflow_stop;
     if (parsed.drum) {
