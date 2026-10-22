@@ -1,0 +1,10 @@
+step	decision	evidence	classification
+D15A1-01	Use real Kyiv_t::execute_opcode for each bounded CPU step; no production CPU changes	User-native 5/5 smoke and 20/20 extended; pinned main a361ff7	ACCEPTED_HOST
+D15A1-02	Represent input records as exact raw 41-bit octal codes, not interpreted numeric input	KYIV41-OCT1 standalone contract	ACCEPTED_HOST
+D15A1-03	Preflight whole image and reject duplicate/overwide/forbidden addresses before loading	Initial 20/20 native extended tests	ACCEPTED_HOST
+D15A1-04	Reject decimal limits that would exceed 100000 before multiply/accumulate	New 21st regression test required	PENDING_NATIVE
+D15A1-05	Treat step budget and CPU stop as different HOST statuses	Bounded zero-opcode and conditional loop tests	ACCEPTED_HOST
+D15A1-06	Keep production CPU/CLI, ROM and drum implementation unchanged	Git pins and static audit required	PINNED
+D15A1-07	Do not claim historically qualified ROM initialization: constructor uses relative path and tolerates open failure	inc/kyiv.h constructor source	OPEN
+D15A1-08	Full first GY62 arithmetic program awaits faithful transcription, provenance and deterministic ROM	HISTORICAL_GY1962_TESTS_PLAN.md	NEXT_STAGE
+D15A1-09	Historical drum address/track mapping and hardware oracle remain unresolved	D14 evidence, independent of D15/A1	OPEN
