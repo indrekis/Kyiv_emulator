@@ -18,17 +18,23 @@ g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/kyivemu.exe
 tempkyiv/kyivemu.exe image examples/historical/gy1962/au1_logic.k41 0043 22 --watch 0347
 ```
 
-**Current observed result:** `CPU_STOP STEPS=19 C=0076`, at historical STOP command `0075`.
-This is reproducible evidence of an unresolved disagreement in the 1962 book: printed p. 11 defines
-opcode `17` as bitwise *inequivalence* (XOR), whereas the test's expected-value table on printed
-p. 172 is for bitwise *equivalence* (XNOR). The emulator currently implements XOR. The observed
-stop **does not prove** a defect in the CPU and **does not qualify** this test as historically passing.
-Do not silently change the source listing, expected results, or ISA to force a PASS.
+**Original H1 observation on the XOR-era CPU (preserved evidence):**
+`CPU_STOP STEPS=19 C=0076`, after running the historical STOP at address `0075`.
+This documents a discrepancy, not a successful historical diagnostic.
+
+**Current D15/B1-H3 correction:** opcode `17` now executes 41-bit **XNOR**.
+The unchanged image is expected to reach `LIMIT STEPS=22 C=0107` with a
+22-instruction budget when the updated CPU passes native qualification.
+Do **not** execute `0107` as part of this bounded qualification: that command
+uses the operator-settable NK cell `3000`. The original 1962 p. 11 XOR
+truth table remains contrary primary evidence; DPS1964 printed p. 18 and the
+1962 AU test pp. 172-173 support XNOR. This software behavior is not a
+physical-hardware oracle. Independent second visual transcription is pending.
 
 For independent reproduction of the bounded observations and two work directories:
 
 ```sh
-python tools/isa07_d15b1_h1_native.py --cli-exe tempkyiv/kyivemu.exe --timeout 20
+python tools/isa07_d15b1_h2_opcode17_probe.py --cli-exe tempkyiv/kyivemu.exe --expect xnor --timeout 20
 ```
 
 Other historical examples will use their own source images and per-word provenance here. See

@@ -1,5 +1,13 @@
 # ISA-06 D1 — logical instructions: documentary audit and CPU characterization
 
+> **Current opcode 17 correction (D15/B1-H3):** Execution is 41-bit **XNOR**
+> (`~(a ^ b) & MASK41`), not XOR. The 1962 pp. 172-173 diagnostic and
+> 1964 p. 18 truth table agree; the 1962 p. 11 XOR table is contrary
+> evidence retained in `docs/ISA_07_D15B1_H2_OPCODE17_SOURCE_ADJUDICATION.md`.
+> Historical D1 38/38 results below characterize the *former* XOR implementation.
+> The D1 regression values have been updated for the corrected semantics.
+
+
 **Base:** `62a5c413ff70c97c7ca87bcd2a43f5087d5e640c` (`main`, ISA-05 D6).
 **Scope:** add this note and `tests/isa/isa06_d1_logic_probe.cpp` only. No CPU, ROM,
 existing tests, root README, or historical corpus changes. Values beginning with
@@ -14,7 +22,7 @@ existing tests, root README, or historical corpus changes. Values beginning with
    see **pp. 7–9**, especially p. 8; for address modification see **p. 9**.
 2. **DPS64** — L. N. Dashevsky, S. B. Pogrebinsky and K. A. Shkabara,
    *Vychislitel'naya mashina "Kiev": proektirovanie i ekspluatatsiya* (1964),
-   **pp. 18–19**: truth tables for logical OR, AND, XOR, and `13` shift
+   **pp. 18–19**: truth tables for logical OR, AND, **XNOR**, and `13` shift
    addressing/direction/count; explicitly states the sign digit participates
    in logical operations like other digits. For the sequencing of one-cycle
    logic operations see **pp. 100–103**, particularly **Fig. 62** (p. 100)
@@ -29,7 +37,7 @@ existing tests, root README, or historical corpus changes. Values beginning with
 | `13` | logical shift | shift the **entire 41-bit code** at address II by `mem[I] & 077` bit positions; use the **sign bit of `mem[I]`** for direction (positive: left; negative: right) |
 | `14` | logical addition | bitwise OR of full 41-bit codes at I, II |
 | `15` | logical multiplication | bitwise AND of full 41-bit codes at I, II |
-| `17` | non-equivalence | bitwise XOR of full 41-bit codes at I, II |
+| `17` | equivalence (1964 p. 18; 1962 test pp. 172-173) | bitwise XNOR of full 41-bit codes at I, II, sign included; result masked to 41 bits |
 
 `13`: bits lost outside the 41-bit word are discarded; zeros enter from the
 opposite side. Shifts of **41 or more** positions produce **positive zero**

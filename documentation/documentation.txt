@@ -16,7 +16,8 @@ Logical operations:
 13 - logical shift
 14 - digital logical addition
 15 - digital logical multiplication
-17 - digital logical operation nonequivalence
+17 - bitwise equivalence (XNOR) of all 41 bits, including sign; (~(a ^ b)) & ((1ULL << 41) - 1)
+Note: opcode 17 was called inequivalence/XOR in GY1962 p. 11, but GY1962 diagnostic pp. 172-173 and DPS1964 p. 18 establish XNOR. The assembler mnemonic xor remains a legacy alias.
 35 - normalization
 
 Control transfer operations:

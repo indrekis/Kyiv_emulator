@@ -130,7 +130,7 @@ k1 = '(A1+E1A)
 |              13             	|        sh        	| logical shift                            	| if k2 < 0    >> else    << k1 >>/<< n => k3 n -- the number of orders of 3rd address of k2 'C+1=>C                    	|              	|
 |              14             	|        and       	| digital logical addition                 	| k1 & k2 => k3 'C+1=>C                                                                                                 	|              	|
 |              15             	|        or        	| digital logical "multiplication"         	| k1 \| k2 => k3 'C+1=>C                                                                                                	|              	|
-|              17             	|        xor       	| digital logical operation nonequivalence 	| k1 XOR k2 => k3 'C+1=>C                                                                                               	|              	|
+|              17              | xor (legacy mnemonic) | bitwise equivalence (XNOR) | ~(k1 ^ k2) & ((1ULL << 41) - 1) => k3; sign bit included; C+1=>C | |
 |              35             	|       norm       	| normalization                            	| k1 -- normalized exponent => k2 mantissa => k3 'C+1=>C                                                                	|              	|
 | Control transfer operations 	|                  	|                                          	|                                                                                                                       	|              	|
 |              04             	|        jle       	| if 1  ≤  2                               	| if k1 ≤ k2: k3=>C else: 'C+1=>C                                                                                       	|              	|
@@ -222,3 +222,19 @@ It contains two parts:
 * [Daria Minieieva](https://github.com/DariaMinieieva)
 * [Olha Liuba](https://github.com/oliuba)
 * [Hanna Yershova](https://github.com/hannusia)
+
+## Opcode 17 semantics (D15/B1-H3)
+
+Opcode `17` executes **bitwise equivalence (XNOR)** over all 41 bits,
+including the sign bit: `(~(a ^ b)) & ((1ULL << 41) - 1)`. The legacy
+assembler mnemonic `xor` remains accepted for compatibility, but is a
+misleading historical mnemonic, **not** XOR execution. Glushkov and
+Yushchenko (1962), printed p. 11, give an incompatible XOR definition;
+their own logic diagnostic (pp. 172-173) and Dashevskii et al. (1964),
+printed p. 18, support XNOR. See `docs/ISA_07_D15B1_H2_OPCODE17_SOURCE_ADJUDICATION.md`
+and `docs/ISA_07_D15B1_H3_OPCODE17_CORRECTION.md`.
+
+The unaltered historical machine image is in
+`examples/historical/gy1962/au1_logic.k41`. Its earlier XOR-era run
+(`CPU_STOP`, 19 steps, `C=0076`) is retained as a historical observation,
+not a current PASS criterion.

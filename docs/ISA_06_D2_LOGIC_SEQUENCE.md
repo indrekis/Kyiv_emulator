@@ -1,5 +1,11 @@
 # ISA-06 D2 — logical instruction sequencing and self-modifying RAM
 
+> **D15/B1-H3 correction:** opcode 17 now performs masked 41-bit **XNOR**.
+> The historic D2 run characterized the then-current XOR implementation;
+> its assertions for opcode 17 were updated in H3 without changing the
+> instruction-fetch or self-modifying-code contract. See H2 source ledger.
+
+
 **Base:** `e1143b4` (`main`, successful ISA-06 D1: 38/38 STRICT, 2 OBS).
 **Changes:** add only this audit note and `tests/isa/isa06_d2_logic_sequence_probe.cpp`.
 No CPU, `ROM.txt`, existing tests, or root README changes. Numeric C++ literals
@@ -46,7 +52,7 @@ simulation is claimed.
 The 17 STRICT cases exercise:
 
 1. All-field aliasing and shared constant/source for `13`, plus identical
-   source fields for OR/AND/XOR (including the sign bit).
+   source fields for OR/AND/XNOR (including the sign bit).
 2. Fetching the current instruction as either logical input (and as a
    shift operand), and overwriting the executing RAM instruction.
 3. Effective-address modification which makes an operand/destination

@@ -1,6 +1,6 @@
 // ISA-06 D1: logical instructions 013, 014, 015, 017.
 // GY62, printed p. 12; DPS64, printed pp. 18-19.
-// Characterization only: NO CPU modifications; no historical assertion from OBS.
+// H3 regression: opcode 17 is 41-bit XNOR (DPS1964 p.18); OBS remain unqualified.
 // Build from repository root:
 // g++ -std=c++17 -O0 -g -Iinc src/main.cpp tests/isa/isa06_d1_logic_probe.cpp -o tempkyiv/isa06_d1_logic_probe.exe
 #include <cstdint>
@@ -162,33 +162,33 @@ int main() {
             {{2, SIGN | 074}, {3, SIGN | 012}}, 4, SIGN | 010},
         {"15_and_positive_and_negative_zero", 015, 2, 3, 4, 0,
             {{2, 0}, {3, SIGN}}, 4, 0},
-        {"17_xor_cancels_two_sign_bits", 017, 2, 3, 4, 0,
-            {{2, SIGN | 074}, {3, SIGN | 012}}, 4, 066},
-        {"17_xor_negative_zero_and_positive_zero", 017, 2, 3, 4, 0,
-            {{2, SIGN}, {3, 0}}, 4, SIGN},
-        {"17_xor_two_negative_zeros", 017, 2, 3, 4, 0,
-            {{2, SIGN}, {3, SIGN}}, 4, 0},
+        {"17_xnor_cancels_two_sign_bits", 017, 2, 3, 4, 0,
+            {{2, SIGN | 074}, {3, SIGN | 012}}, 4, (MASK41 ^ 066)},
+        {"17_xnor_negative_zero_and_positive_zero", 017, 2, 3, 4, 0,
+            {{2, SIGN}, {3, 0}}, 4, (MASK41 ^ SIGN)},
+        {"17_xnor_two_negative_zeros", 017, 2, 3, 4, 0,
+            {{2, SIGN}, {3, SIGN}}, 4, MASK41},
         {"14_or_destination_equals_first_source", 014, 2, 3, 2, 0,
             {{2, 025}, {3, 042}}, 2, 067, 3, 042, true},
         {"15_and_destination_equals_second_source", 015, 2, 3, 3, 0,
             {{2, 074}, {3, 012}}, 3, 010, 2, 074, true},
-        {"17_xor_same_source_dest_all", 017, 2, 2, 2, 0,
-            {{2, SIGN | 012}}, 2, 0},
+        {"17_xnor_same_source_dest_all", 017, 2, 2, 2, 0,
+            {{2, SIGN | 012}}, 2, MASK41},
         {"14_or_all_three_addresses_modified", 014, MOD | 1, MOD | 2, MOD | 3, 1,
             {{2, SIGN | 025}, {3, 042}}, 4, SIGN | 067},
         {"15_and_modifier_on_first_address_only", 015, MOD | 1, 3, 4, 1,
             {{2, SIGN | 074}, {3, SIGN | 012}}, 4, SIGN | 010},
-        {"17_xor_modifier_on_second_address_only", 017, 2, MOD | 2, 4, 1,
-            {{2, SIGN | 074}, {3, SIGN | 012}}, 4, 066},
+        {"17_xnor_modifier_on_second_address_only", 017, 2, MOD | 2, 4, 1,
+            {{2, SIGN | 074}, {3, SIGN | 012}}, 4, (MASK41 ^ 066)},
         {"14_or_destination_zero_discard", 014, 2, 3, 0, 0,
             {{2, SIGN}, {3, 1}}, 0, 0, 2, SIGN, true},
         {"15_and_destination_zero_discard", 015, 2, 3, 0, 0,
             {{2, SIGN | 7}, {3, SIGN | 1}}, 0, 0},
-        {"17_xor_destination_zero_discard", 017, 2, 3, 0, 0,
+        {"17_xnor_destination_zero_discard", 017, 2, 3, 0, 0,
             {{2, SIGN}, {3, SIGN}}, 0, 0},
         {"14_or_modified_address_wraps_to_zero", 014, 2, MOD | 03777, 4, 1,
             {{2, SIGN | 025}}, 4, SIGN | 025},
-        {"17_xor_modified_destination_wraps_to_zero", 017, 2, 3, MOD | 03777, 1,
+        {"17_xnor_modified_destination_wraps_to_zero", 017, 2, 3, MOD | 03777, 1,
             {{2, SIGN}, {3, 1}}, 0, 0}
     };
     for (const auto& tc : cases) strict(tc);

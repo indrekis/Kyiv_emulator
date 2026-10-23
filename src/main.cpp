@@ -223,7 +223,15 @@ bool Kyiv_t::execute_opcode(){
         }
             break;
         case logic_operations_t::opcode_log_xor:{
-            kmem.write_memory(addr3_shifted.destination, kmem.read_memory(addr3_shifted.source_1) ^ kmem.read_memory(addr3_shifted.source_2));
+            // Octal 17: bitwise equivalence (XNOR), confirmed by the
+            // GY1962 AU test (pp. 172-173) and DPS1964 table (p. 18).
+            // GY1962 p. 11 instead describes XOR; see D15/B1-H2 ledger.
+            // A host word is 64 bits, so discard all bits above bit 40.
+            const word_t mask41 = (word_t{1} << 41) - 1;
+            const word_t source_1 = kmem.read_memory(addr3_shifted.source_1);
+            const word_t source_2 = kmem.read_memory(addr3_shifted.source_2);
+            kmem.write_memory(addr3_shifted.destination,
+                              (~(source_1 ^ source_2)) & mask41);
             ++C_reg;
         }
             break;

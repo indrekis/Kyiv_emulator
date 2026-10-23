@@ -1,6 +1,6 @@
 // ISA-06 D2: logical instruction sequencing, aliasing, and fetched-K behavior.
 // GY62, printed pp. 10, 12, 163-164; DPS64, pp. 18-19, 160-163.
-// No emulator changes, no claim of electrical-level timing qualification.
+// H3: opcode 17 expected as masked XNOR; no electrical-level timing claim.
 // g++ -std=c++17 -O0 -g -Iinc src/main.cpp tests/isa/isa06_d2_logic_sequence_probe.cpp -o tempkyiv/isa06_d2_logic_sequence_probe.exe
 #include <cstdint>
 #include <exception>
@@ -97,14 +97,14 @@ int main() {
     single("15_all_three_same", 015, 2, 2, 2, 0,
            {{2, SIGN | 025}}, 2, SIGN | 025);
     single("17_all_three_same", 017, 2, 2, 2, 0,
-           {{2, SIGN | 025}}, 2, 0);
+           {{2, SIGN | 025}}, 2, MASK41);
 
     const W src1_pc = inst(014, PC, 3, 4);
     single("14_current_instruction_as_first_source", 014, PC, 3, 4, 0,
            {{3, SIGN | 05}}, 4, src1_pc | (SIGN | 05));
     const W src2_pc = inst(017, 3, PC, 4);
     single("17_current_instruction_as_second_source", 017, 3, PC, 4, 0,
-           {{3, SIGN | 05}}, 4, src2_pc ^ (SIGN | 05));
+           {{3, SIGN | 05}}, 4, (~(src2_pc ^ (SIGN | 05))) & MASK41);
     const W shifted_pc = inst(013, 2, PC, 4);
     single("13_current_instruction_as_shift_operand", 013, 2, PC, 4, 0,
            {{2, 1}}, 4, (shifted_pc << 1) & MASK41);
@@ -115,7 +115,7 @@ int main() {
     single("14_overwrite_current_instruction", 014, 2, 3, PC, 0,
            {{2, replacement}, {3, 0}}, PC, replacement);
     single("17_overwrite_current_instruction", 017, 2, 3, PC, 0,
-           {{2, replacement}, {3, 0}}, PC, replacement);
+           {{2, replacement}, {3, 0}}, PC, (MASK41 ^ replacement));
     single("13_overwrite_current_instruction", 013, 2, 3, PC, 0,
            {{2, 0}, {3, replacement}}, PC, replacement);
     single("14_modified_destination_resolves_to_current_instruction", 014,
@@ -154,7 +154,7 @@ int main() {
                                   m.K_reg == first && m.kmem.read_memory(PC + 1) == second;
         const bool r2 = step(m);
         return intermediate && r2 && !m.T_reg && m.C_reg == PC + 2 &&
-               m.K_reg == second && m.kmem.read_memory(7) == 037 && regs(m, 0);
+               m.K_reg == second && m.kmem.read_memory(7) == (MASK41 ^ 037) && regs(m, 0);
     });
 
     std::cout << "ISA-06 D2 STRICT=" << passed << '/' << total
