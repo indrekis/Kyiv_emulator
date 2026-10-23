@@ -1,0 +1,8 @@
+stage	decision	status	evidence
+D15/B1-H1	Canonical historical example and provenance live in examples/historical/gy1962/	DECIDED	Single 39-word image and manifest, no duplicates
+D15/B1-H1	Preserve printed 37 instructions and 2 input words byte-identically	PASS	SHA256 56951e9945720e3157474d7235b8932d0428ba6ed2044d82263eede24267b67c
+D15/B1-H1	Initial expected 22-step C=0107 was falsified	OBSERVED	Native first case CPU_STOP 19 C=0076
+D15/B1-H1	Source p.11 opcode17 XOR versus p.172 test expected XNOR	OPEN	Inconsistent printed source semantics
+D15/B1-H1	Do not change CPU or source code to force test PASS	DECIDED	Controlled observational gate
+D15/B1-H1	Independent second transcription	PENDING	VISUAL_SINGLE_PASS only
+D15/B1-H1	Historical hardware adjudication	PENDING	No hardware oracle
