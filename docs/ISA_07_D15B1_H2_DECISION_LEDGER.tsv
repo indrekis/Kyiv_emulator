@@ -1,0 +1,12 @@
+item	decision	evidence	confidence
+baseline	b2e498bfa7715c645708c7c143a80deeb5ce65e9	D15/B1-H1 committed and pushed	PINNED
+1962_op17_text	XOR	GY1962 printed p11, PDF p12, explicit 4-row truth table	SOURCE_DIRECT
+1962_op17_test	XNOR	GY1962 printed pp172-173, PDF pp171-172, rows 0073-0106	SOURCE_DIRECT
+1964_op17_text	XNOR	Dashevskii et al. 1964 printed p18, PDF spread p10, explicit 4-row truth table	SOURCE_DIRECT
+implemented_baseline	XOR	src/main.cpp at baseline; xor operator in opcode_log_xor	CODE_DIRECT
+preferred_semantics	XNOR	1964 text agrees with the 1962 historical test	ADJUDICATED_PRELIMINARY
+bit_width	41-bit masked	1962 p11: all 41 bits, including sign; uint64_t host storage	SOURCE_DIRECT
+historical_program	IMMUTABLE	examples/historical/gy1962/au1_logic.k41 Git blob pinned	STRICT
+hardware_oracle	NONE	No measurement from physical Kyiv hardware	OPEN
+cpu_mutation_in_H2	NONE	H2 source/probe-only scope	STRICT
+H2_probes	XOR_baseline_and_XNOR_future	Synthetic test matrix plus historical-image independent branch	NATIVE_PENDING
