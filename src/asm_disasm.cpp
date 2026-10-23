@@ -8,6 +8,7 @@
 #include "asm_disasm.h"
 #include "kyiv_drum_cli_v1.h"
 #include "kyiv_host_image_v1.h"
+#include "kyiv_rom_boot_v1.h"
 
 #define COMMAND_SIZE 4
 
@@ -507,10 +508,22 @@ int main(int argc, char *argv[]) {
         try {
             if (parsed.drum || block_overflow_stop)
                 throw std::runtime_error("IMAGE_SUFFIX_UNSUPPORTED");
-            const auto cfg = kyiv_host_image_v1::parse(argc - 1, argv + 1);
+            const auto rom_args = kyiv_rom_boot_v1::extract(argc - 1, argv + 1);
+            const auto cfg = kyiv_host_image_v1::parse(
+                static_cast<int>(rom_args.forwarded.size()),
+                rom_args.forwarded.data());
             const auto image = kyiv_host_image_v1::load_file(cfg.filename,
                                                              cfg.allow_rom);
-            Kyiv_t image_machine;
+            // ROM and program preflight complete before CPU construction.
+            const auto rom = kyiv_rom_boot_v1::read(rom_args, argv[0]);
+            Kyiv_t image_machine(Kyiv_t::rom_boot_mode::deferred);
+            kyiv_rom_boot_v1::install(image_machine, rom);
+            std::cout << "D15A3P3-ROM PASS SOURCE="
+                      << (rom.source_is_default ? "DEFAULT" : "EXPLICIT")
+                      << " WORDS=" << rom.words.size()
+                      << " UNKNOWN_3200=" << (rom.unknown_3200 ? 1 : 0)
+                      << " SHA256=" << rom.sha256
+                      << " SHA_PINNED=" << (rom.sha_pinned ? 1 : 0) << '\n';
             return kyiv_host_image_v1::execute(image_machine, cfg, image,
                                                 "D15A2");
         } catch (const std::exception& e) {

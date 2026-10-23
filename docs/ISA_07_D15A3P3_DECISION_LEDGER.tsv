@@ -1,0 +1,10 @@
+step	decision	evidence	classification
+D15A3P3-01	Image-mode CPU bypasses only the implicit relative-CWD ROM constructor; all legacy modes preserved	Separate constructor mode, exact source anchors	ACCEPTED_HOST
+D15A3P3-02	Default base ROM comes from executable-relative directory candidates, never process CWD	Path resolution and cross-CWD native probe	PENDING_NATIVE
+D15A3P3-03	Default ROM exact source bytes pinned by SHA256	Current 183-record ROM from HEAD=372fc2f	PINNED_RECONSTRUCTION
+D15A3P3-04	Explicit ROM path permits optional SHA256; compute and report exact-byte digest, verify pin when provided	HOST ROM validation, optional and pinned SHA cases	PENDING_NATIVE
+D15A3P3-05	Exactly one absent 3200 permitted; treat its zero initialization as unknown historical value	D15A3P2 183/183 ROM words	UNRESOLVED_HISTORICAL
+D15A3P3-06	Do not introduce a no-ROM normal image mode; partial verified ROM is preferable	User instruction	ACCEPTED_HOST
+D15A3P3-07	Image can opt in to ROM overlay; pinned baseline is not the final overlay state	Existing --allow-rom semantics	ACCEPTED_HOST
+D15A3P3-08	Legacy constructor still silently ignores missing ROM; not changed here	Compatibility and exact scope	OPEN_LEGACY
+D15A3P3-09	Historical GY1962 test transcription remains subsequent phase	Historical plan and source scans	NEXT_D15B1

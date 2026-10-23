@@ -258,7 +258,11 @@ struct Kyiv_t{
         opcode_write_magnetic_drum = 0'23,
     };
 
-    Kyiv_t() {
+    // D15/A3-P3: image mode starts from explicitly verified HOST ROM.
+    // The default mode preserves all existing legacy constructor behavior.
+    enum class rom_boot_mode { legacy_cwd, deferred };
+    explicit Kyiv_t(rom_boot_mode mode = rom_boot_mode::legacy_cwd) {
+        if (mode == rom_boot_mode::deferred) return;
         std::string rom_file = "../mem/ROM.txt";
         std::ifstream infile(rom_file);
         std::string line;
