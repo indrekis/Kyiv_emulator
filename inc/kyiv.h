@@ -275,7 +275,7 @@ struct Kyiv_t{
             if (data.size() != 14) {
                 data.insert(0, "0");
             }
-            kmem.write_rom(std::stoi(address, 0, 8), std::stol(data, 0, 8));
+            kmem.write_rom(std::stoi(address, 0, 8), std::stoull(data, 0, 8));
         }
     }
 

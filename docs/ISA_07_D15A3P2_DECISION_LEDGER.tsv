@@ -1,0 +1,10 @@
+step	decision	evidence	classification
+P2-01	Restore 3121 as 01 0005 3011 0005	GY62 printed p91, Program 6, checked against scan	SOURCE_CONFIRMED
+P2-02	Restore 3123 as 12 3011 0005 0004	GY62 printed p91, Program 6, checked against scan	SOURCE_CONFIRMED
+P2-03	Keep 3200 absent and unknown; do not claim zero	D15/A3-P1 pinned ROM census	OPEN
+P2-04	Operator-settable codes in GY62 are 3000–3007, not 3200	GY62 printed p8; user reports divergent earlier conclusion	OPEN_CONFLICT
+P2-05	Maintain practical partial ROM runtime rather than defaulting to blank ROM	User requirement; no change to existing constructor	ACCEPTED
+P2-06	Explicit ROM source/SHA and independent CWD are future qualification work	Current inc/kyiv.h relative path	NEXT_STAGE
+D15A3P2-LONG-01	MSYS2 real constructor failed on valid 41-bit ROM word using std::stol	D15A2-ERROR stol; Win64 LLP64 long=32; word_t=uint64_t	CONFIRMED_BUG
+D15A3P2-LONG-02	Change one ROM parse call to std::stoull; retain all other CPU behavior	Pinned inc/kyiv.h exact 1-line patch	PENDING_NATIVE
+D15A3P2-LONG-03	Watch 3121,3123 and >LONG_MAX word 3036 with actual ROM-loaded Kyiv_t	D15A3P2_NATIVE_CASES=3	PENDING_NATIVE
