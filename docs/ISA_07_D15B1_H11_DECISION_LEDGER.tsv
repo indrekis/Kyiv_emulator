@@ -1,0 +1,13 @@
+gate	state	evidence
+BASELINE_PIN	PASS	e5df6e27d2bccd7f0bf97fab3f9ec41a4c7d6abf
+PRIMARY_SOURCE_TRANSCRIPTION	FIRST_VISUAL_READ	GY1962 pp.172-173, 8 full 41-bit words, second human witness pending
+SUB_EQUAL_NEGATIVE_ZERO	NATIVE_PENDING	0155=02 0002 0002 0347; reference ROM3026 -0
+SUBABS_EQUAL_NEGATIVE_ZERO	NATIVE_PENDING	0160=06 0003 0003 0347; source reference ROM3026 -0
+HOST_SUBABS_POSITIVE_ZERO_CANDIDATE	OBSERVATION_PENDING	current src/main.cpp writes +0 for zero result of opcode 06
+BOUNDED_EXECUTION	PASS	start at 0155 or 0160; never execute 0154 or 0163; maximum 3 steps
+NATIVE_OBSERVATION	PENDING	two CWDs and source-vs-host profiles per operation
+H9_SOURCE_PROSE_CONFLICT	OPEN_UNCHANGED	not addressed here
+H10_CARRY_POLICY_CONFLICT	OPEN_UNCHANGED	H10 observed plus1 and historical stop, not addressed here
+CPU_ROM_PRIOR_IMAGES	UNCHANGED	strict baseline Git blob pins
+HUMAN_INDEPENDENT_WITNESS	PENDING	one visual reading
+HARDWARE_ORACLE	UNAVAILABLE	software experiment only

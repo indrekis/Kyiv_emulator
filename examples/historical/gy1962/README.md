@@ -180,3 +180,29 @@ python -B tools/isa07_d15b1_h9_native.py --cli-exe tempkyiv/d15b1h9_kyivemu.exe 
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h10_kyivemu.exe
 python -B tools/isa07_d15b1_h10_native.py --cli-exe tempkyiv/d15b1h10_kyivemu.exe --timeout 20
 ```
+
+## AU test I, subtraction to zero at 0155–0162 (D15/B1-H11)
+
+- `au1_subtraction_0155_0162.k41` contains eight verbatim source records:
+  operands `0002` and `0003` (GY1962 printed p. 172), and the six original
+  instructions `0155..0162` (printed p. 173), with exact per-word provenance.
+- The printed p.172 diagnostics predict **negative zero** (`1(0)`, full
+  code `20000000000000`) for both `02 0002 0002 0347` at `0155`
+  and `06 0003 0003 0347` at `0160`; both JE commands compare against
+  pinned ROM `3026=20000000000000` and skip their historical STOPs.
+- `02` has an existing signed-zero special case in the emulator; `06` currently
+  appears to produce positive zero. H11 observes both cases *without changing*
+  CPU, ROM, H9 or H10, and reports historical agreement **per operation**.
+- The first fallback STOP is tested using a private JE retarget (historical
+  ADD/SUB and STOP unmodified); the second original STOP is observed without
+  mutation only if the emulator really mismatches its negative-zero reference.
+- The bounded runner starts at `0155` and `0160` independently; maximum three
+  steps. It does not execute `0154` (operator NK cell `3000`) or `0163`.
+  See `docs/ISA_07_D15B1_H11_SIGNED_ZERO_OBSERVATION.md`.
+- First-pass visual transcription and software-only evidence; a second human
+  witness and historical physical-hardware oracle remain unavailable.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h11_kyivemu.exe
+python -B tools/isa07_d15b1_h11_native.py --cli-exe tempkyiv/d15b1h11_kyivemu.exe --timeout 20
+```

@@ -1,0 +1,9 @@
+address	code_octal_14	printed_page	role	verification
+0002	12525252525252	172	operand_sub_equal	VISUAL_FIRST_PASS
+0003	25252525252525	172	operand_abs_sub_equal	VISUAL_FIRST_PASS
+0155	02000200020347	173	sub_equal_negative_zero	VISUAL_FIRST_PASS
+0156	16034730260160	173	je_rom_negative_zero_skip_stop	VISUAL_FIRST_PASS
+0157	33000000000000	173	historical_failure_stop	VISUAL_FIRST_PASS
+0160	06000300030347	173	subabs_equal_negative_zero	VISUAL_FIRST_PASS
+0161	16034730260163	173	je_rom_negative_zero_skip_stop	VISUAL_FIRST_PASS
+0162	33000000000000	173	historical_failure_stop	VISUAL_FIRST_PASS
