@@ -110,3 +110,24 @@ python -B tools/isa07_d15b1_h6_native.py --cli-exe tempkyiv/d15b1h6_kyivemu.exe 
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h7_kyivemu.exe
 python -B tools/isa07_d15b1_h7_native.py --cli-exe tempkyiv/d15b1h7_kyivemu.exe --timeout 20
 ```
+
+## AU test I, negative-zero additions VIII–IX (H8)
+
+- `au1_addition_0135_0142.k41` contains eight verbatim source records:
+  two positive data words at `0015`, `0016` (printed GY1962 p. 172) and
+  six commands at `0135..0142` (printed p. 173).
+- Both additions use ROM address `3026` as their first operand. In the **pinned
+  current ROM** `3026=20 0000 0000 0000` (41-bit sign-magnitude negative zero).
+  This is a pinned software reconstruction, **not** independent hardware evidence.
+- The historically predicted results are the exact positive codes at `0015`
+  and `0016`; both are tested, including the sign bit and successful JE branches.
+- The original fallback STOPs `0137` and `0142` are tested on temporary copies
+  with a retargeted ADD operand address (JE and STOP stay verbatim). The canonical historical image is immutable.
+- Native commands, evidence and limitations: `docs/ISA_07_D15B1_H8_NEGATIVE_ZERO_ADDITIONS.md`.
+- This software qualification leaves both an independent human source witness
+  and a physical-machine oracle **PENDING**. No CPU or ROM changes are admitted.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h8_kyivemu.exe
+python -B tools/isa07_d15b1_h8_native.py --cli-exe tempkyiv/d15b1h8_kyivemu.exe --timeout 20
+```

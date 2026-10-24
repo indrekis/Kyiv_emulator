@@ -1,0 +1,11 @@
+gate	state	evidence
+BASELINE_PIN	PASS	e795f1959d97bf3f34251fc2131447e86d51c611
+SOURCE_PRINTED_PAGES	PASS	GY1962 pp.172-173 first visual read
+EXACT_SOURCE_WORDS	PASS	8/8, two data and six instructions
+NEGATIVE_ZERO_ROM_3026	PINNED_SOFTWARE_ROM	20 0000 0000 0000, sign=1 magnitude=0
+ARITH_ORACLE	PASS	2/2 historical positive results with independent sign-magnitude calculation
+HISTORICAL_STOP_FALLBACKS	PENDING_NATIVE	0137 and 0142 using private retargeted ADD operand
+CPU_ROM_IMMUTABLE	PASS	no production CPU or ROM modifications
+EARLIER_EXAMPLES_IMMUTABLE	PASS	H1-H7 source images unchanged
+HUMAN_INDEPENDENT_WITNESS	PENDING	one assistant visual read
+HARDWARE_ORACLE	UNAVAILABLE	software-only emulation
