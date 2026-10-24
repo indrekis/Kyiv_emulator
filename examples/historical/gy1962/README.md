@@ -414,3 +414,26 @@ python -B tools/isa07_d15b1_h18_native.py --cli-exe tempkyiv/d15b1h18_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h19_kyivemu.exe
 python -B tools/isa07_d15b1_h19_native.py --cli-exe tempkyiv/d15b1h19_kyivemu.exe --timeout 20
 ```
+
+## AU test I, paired rounded multiplication 0227–0233 (D15/B1-H20)
+
+- `au1_rounded_products_swap_0227_0233.k41` transcribes **five historical
+  instruction words** at addresses 0227–0233 (octal), GY1962 printed p.174:
+  opcode 11 for both operand orders, opcode 16 comparison, and a failure
+  branch containing a perforator output opcode 22 and STOP opcode 33.
+- No initial values for `0353` or `0354` are printed alongside this pair.
+  The canonical image deliberately leaves these scratch values unspecified.
+  Source-only HOST zero-init and two PRIVATE nonzero operand-pair probes
+  qualify bounded execution and exact host integer rounding, not a
+  historical real-hardware sequence. Previous H19 has unknown seed and
+  cannot be treated as a historical oracle for H20.
+- Normal path executes at most `0227,0230,0231`, then stops **before**
+  reaching `0234`. An additional PRIVATE mismatched comparison reaches
+  `0232` but **never executes opcode 22** (perforator) or `0233` STOP.
+- Full source/ROM/CPU prior images immutable. H9/H10/H11/H13/H14/H17
+  conflicts OPEN_UNCHANGED; H19_SEED=UNKNOWN; HARDWARE_ORACLE=0.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h20_kyivemu.exe
+python -B tools/isa07_d15b1_h20_native.py --cli-exe tempkyiv/d15b1h20_kyivemu.exe --timeout 20
+```
