@@ -286,3 +286,28 @@ python -B tools/isa07_d15b1_h13_native.py --cli-exe tempkyiv/d15b1h13_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h14_kyivemu.exe
 python -B tools/isa07_d15b1_h14_native.py --cli-exe tempkyiv/d15b1h14_kyivemu.exe --timeout 20
 ```
+
+## AU test I, negative rounded multiplication at 0202–0204 (D15/B1-H15)
+
+- `au1_rounded_multiply_negative_0202_0204.k41` contains six verbatim
+  first-visual-source words: RAM operands `0004`, `0005`, expected code
+  `0025` (GY1962 printed p. 172), and instructions `0202`, `0203`,
+  `0204` (printed p. 173). These are *octal* addresses and raw 41-bit words.
+- Original opcode `11`: `0004 × 0005 → 0347`. Sign is negative, and
+  the independent sign-magnitude rounded prediction matches source
+  `0025=23434343434343` exactly. Opcode `16` jumps to `0205` on equality.
+  **Never execute the command at `0205`** in this H15 stage.
+- Historical failure STOP `0204` is verified on a private copy with
+  retargeted JE source operand `0025→0004`; neither source multiplication
+  nor the STOP is modified; private images must not be committed.
+- Two separate working-directory runs check exact input cells, all 41
+  result bits, control-flow and STOP: six native cases total. This is
+  software qualification, not physical machine evidence.
+- CPU, ROM, H1–H14 canonical images and prior issues H9/H10/H11/H13/H14
+  remain unchanged. A second independent human transcription and a
+  real-hardware oracle remain pending.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h15_kyivemu.exe
+python -B tools/isa07_d15b1_h15_native.py --cli-exe tempkyiv/d15b1h15_kyivemu.exe --timeout 20
+```

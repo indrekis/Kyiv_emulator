@@ -1,0 +1,7 @@
+address	code_octal_14	printed_page	role	verification
+0004	05252525252525	172	positive_operand	VISUAL_FIRST_PASS
+0005	32525252525252	172	negative_operand	VISUAL_FIRST_PASS
+0025	23434343434343	172	historical_negative_rounded_product	VISUAL_FIRST_PASS
+0202	11000400050347	173	opcode11_rounded_multiply	VISUAL_FIRST_PASS
+0203	16034700250205	173	opcode16_compare_and_skip_STOP	VISUAL_FIRST_PASS
+0204	33000000000000	173	original_failure_STOP	VISUAL_FIRST_PASS
