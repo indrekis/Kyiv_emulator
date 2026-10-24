@@ -1,0 +1,13 @@
+gate	state	evidence
+BASELINE_PIN	PASS	ef90df8b5718a0b20acdfca64ab15f9584207412
+SOURCE_WORDS	VISUAL_FIRST_PASS	5/5: p.172 two data and p.173 three instructions
+ROM3036_NEGATIVE_MAX	PINNED_SOFTWARE_ROM	37777777777777, not a hardware oracle
+COMMAND_ADD_SIGN_ORACLE	PASS	operand magnitude sum=17777777777777; sign of 0003=negative
+NATIVE_POSITIVE_AND_STOP	PENDING	6 bounded cases; real emulator not yet run
+BOUNDARY_0166	NOT_EXECUTED	historical opcode13 postponed
+H9_SOURCE_PROSE_CONFLICT	OPEN_UNCHANGED	no modifications
+H10_CARRY_POLICY_CONFLICT	OPEN_UNCHANGED	no modifications
+H11_SUBABS_SIGNED_ZERO_CONFLICT	OPEN_UNCHANGED	no modifications
+CPU_ROM_MUTATION	NONE	Git blob pins
+INDEPENDENT_HUMAN_WITNESS	PENDING	one visual transcription
+HARDWARE_ORACLE	UNAVAILABLE	software evidence only

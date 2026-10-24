@@ -1,0 +1,8 @@
+KYIV41-OCT1
+# GY1962 AU test I: opcode 03 signed command addition, printed pp.172-173
+# HOST isolated; 0166 is intentionally absent; ROM 3036 is pinned externally
+0002 12525252525252
+0003 25252525252525
+0163 03000200030347
+0164 16034730360166
+0165 33000000000000

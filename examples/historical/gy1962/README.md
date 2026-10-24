@@ -206,3 +206,27 @@ python -B tools/isa07_d15b1_h10_native.py --cli-exe tempkyiv/d15b1h10_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h11_kyivemu.exe
 python -B tools/isa07_d15b1_h11_native.py --cli-exe tempkyiv/d15b1h11_kyivemu.exe --timeout 20
 ```
+
+## AU test I, command addition at 0163–0165 (D15/B1-H12)
+
+- `au1_addcmd_0163_0165.k41` is a five-word bounded HISTORICAL source
+  transcription: positive word `0002`, negative word `0003` (GY1962 printed
+  p. 172), and commands `0163..0165` (printed p. 173). Provenance and a
+  separate CPU-independent sign-magnitude oracle accompany the image.
+- Source operation `03 0002 0003 0347` adds the magnitudes, then uses
+  **the sign of the second operand**. The expected result is the full negative
+  41-bit value `37777777777777`, compared by opcode `16` with pinned ROM
+  `3036=37777777777777`. Successful comparison branches to `0166`.
+- The original STOP at `0165` is checked only on a temporary HOST copy with
+  JE retargeted away from ROM `3036`. Original ADD and STOP are unchanged.
+- The test is strictly bounded to one or two instructions for the original
+  program, or three for the private STOP profile: **do not execute `0166`**
+  (historical opcode `13`, independently scoped to a future milestone).
+- H9 printed-prose conflict, H10 cyclic carry and H11 opcode06 signed-zero
+  discrepancy stay OPEN and unchanged. This software check is not a physical
+  hardware oracle; independent human transcription remains pending.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h12_kyivemu.exe
+python -B tools/isa07_d15b1_h12_native.py --cli-exe tempkyiv/d15b1h12_kyivemu.exe --timeout 20
+```
