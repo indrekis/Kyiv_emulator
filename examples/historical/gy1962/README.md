@@ -131,3 +131,27 @@ python -B tools/isa07_d15b1_h7_native.py --cli-exe tempkyiv/d15b1h7_kyivemu.exe 
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h8_kyivemu.exe
 python -B tools/isa07_d15b1_h8_native.py --cli-exe tempkyiv/d15b1h8_kyivemu.exe --timeout 20
 ```
+
+## AU test I, subsequent negative-zero additions X–XI (H9)
+
+- `au1_addition_0143_0150.k41` preserves eight original machine words:
+  data at `0010`, `0013` (GY1962 printed p.172), and instructions
+  `0143..0150` (p.173). It is a HOST image, not physical card encoding.
+- Both ADD instructions use pinned ROM `3026=20000000000000` (−0).
+  Their machine-code operands predict the unchanged **positive** results
+  `0010=00010004002001` and `0013=00400200100040`.
+- **Source discrepancy**: printed p.172's commentary assigns `0143..0145`
+  a `(0)20` result and assigns `0146..0150` the `0010` result, while the
+  literal instructions at these addresses reference `0010` and `0013`,
+  respectively. Record this mismatch; do NOT repair the source or assert
+  unqualified historical-explanation agreement.
+- The `tools/isa07_d15b1_h9_native.py` runner tests *machine-code-derived*
+  expectations and the original STOP fallbacks on temporary private mutants.
+  See `docs/ISA_07_D15B1_H9_SOURCE_CONFLICT.md` for exact source and limits.
+- CPU/ROM and all previous canonical examples remain immutable. Independent
+  human transcription and a physical Kyiv hardware oracle remain PENDING.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h9_kyivemu.exe
+python -B tools/isa07_d15b1_h9_native.py --cli-exe tempkyiv/d15b1h9_kyivemu.exe --timeout 20
+```

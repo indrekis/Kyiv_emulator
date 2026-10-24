@@ -1,0 +1,11 @@
+gate	state	evidence
+BASELINE_PIN	PASS	b896eeb975662ce684572ae235135e119a2b0493
+PRINTED_SOURCE_WORDS	FIRST_VISUAL_READ	8/8: two data pp.172 and six instructions p.173
+SOURCE_PROSE_ALIGNMENT	CONFLICT	p.172 range annotations and p.173 machine code disagree at 0143/0146
+MACHINE_CODE_ARITHMETIC_ORACLE	PASS	2/2 negative-zero with large positive operands
+ROM3026_NEGATIVE_ZERO	PINNED_SOFTWARE_ROM	20000000000000, not a hardware oracle
+NATIVE_POSITIVE_AND_STOP	PENDING	12 scenarios; actual emulator not yet run
+EARLIER_CANONICAL_IMAGES	UNCHANGED	H1-H8 image hashes pinned
+CPU_ROM_MUTATION	NONE	strict Git blob pins
+HUMAN_INDEPENDENT_WITNESS	PENDING	same assistant, first pass
+HARDWARE_ORACLE	UNAVAILABLE	software qualification only
