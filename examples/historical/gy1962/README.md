@@ -488,3 +488,29 @@ python -B tools/isa07_d15b1_h21_native.py --cli-exe tempkyiv/d15b1h21_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h22_kyivemu.exe
 python -B tools/isa07_d15b1_h22_native.py --cli-exe tempkyiv/d15b1h22_kyivemu.exe --timeout 20
 ```
+
+## AU test I, large-batch continuation 0300–0345 (D15/B1-H23)
+
+- `au1_batch38_0300_0345.k41`: 38 original octal words (29 commands,
+  9 data words `0335–0345`) from GY1962 printed p.174. This is a
+  SOURCE transcription, not an assertion that the full historical test passes.
+- Three separately bounded verification families: A (`0300–0306`,
+  negative-zero/normalization-order), B (`0307–0325`, shift direction and
+  shift-count masking), C (`0326–0334`, signed-zero and branch boundary).
+- H23 deliberately preserves the historical negative order witness
+  `RAM[0336]=20000000000047`, which differs from the current host
+  normalizer's *unsigned* order `00000000000047` when normalizing
+  ROM[3177]=-1. `NORMALIZER_ORDER_SIGN_ORACLE=OPEN`; do not alter source,
+  CPU, ROM, or retrofit an expected HOST PASS into historical truth.
+- The historical entry state in RAM[0350] and RAM[0003] is unknown.
+  HOST-zero and PRIVATE settings are distinct. `0334→0360` is a
+  **boundary**; 0360 itself is never executed. Data 0335–0345 is not code.
+- Earlier H9/H10/H11/H13/H14/H17 conflicts remain OPEN_UNCHANGED,
+  as do H19 seed and H20/H21/H22 historical scratch uncertainties.
+- Real MSYS2 native probe is required before release; a package
+  selftest/mock CLI pass is not a hardware or historical oracle.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h23_kyivemu.exe
+python -B tools/isa07_d15b1_h23_native.py --cli-exe tempkyiv/d15b1h23_kyivemu.exe --timeout 20
+```

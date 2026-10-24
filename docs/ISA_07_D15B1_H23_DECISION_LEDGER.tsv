@@ -1,0 +1,15 @@
+gate	decision	evidence	status
+H23_SOURCE_38	Preserve 38 printed words; no automatic reinterpretation	GY62 p.174 addresses 0300..0345	VISUAL_FIRST_PASS
+PROGRAM_DATA_SPLIT	29 instructions and 9 data words	0335..0345 never execute	SOURCE_ONLY
+NORMALIZER_ORDER	Keep printed 0336 negative order; compare with current HOST positive order	0302/0305/0336; ROM3177	HYPOTHESIS_OPEN_NATIVE
+SIGNED_ZERO_ENTRY	No historical RAM0350 seed established	Private -0 controls entry 0300	HISTORICAL_UNKNOWN
+SHIFT_12_40	Independent multi-instruction bounded trace with 12/40 shifts	0307..0325	HOST_MODEL_PENDING_NATIVE
+SHIFT_64_65	Private mask and sign probes; source RAM0003 unknown	0326..0334	HOST_MODEL_PENDING_NATIVE
+PRIVATE_MUTATIONS	0332 private-only comparison patch; source original immutable	C_PRIVATE_BRANCH_PATCH	PRIVATE_ONLY
+SOURCE_CONSTANTS	Nine exact data words never executed	0335..0345	SOURCE_ONLY
+EXTERNAL_BRANCH	Never execute 0360	0334 boundary	REQUIRED
+CPU_ROM	Immutable	Git source pins	IMMUTABLE
+H9_H10_H11_H13_H14_H17	Keep 6 earlier conflicts OPEN	Earlier ledgers	OPEN_UNCHANGED
+H19_H22_SCRATCH	No automatic historical entry seed reconstruction	Prior SOURCE/HOST evidence	UNKNOWN
+HARDWARE_ORACLE	No actual Kyiv hardware witness	Not in source packet	NONE
+NATIVE_GATE	Require user-provided real executable logs	MINGW64 native	PENDING
