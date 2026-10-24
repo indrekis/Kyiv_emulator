@@ -155,3 +155,28 @@ python -B tools/isa07_d15b1_h8_native.py --cli-exe tempkyiv/d15b1h8_kyivemu.exe 
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h9_kyivemu.exe
 python -B tools/isa07_d15b1_h9_native.py --cli-exe tempkyiv/d15b1h9_kyivemu.exe --timeout 20
 ```
+
+## AU test I, cyclic addition at 0151 (D15/B1-H10)
+
+- `au1_addcyc_0151_0154.k41` contains six verbatim 1962 machine words:
+  operands `0007` and `0020` (printed p. 172) and instructions `0151..0154`
+  (printed p. 173), with per-word first-visual-pass provenance.
+- Source opcode `07` at `0151` adds `0007+0007` cyclically and compares the
+  result with `0020=16757367573624` at `0152`; the original fallback STOP
+  is `0153`. Address `0154` is included for provenance ONLY, not executed.
+- Independent 40-bit arithmetic shows a distinction: truncating the carry
+  gives the printed `16757367573624`, while adding an end-around carry unit
+  gives `16757367573625`. The current CPU uses the latter as an explicit
+  provisional *emulator policy*. No hardware conclusion follows.
+- The H10 bounded **observation** runner measures 1-, 2- and (only if
+  the check fails) 3-step behavior. It must not execute command `0154`,
+  which refers to operator-settable `3000`. A mismatch to the printed
+  result is retained as evidence, **not silently converted into PASS**.
+- See `docs/ISA_07_D15B1_H10_CYCLIC_CARRY_OBSERVATION.md`. H9's printed
+  prose discrepancy remains OPEN and entirely separate from this question.
+  No CPU, ROM, or previously committed historical image is modified.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h10_kyivemu.exe
+python -B tools/isa07_d15b1_h10_native.py --cli-exe tempkyiv/d15b1h10_kyivemu.exe --timeout 20
+```

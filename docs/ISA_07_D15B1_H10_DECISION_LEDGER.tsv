@@ -1,0 +1,12 @@
+gate	state	evidence
+BASELINE_PIN	PASS	cc688d3298eae645624b99195e28a5c6fe8012c4
+PRIMARY_SOURCE_TRANSCRIPTION	FIRST_VISUAL_READ	GY1962 pp.172-173, six 41-bit octal words, independent human check pending
+OPCODE07_SOURCE_EXPECTATION	PINNED	0007+0007 -> 0020=16757367573624, printed p.172
+HOST_CARRY_POLICY_CANDIDATE	OBSERVATION_PENDING	current src/main.cpp +1 on carry -> 16757367573625
+SOURCE_ISA_CARRY_RECONCILIATION	OPEN	GY1962 p.11 text about end-around carry and printed diagnostic disagree on LSB; inspect historical adder evidence
+BOUNDED_EXECUTION	PENDING	0151 start; maximum 3 steps; never execute 0154 with operator cell 3000
+NATIVE_OBSERVATION	PENDING	two CWDs, measured result + compare + STOP, not historical PASS asserted
+H9_SOURCE_PROSE_CONFLICT	OPEN_UNCHANGED	separate p.172/p.173 conflict, do not relabel as resolved
+CPU_ROM_EARLIER_EXAMPLES	UNCHANGED	strict baseline blobs and exact file scope
+HUMAN_INDEPENDENT_WITNESS	PENDING	visual read by same assistant
+HARDWARE_ORACLE	UNAVAILABLE	software observation only
