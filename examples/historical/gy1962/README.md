@@ -437,3 +437,28 @@ python -B tools/isa07_d15b1_h19_native.py --cli-exe tempkyiv/d15b1h19_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h20_kyivemu.exe
 python -B tools/isa07_d15b1_h20_native.py --cli-exe tempkyiv/d15b1h20_kyivemu.exe --timeout 20
 ```
+
+## AU test I, absolute-value pre-division branch 0234–0240 (D15/B1-H21)
+
+- `au1_absolute_predivision_0234_0240.k41` transcribes five
+  historical instruction words from GY1962 printed p.174: opcode 06
+  absolute-magnitude subtraction, opcode 05 magnitude comparison,
+  and opcode 01 signed addition. Control may skip `0236–0237`.
+- Entry `0234`, branch `0235`: when `|RAM[0354]| <= |RAM[0355]|`,
+  jump directly to `0240`; otherwise execute `0236`, `0237`, then
+  `0240`. Constrain each native probe to 3 or 5 instructions and
+  stop **before** executing `0241` (outside this qualified fragment).
+- Scratch values `0353–0356` have no independently established
+  historical entry state. SOURCE_ZERO_INIT is host-initialized RAM,
+  not a source-seeded historical oracle. Three labeled PRIVATE seeds
+  exercise both comparison outcomes, including negative operand signs.
+  Results compare against an exact sign-magnitude HOST model; signed-zero
+  alternatives and prior H11 remain OPEN, not inferred as historical ISA.
+- H19_SEED=UNKNOWN; H20_SCRATCH=UNKNOWN; earlier H9/H10/H11/H13/H14/H17
+  conflicts OPEN_UNCHANGED; no CPU, ROM, prior-image mutation and
+  HARDWARE_ORACLE=0.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h21_kyivemu.exe
+python -B tools/isa07_d15b1_h21_native.py --cli-exe tempkyiv/d15b1h21_kyivemu.exe --timeout 20
+```
