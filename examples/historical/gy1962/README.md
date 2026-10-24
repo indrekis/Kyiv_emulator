@@ -337,3 +337,28 @@ python -B tools/isa07_d15b1_h15_native.py --cli-exe tempkyiv/d15b1h15_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h16_kyivemu.exe
 python -B tools/isa07_d15b1_h16_native.py --cli-exe tempkyiv/d15b1h16_kyivemu.exe --timeout 20
 ```
+
+## AU test I, negative fractional division at 0210–0212 (D15/B1-H17)
+
+- `au1_division_negative_0210_0212.k41` contains six first-visual-source
+  words, printed p.173: negative numerator `0030=20002000000000`,
+  positive divisor `0031=00016000000000`, expected RAM word
+  `0032=22222222222200`, and commands `0210` (opcode `12`),
+  `0211` (opcode `16` comparison), `0212` (original STOP).
+- This printed 41-bit negative result is **NOT** predicted by the current
+  host truncating division: exact sign/magnitude integer division predicts
+  `22222222222222`; the observed discrepancy must be recorded, not
+  interpreted as a confirmed historical rounding rule or silently corrected.
+  Magnitude discrepancy is `0o22` (18 decimal) in low-order bits.
+- Test source-exact commands; on a host mismatch the original STOP at `0212`
+  is expected and the step counter becomes `C=0213`. Runner also recognizes
+  the historic-match profile, using a private mutant comparison as a STOP
+  witness. **Never execute `0213`.** No changes to the source image or CPU.
+- Both CWD profiles, full 41-bit result, three original source cells, and
+  exact 44 source Git pins are verified. H9/H10/H11/H13/H14 conflicts remain
+  OPEN_UNCHANGED; independent human witness and hardware oracle unavailable.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h17_kyivemu.exe
+python -B tools/isa07_d15b1_h17_native.py --cli-exe tempkyiv/d15b1h17_kyivemu.exe --timeout 20
+```
