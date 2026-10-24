@@ -258,3 +258,31 @@ python -B tools/isa07_d15b1_h12_native.py --cli-exe tempkyiv/d15b1h12_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h13_kyivemu.exe
 python -B tools/isa07_d15b1_h13_native.py --cli-exe tempkyiv/d15b1h13_kyivemu.exe --timeout 20
 ```
+
+## AU test I, three rounded multiplications at 0171–0201 (D15/B1-H14)
+
+- `au1_rounded_multiplication_0171_0201.k41` contains **14 exact first-visual-source words**:
+  five RAM data/expected records (`0015`, `0021`–`0024`, printed p. 172)
+  and nine literal commands at `0171`–`0201` (printed p. 173).
+  They form three opcode `11` rounded-multiplication tests, each followed by
+  an opcode `16` comparison and original opcode `33` failure STOP.
+- ROM `3035=17777777777777` is a pinned emulator software-ROM value;
+  no extra HOST replacement for this ROM cell is included in the image.
+- Groups `0171` and `0174` are predicted to match p.172 exactly with results
+  `00000000000001` and `30000000000000`; their original STOPs are
+  exercised on private comparison-mutant files only.
+- **Potential conflict:** p.172 expects `17777777777775` for `0177`, whereas
+  independent integer rounded multiplication of `ROM[3035]` by itself,
+  using the current CPU rounding rule, predicts `17777777777776`.
+  Native tests record both outcomes as separate profiles; if the CPU yields
+  `17777777777776`, its literal historical comparison falls through to the
+  **original STOP at `0201`**. This is an observation, not a hardware truth.
+- Neither canonical source words, CPU, ROM nor prior H1–H13 examples change.
+  Original H9, H10, H11, H13 source/behavior conflicts remain OPEN_UNCHANGED.
+  Second independent human source reading and real Kyiv hardware oracle remain
+  PENDING. Never execute beyond boundary `0202`.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h14_kyivemu.exe
+python -B tools/isa07_d15b1_h14_native.py --cli-exe tempkyiv/d15b1h14_kyivemu.exe --timeout 20
+```
