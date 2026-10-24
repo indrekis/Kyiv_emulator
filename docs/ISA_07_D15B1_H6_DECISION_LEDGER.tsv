@@ -1,0 +1,9 @@
+gate	decision	evidence	status
+H6_BASELINE	H5_COMMITTED	ab046eb99e6c7fa43fda35bf287f1e0ffa6052fe	PINNED
+H6_SOURCE	GY1962_P172_P173	Six constants and nine commands	VISUAL_FIRST_PASS
+H6_ARITHMETIC	SIGN_MAGNITUDE_ORACLE	Three expected 41-bit values	INDEPENDENT_CALCULATION
+H6_EXAMPLES	CANONICAL_IMAGES_ONLY	H5 and H6 each use one example path	PINNED
+H6_CPU	NO_MUTATION	Git scope and source blob pins	REQUIRED
+H6_NATIVE	TWO_CWDS_PLUS_NEGATIVE_STOP	18 bounded run cases, 3 groups	PENDING
+H6_HUMAN_SECOND	NO_EXTERNAL_WITNESS	Not independently re-transcribed by another researcher	PENDING
+H6_HARDWARE	NOT_AVAILABLE	No original hardware oracle	OPEN

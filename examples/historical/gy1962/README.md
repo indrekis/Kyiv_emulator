@@ -61,3 +61,27 @@ Other historical examples will use their own source images and per-word provenan
   runs both entry points from two working directories and preserves observations.
 
 See `docs/ISA_07_D15B1_H5_FIRST_TWO_ADDITIONS.md` for scope and source uncertainties.
+
+## AU test I, addition checks III–V (H6)
+
+- `au1_addition_0116_0126.k41` contains 15 historically sourced words: six
+  constants at `0002..0007` and nine instructions (`0116..0126`, octal).
+- The three independent additions are described on GY1962 printed p. 172,
+  with machine codes printed p. 173. Provenance is adjacent to the `.k41`.
+- The check at `0116` doubles a positive word; `0121` yields a negative result;
+  `0124` yields a positive result. All 41 bits and exact octal expected codes
+  are checked by `tools/isa07_d15b1_h6_native.py`.
+- Each group includes its historical STOP fallback, but a normal run is bounded
+  to the first two instructions; a **synthetic, private changed-expectation copy**
+  independently checks that the historical STOP fallback is reached. This
+  artificial mismatch file is never stored among canonical examples.
+- The result is a software qualification only; independent human transcription
+  and physical hardware oracle remain PENDING. CPU, ROM, and H1–H5 examples
+  are unaffected.
+
+Usage (MSYS2 MINGW64):
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h6_kyivemu.exe
+python -B tools/isa07_d15b1_h6_native.py --cli-exe tempkyiv/d15b1h6_kyivemu.exe --timeout 20
+```
