@@ -230,3 +230,31 @@ python -B tools/isa07_d15b1_h11_native.py --cli-exe tempkyiv/d15b1h11_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h12_kyivemu.exe
 python -B tools/isa07_d15b1_h12_native.py --cli-exe tempkyiv/d15b1h12_kyivemu.exe --timeout 20
 ```
+
+## AU test I, zero-distance logical shift at 0166–0170 (D15/B1-H13)
+
+- `au1_shift_zero_0166_0170.k41` contains **four verbatim source words**:
+  the input at octal `0261` (GY1962 printed p. 174) and the three original
+  instructions at `0166`, `0167`, `0170` (p. 173). The source image does
+  not invent a historical initializer at address `0000`.
+- Opcode `13` uses the shift constant in the **low six bits of RAM[0000]**.
+  The source listing does not print a word for `0000`; the runner *observes*
+  its initialized value and requires exactly `00000000000000` before treating
+  this as a valid zero-shift case. This zero-initialization is a HOST runtime
+  premise, not a transcribed historical source word.
+- The 41-bit shift is by zero, so the expected exact output is the input
+  `0261=02525252525252`. Successful opcode `16` compares `0347` and `0261`
+  and branches to `0171`; `0171` is deliberately **not executed**. Private
+  retargeting of JE alone checks the original STOP at `0170`.
+- **Source-label issue (OPEN):** GY1962 printed p.172 describes the
+  `0166–0170` range using `СлК`, although the literal instruction on
+  p.173 has opcode `13` (logical shift). The zero-shift result is identical
+  and cannot resolve the label mismatch. Preserve both forms; no CPU edit.
+- H9 printed explanation, H10 cyclic carry, H11 opcode06 negative-zero and
+  this new p.172 label mismatch remain OPEN. Original machine execution,
+  second human transcription and a hardware oracle have not been established.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h13_kyivemu.exe
+python -B tools/isa07_d15b1_h13_native.py --cli-exe tempkyiv/d15b1h13_kyivemu.exe --timeout 20
+```

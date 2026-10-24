@@ -1,0 +1,14 @@
+gate	state	evidence
+BASELINE_PIN	PASS	f9b5d7c088093041be01aceb427a61168f2ec95a
+SOURCE_WORDS	VISUAL_FIRST_PASS	4/4: data p.174, three commands p.173
+SOURCE_0000_INITIALIZER	NOT_PRINTED	HOST_RAM_ZERO observed at runtime, not transcribed
+SHIFT_BITVECTOR_ORACLE	PASS	shift by zero preserves full 41-bit 02525252525252
+NATIVE_POSITIVE_AND_STOP	PENDING	6 scenarios; actual native emulator not yet run
+BOUNDARY_0171	NOT_EXECUTED	strict 2-step canonical/3-step private STOP
+H13_SOURCE_LABEL_ALIGNMENT	OPEN	p.172 СлК vs p.173 literal opcode 13
+H9_SOURCE_PROSE_CONFLICT	OPEN_UNCHANGED	no modifications
+H10_CARRY_POLICY_CONFLICT	OPEN_UNCHANGED	no modifications
+H11_SUBABS_SIGNED_ZERO_CONFLICT	OPEN_UNCHANGED	no modifications
+CPU_ROM_MUTATION	NONE	Git blob pins
+INDEPENDENT_HUMAN_WITNESS	PENDING	one visual source read
+HARDWARE_ORACLE	UNAVAILABLE	software evidence only
