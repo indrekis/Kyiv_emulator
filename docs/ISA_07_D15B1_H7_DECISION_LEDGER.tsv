@@ -1,0 +1,10 @@
+gate	state	evidence
+BASELINE_PIN	PASS	fa5b491a5a15fe97b9ec5f9bba5066b12f77a76d
+SOURCE_PRINTED_PAGES	PASS	GY1962 pp.172-173 (first visual read)
+EXACT_SOURCE_WORDS	PASS	12/12 octal machine words
+ARITH_ORACLE	PASS	2/2 sign-magnitude predictions independent of CPU
+STOP_FALLBACKS	PENDING_NATIVE	0131 and 0134, private changed expected constants
+CPU_ROM_IMMUTABLE	PASS	no CPU or ROM modifications
+PREVIOUS_EXAMPLES_IMMUTABLE	PASS	H1-H6 source images unchanged
+HUMAN_INDEPENDENT_WITNESS	PENDING	same assistant first visual read
+HARDWARE_ORACLE	UNAVAILABLE	software-only emulation

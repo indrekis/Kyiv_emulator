@@ -85,3 +85,28 @@ Usage (MSYS2 MINGW64):
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h6_kyivemu.exe
 python -B tools/isa07_d15b1_h6_native.py --cli-exe tempkyiv/d15b1h6_kyivemu.exe --timeout 20
 ```
+
+## AU test I, addition checks VI–VII (H7)
+
+- `au1_addition_0127_0134.k41` contains twelve GY1962 source words:
+  six operands/expected constants (`0010`, `0011`, `0012`, `0013`, `0014`, `0017`)
+  and six commands at octal `0127`, `0130`, `0131`, `0132`, `0133`, `0134`.
+- GY1962 printed p. 172 gives the data and two arithmetic predictions;
+  p. 173 prints the actual instruction words. The accompanying provenance
+  distinguishes an initial visual transcription from independent human verification.
+- First check: `0010 + 0011 -> 0017 = 27773775776777` (negative sign bit).
+  Second check: `0012 + 0013 -> 0014 = 00200100040020` (positive sign bit).
+- The source's `STOP` fallbacks at `0131` and `0134` are preserved. Real
+  qualification executes each successful fragment within a two-instruction
+  bound; a temporary HOST-only image with one altered expected constant
+  exercises each STOP path. No private image is committed.
+- The next instruction `0135` is not in this image. The historical `.k41`
+  file is intentionally standalone; `0347` comes from the emulator's ROM.
+- Native tests use the same `image` runner in two working directories.
+  No CPU, ROM, or prior example modifications are part of this H7 package.
+  This is a reproducible emulator test, **not a hardware oracle**.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h7_kyivemu.exe
+python -B tools/isa07_d15b1_h7_native.py --cli-exe tempkyiv/d15b1h7_kyivemu.exe --timeout 20
+```
