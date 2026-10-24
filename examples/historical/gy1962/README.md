@@ -362,3 +362,30 @@ python -B tools/isa07_d15b1_h16_native.py --cli-exe tempkyiv/d15b1h16_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h17_kyivemu.exe
 python -B tools/isa07_d15b1_h17_native.py --cli-exe tempkyiv/d15b1h17_kyivemu.exe --timeout 20
 ```
+
+## AU test I, control transfer at 0213 (D15/B1-H18)
+
+- `au1_control_transfer_0213.k41` contains **one exact first-visual-source
+  word** at address `0213` (GY1962 printed p.174): `05 0000 0000 0263`.
+  Opcode `05` compares the absolute values at addresses `0000` and `0000`.
+  Self-comparison must take the branch to octal **`0263`** regardless of
+  RAM `0000` content. Run only **one instruction**; `0263` is never executed.
+- The prose on printed p.172 assigns `0214–0226` to pseudorandom-number
+  generation and `0256–0345` to constants. The printed target `0263`
+  lies in that latter interval, where printed p.174 shows a word beginning
+  with opcode `35`. This is **source-layout context**, not evidence that
+  `0263` should be executed in H18 or that the prose has an error.
+- The native runner uses two explicitly **PRIVATE**, nonhistorical images
+  with data `0001=1`, `0002=2` and opcode `05`: true comparison `1<=2`
+  must branch to `0263`; reversed comparison `2<=1` must fall through
+  to `0214`. All cases are bounded to **one CPU instruction** and the
+  source-exact historical image remains byte-immutable. No extra RAM/ROM
+  words are claimed to be printed at the chosen addresses.
+- Six scenarios across EXTERNAL/TEMPKYIV CWD; run with verified HOST ROM
+  and unchanged CPU. H9/H10/H11/H13/H14/H17 source and behavior conflicts
+  remain OPEN_UNCHANGED; no independent human or hardware oracle.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h18_kyivemu.exe
+python -B tools/isa07_d15b1_h18_native.py --cli-exe tempkyiv/d15b1h18_kyivemu.exe --timeout 20
+```

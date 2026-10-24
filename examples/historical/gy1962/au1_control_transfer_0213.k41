@@ -1,0 +1,4 @@
+KYIV41-OCT1
+# GY1962 p174: opcode05 absolute <= at 0213; branch to 0263, target not executed
+# GY1962 p172: pseudorandom generator begins at 0214; do not execute it here
+0213 05000000000263
