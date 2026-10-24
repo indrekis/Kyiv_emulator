@@ -7,7 +7,8 @@ These are verbatim source transcriptions, *not automatically passing reference p
 ## AU test no. 1, section I (logical operations)
 
 - `au1_logic.k41` — 39 raw 41-bit octal records: addresses `0002`, `0003` and 37 instructions `0043..0107`.
-- `au1_logic_provenance.tsv` — address, source page, original notation and single visual verification for each record.
+- `au1_logic_provenance.tsv` — original first-pass source record for each word.
+- A fresh visual cross-check against printed pp. 172–173 matched all 39/39 words; see `docs/ISA_07_D15B1_H4_SECOND_PASS.md`.
 - Printed pp. 172–173, *Vychislitelnaya mashina «Kiev»* (1962).
 - The `KYIV41-OCT1` file syntax is a modern HOST container, not historical media encoding.
 
@@ -29,7 +30,9 @@ Do **not** execute `0107` as part of this bounded qualification: that command
 uses the operator-settable NK cell `3000`. The original 1962 p. 11 XOR
 truth table remains contrary primary evidence; DPS1964 printed p. 18 and the
 1962 AU test pp. 172-173 support XNOR. This software behavior is not a
-physical-hardware oracle. Independent second visual transcription is pending.
+physical-hardware oracle. The 39-word second visual read matched the source image
+(2026-10-24); it was performed by the same assistant, so independent
+verification by a second researcher remains outstanding.
 
 For independent reproduction of the bounded observations and two work directories:
 
