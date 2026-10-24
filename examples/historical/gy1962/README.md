@@ -311,3 +311,29 @@ python -B tools/isa07_d15b1_h14_native.py --cli-exe tempkyiv/d15b1h14_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h15_kyivemu.exe
 python -B tools/isa07_d15b1_h15_native.py --cli-exe tempkyiv/d15b1h15_kyivemu.exe --timeout 20
 ```
+
+## AU test I, one-third division at 0205–0207 (D15/B1-H16)
+
+- `au1_division_one_third_0205_0207.k41` contains six exact first-visual-source
+  41-bit octal words: the expected RAM `0004` on printed p.172,
+  operands `0026`, `0027` and commands `0205`, `0206`, `0207`
+  on printed p.173 of Glushkov–Yushchenko (1962).
+- Opcode `12` divides positive `0026=01000000000000` by
+  `0027=03000000000000` into `0347`. Opcode `16` compares
+  `0347` with historical `0004=05252525252525` and jumps to `0210`.
+  In this 40-bit fractional case, independent integer division
+  `(numerator<<40)//denominator` predicts the historical code exactly.
+- The original failure STOP at `0207` is exercised only on a private
+  test image with a **single JE operand** retargeted from `0004` to
+  `0026`. Source words and the original STOP remain unchanged.
+- Strict boundary: **do not execute `0210`**. The following division
+  group `0210–0212`, division rounding, overflow and hardware semantics
+  require separate qualification.
+- Source Git pins 38/38; CPU, ROM and earlier source examples are unchanged.
+  The independent second human transcription and real hardware oracle
+  remain pending. All H9/H10/H11/H13/H14 conflicts remain OPEN_UNCHANGED.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h16_kyivemu.exe
+python -B tools/isa07_d15b1_h16_native.py --cli-exe tempkyiv/d15b1h16_kyivemu.exe --timeout 20
+```
