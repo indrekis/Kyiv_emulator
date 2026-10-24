@@ -462,3 +462,29 @@ python -B tools/isa07_d15b1_h20_native.py --cli-exe tempkyiv/d15b1h20_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h21_kyivemu.exe
 python -B tools/isa07_d15b1_h21_native.py --cli-exe tempkyiv/d15b1h21_kyivemu.exe --timeout 20
 ```
+
+## AU test I, consolidated batch 0241–0277 (D15/B1-H22)
+
+- `au1_batch31_0241_0277.k41` faithfully transcribes 31 consecutively
+  addressed octal words from Glushkov/Yushchenko 1962, printed p.174:
+  28 program words (0241–0257,0263–0277) plus 3 data words 0260–0262.
+- This intentionally groups six independent subgroups A–F into one
+  Git release while retaining a bounded per-instruction native witness
+  for each executed path. Independent entries 0241, 0247, 0254 and 0263,
+  0270, 0273, 0275 are not assumed to be linked by historical control.
+- `0252` is a real I/O opcode and MUST NOT be executed in this batch;
+  the false predicate is checked by stopping at C=0252. The branches to
+  0214/0042/0043 and the boundary 0300 are also never executed.
+- HOST_ZERO is emulator zero-initialization only; historical scratch
+  and random seed are UNKNOWN. Explicit PRIVATE seeds and private patched
+  branch discriminator remain separate from the canonical historical image.
+- The independent exact-integer oracle models *current HOST policy*,
+  including division-by-zero stop, signed-zero comparisons, rounding,
+  normalization and ROM 3026=-0; it is NOT a historical hardware oracle.
+- H9/H10/H11/H13/H14/H17 conflicts OPEN_UNCHANGED;
+  H19_SEED=UNKNOWN; H20/H21_SCRATCH=UNKNOWN; CPU/ROM/prior images immutable.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h22_kyivemu.exe
+python -B tools/isa07_d15b1_h22_native.py --cli-exe tempkyiv/d15b1h22_kyivemu.exe --timeout 20
+```

@@ -1,0 +1,16 @@
+gate	decision	evidence	status
+SOURCE_31	Preserve 31 printed words incl 3 constants	GY62 printed p.174	SOURCE_ONLY
+BLOCKS_A_F	Keep 6 separate logical subgroups within 1 release	0241..0277	OPEN_NATIVE
+ENTRY_POINTS	Bounded start 0241,0247,0254,0263,0270,0273,0275	Different branches not automatically connected	HOST_TEST_ONLY
+LOOP_A	Stop each prefix and distinguish loopback from exit	A_SOURCE_LOOP / A_PRIVATE_EXIT	HOST_TEST_ONLY
+DIV_B	Distinguish quotient, zero-division stop, successful and false branch	B_PRIVATE_EQUAL / B_PRIVATE_FALSE / B_PRIVATE_DIVZERO	HOST_TEST_ONLY
+BRANCH_C	Opcode 31 sign and original STOP tested without following targets	C_SOURCE / C_PRIVATE	HOST_TEST_ONLY
+DATA_D	0260..0262 are data, never executable	D_CONSTANTS	SOURCE_ONLY
+NORMALIZE_E_F	Validate 0350 and 0347 plus exact signed-zero comparison	E_SOURCE / F_SOURCE / F_PRIVATE	HOST_TEST_ONLY
+IO_BOUNDARY	Never execute 0252 (I/O) or 0300	Step-limited CLI	REQUIRED
+H19_SEED	Historical pseudorandom seed not established	H19 prior evidence	UNKNOWN
+SCRATCH_INPUTS	0350–0357 historical initial state not established	No printed input for these entries	UNKNOWN
+H9_H10_H11_H13_H14_H17	Preserve previously open source-vs-host conflicts	Prior ledgers	OPEN_UNCHANGED
+CPU_ROM	Do not modify CPU, ROM, previous images	Pin audit	IMMUTABLE
+NATIVE_GATE	Require real MINGW64 executable observation	Cannot be simulated into release readiness	PENDING
+HARDWARE_ORACLE	No real-machine proof obtained	No external historical runtime witness	NONE
