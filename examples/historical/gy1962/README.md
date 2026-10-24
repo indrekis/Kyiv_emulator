@@ -389,3 +389,28 @@ python -B tools/isa07_d15b1_h17_native.py --cli-exe tempkyiv/d15b1h17_kyivemu.ex
 g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h18_kyivemu.exe
 python -B tools/isa07_d15b1_h18_native.py --cli-exe tempkyiv/d15b1h18_kyivemu.exe --timeout 20
 ```
+
+## AU test I, pseudorandom block 0214–0226 (D15/B1-H19)
+
+- `au1_pseudorandom_0214_0226.k41` contains **12 first-visual-source words**:
+  the eleven printed instruction words `0214–0226` (octal address range)
+  and printed RAM constant `0260=01777777777777`, GY1962 printed p.174.
+  Printed p.172 calls this range *pseudorandom-number formation*, but
+  **does not specify the initial contents of RAM `0351–0354` here**.
+- Original `0213` branches to `0263`. This experiment instead explicitly
+  starts at `0214`, WITHOUT claiming it was reached sequentially.
+- Bounded observation: current HOST zero-initialized `0353` follows the
+  nonnegative path `0214,0215,0216,0221,0222,0223,0224,0226` (8 steps);
+  a separate **PRIVATE** negative seed `0353=20000000000001` explores
+  `0217,0220` (10 steps). A PRIVATE positive seed `0353=00000000000001`
+  provides a third nonnegative control. No seed is silently added to the
+  canonical historical image. Each run stops before executing `0227`.
+- The generated register traces and final words are **HOST-policy
+  observations**, NOT an independently witnessed historical pseudorandom
+  sequence. Separate source/ROM/seed/cwd evidence; H9/H10/H11/H13/H14/H17
+  unresolved conflicts remain OPEN_UNCHANGED. CPU and ROM unchanged.
+
+```sh
+g++ -std=c++17 -O0 -Iinc src/main.cpp src/asm_disasm.cpp -o tempkyiv/d15b1h19_kyivemu.exe
+python -B tools/isa07_d15b1_h19_native.py --cli-exe tempkyiv/d15b1h19_kyivemu.exe --timeout 20
+```
