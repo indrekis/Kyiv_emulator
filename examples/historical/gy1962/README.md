@@ -42,3 +42,22 @@ python tools/isa07_d15b1_h2_opcode17_probe.py --cli-exe tempkyiv/kyivemu.exe --e
 
 Other historical examples will use their own source images and per-word provenance here. See
 `docs/ISA_07_D15B1_H1_GY1962_AU1_LOGIC.md` for unresolved evidence and gate definitions.
+
+## AU test no. 1, addition: first two checks (D15/B1-H5)
+
+- `au1_addition_0110_0115.k41` — self-contained **9-word** modern HOST image:
+  three source data words `0002..0004` (printed p. 172), followed by the
+  two original addition/compare/STOP triplets `0110..0115` (printed p. 173).
+- `au1_addition_0110_0115_provenance.tsv` — one **visual first-pass** source
+  record per word. Another reader's independent verification remains pending.
+- Each group is executed from its own entry for **two instructions only**:
+  `0110` should reach `C=0113` with expected `0347=12525252525252`, while
+  `0113` should reach `C=0116` with expected `0347=05252525252525`.
+  These are **historical predictions, not observed passes** until the H5
+  native runner has executed successfully.
+- The next source instruction `0116` is **not** included. This bounded test
+  must not advance into it. The original failure STOPs remain verbatim.
+- `python -B tools/isa07_d15b1_h5_native.py --cli-exe tempkyiv/kyivemu.exe --timeout 20`
+  runs both entry points from two working directories and preserves observations.
+
+See `docs/ISA_07_D15B1_H5_FIRST_TWO_ADDITIONS.md` for scope and source uncertainties.
