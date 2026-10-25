@@ -375,6 +375,40 @@ bool Kyiv_t::execute_opcode(){
             break;
 
         case IO_operations_t::opcode_write_perfo_binary:{
+            // H24/H10: external HOST profile, opt-in only. This is not the
+            // reconstructed physical Kyiv printer or its control-switch circuitry.
+            // Legacy default below remains byte-for-byte unchanged.
+            if (io22_output_mode != kyiv_h10_output::profile::legacy_decimal_file) {
+                const addr_t first = addr3_shifted.source_1;
+                const addr_t last = addr3_shifted.source_2;
+                const addr_t branch = addr3_shifted.destination;
+                if (first > last || last >= 02000ULL)
+                    throw std::runtime_error("H10_INVALID_RAM_INTERVAL");
+                if (!((branch >= 0001ULL && branch < 02000ULL) ||
+                      (branch >= 03000ULL && branch < 04000ULL)))
+                    throw std::runtime_error("H10_INVALID_TARGET");
+                // Stage all words, preflight destination and convert fully
+                // BEFORE touching the output file, control state or T flag.
+                std::vector<std::uint64_t> words;
+                words.reserve(static_cast<std::size_t>(last - first + 1));
+                for (addr_t i=first; i<=last; ++i)
+                    words.push_back(kmem.read_memory(i));
+                const word_t next_k = kmem.read_memory(branch);
+                kyiv_h10_output::device_adapter device;
+                device.operator_select({io22_output_mode});
+                const std::string bytes = device.host_preview_bytes(words);
+                std::ofstream file("../punc_cards_out.txt",
+                                   std::ios::binary | std::ios::trunc);
+                if (!file.is_open()) throw std::runtime_error("H10_FILE_OPEN_FAILED");
+                file.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+                file.flush();
+                if (!file.good()) throw std::runtime_error("H10_FILE_WRITE_FAILED");
+                file.close();
+                if (file.fail()) throw std::runtime_error("H10_FILE_CLOSE_FAILED");
+                C_reg = branch;
+                K_reg = next_k;
+                break;
+            }
             std::ofstream myfile;
             myfile.open("../punc_cards_out.txt");
             if (myfile.is_open())

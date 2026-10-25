@@ -13,6 +13,7 @@
 #include <string>
 #include <boost/multiprecision/cpp_int.hpp>
 #include "kyiv_nk_panel.h"
+#include "kyiv_output_device_v1.h"
 #include "kyiv_drum_transaction_v1.h"
 
 typedef uint64_t addr_t;
@@ -199,6 +200,12 @@ struct Kyiv_t{
     // D14-C2-H2/P2: opt-in, explicitly attached HOST_POLICY device.
     // Existing text adapters are preserved when this pointer is null.
     std::unique_ptr<kyiv_drum_transaction_v1::session> experimental_drum;
+    // H24/H10 HOST-only per-CPU output selection; no historical switch oracle.
+    kyiv_h10_output::profile io22_output_mode =
+        kyiv_h10_output::profile::legacy_decimal_file;
+    void set_io22_output_profile(kyiv_h10_output::profile mode) noexcept {
+        io22_output_mode = mode;
+    }
 
     void attach_experimental_drum(
         const std::filesystem::path& existing_image,
