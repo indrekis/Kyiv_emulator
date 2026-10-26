@@ -1,31 +1,31 @@
 opcode_octal,historical_symbol_or_name_GY62,modern_mnemonic_from_team_sheet,ukrainian_alias_from_team_sheet,group,audit_note
-00,—,(no-op),—,службова,Нульова операція
-01,+,add,додам,арифметика,
-02,−,sub,відням,арифметика,−0 при відніманні рівних
-03,СлК,addcmd,комдодам,арифметика,знак другого операнда
-04,Ср1,jle,даммр,керування,
-05,Ср2,jlea,даммрабс,керування,
-06,|−|,suba,абсвідням,арифметика,
-07,Ц+,addcyc,цикдодам,арифметика,неблоковане циклічне додавання
-10,×,mul,множ,арифметика,
-11,× з округленням,rmul,замнож,арифметика,
-12,:,div,,арифметика,
-13,Л,sh,шш,логічні,
-14,∨,or,або,логічні,виправлено в робочій таблиці
-15,∧,and,і,логічні,виправлено в робочій таблиці
-16,Ср3,je,дамр,керування,точне порівняння
-17,нерівнозначність (опис ГЮ1962),xor,вабо,логічні,"D15/B1-H3: виконується XNOR (рівнозначність) у 41 біті; xor — застаріла мнемоніка; джерела 1962 с. 172-173 і 1964 с. 18; суперечність із описом 1962 с. 11"
-20,В1,rdata,чдан,I/O,
-21,В2,rbin,чбін,I/O,
+00,—,(no-op),—,службова,Нульова операція; H25/H18: seq10 C; zero opcode
+01,+,add,додам,арифметика,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+02,−,sub,відням,арифметика,−0 при відніманні рівних; H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+03,СлК,addcmd,комдодам,арифметика,знак другого операнда; H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+04,Ср1,jle,даммр,керування,H25/H18: untaken: seq10 C; taken: full11 k3
+05,Ср2,jlea,даммрабс,керування,H25/H18: untaken: seq10 C; taken: full11 k3
+06,|−|,suba,абсвідням,арифметика,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+07,Ц+,addcyc,цикдодам,арифметика,неблоковане циклічне додавання; H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+10,×,mul,множ,арифметика,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+11,× з округленням,rmul,замнож,арифметика,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+12,:,div,,арифметика,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+13,Л,sh,шш,логічні,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+14,∨,or,або,логічні,виправлено в робочій таблиці; H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+15,∧,and,і,логічні,виправлено в робочій таблиці; H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+16,Ср3,je,дамр,керування,точне порівняння; H25/H18: untaken: seq10 C; taken: full11 k3
+17,нерівнозначність (опис ГЮ1962),xor,вабо,логічні,D15/B1-H3: виконується XNOR (рівнозначність) у 41 біті; xor — застаріла мнемоніка; джерела 1962 с. 172-173 і 1964 с. 18; суперечність із описом 1962 с. 11; H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+20,В1,rdata,чдан,I/O,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
+21,В2,rbin,чбін,I/O,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)
 22,Печ,wbin,пбін,I/O,
 23,МБЗ,wmdr,пмбар,I/O,
 24,МБЧ,rmdr,чмбар,I/O,
-25,МБП,imdr,імбар,I/O,
-26,НГО,gob,стаго,адресація,
+25,МБП,imdr,імбар,I/O,H25/H18: sequential + prefetch uses seq10 C (H18 includes extra C+1 site)
+26,НГО,gob,стаго,адресація,H25/H18: unequal: seq10 C; equal: full11 k3
 27,ОГО,goe,кінго,адресація,
-30,УПП,nfork,форкнег,керування,мнемоніка потребує узгодження
+30,УПП,nfork,форкнег,керування,"мнемоніка потребує узгодження; H25/H18: not taken: seq10 C; taken: full11 k3, P from address code"
 31,УПЧ,ncall,колнег,керування,мнемоніка потребує узгодження
-32,ПРВ,ret,поверни,керування,
-33,Ост,stop,останов,керування,
-34,Ф,fop,фікс,адресація,
-35,Н,norm,норм,арифметика,
+32,ПРВ,ret,поверни,керування,"H25/H18: P -> C full11, P <- 0 (no seq step)"
+33,Ост,stop,останов,керування,"H25/H18: post-STOP seq10 in HOST only, not hardware-qualified"
+34,Ф,fop,фікс,адресація,H25/H18: F completes with seq10 C
+35,Н,norm,норм,арифметика,H25/H18: sequential fallthrough uses seq10 C (11th bit preserved)

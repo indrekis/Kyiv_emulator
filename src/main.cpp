@@ -144,6 +144,12 @@ void printRegisters(uint64_t C_reg, uint64_t K_reg, uint64_t P_reg,
 }
 
 //! Returns: True -- continue, false -- ситуація останову.
+// DPS64 (1964), printed p.158: first 10 UVK bits count; bit 11 selects memory.
+// Only sequential advance / skip; explicit branch and return load 11-bit C.
+static constexpr uint64_t next_sequential_C(uint64_t c) noexcept {
+    return (c & 02000ULL) | ((c + 1ULL) & 01777ULL);
+}
+
 bool Kyiv_t::execute_opcode(){
     K_reg = kmem.read_memory(C_reg);
     std::cout << "Our command(binary): "<<std::bitset<41>(K_reg) << std::endl;
@@ -152,7 +158,7 @@ bool Kyiv_t::execute_opcode(){
     std::cout<<"Opcode: "<<opcode<<std::endl;
 
     if (opcode == 0) {
-        ++C_reg;
+        C_reg = next_sequential_C(C_reg);
         std::cout << "Zero opcode: idle cycle, then next command." << std::endl;
         return !T_reg;
     }
@@ -213,12 +219,12 @@ bool Kyiv_t::execute_opcode(){
                 kmem.write_memory(addr3_shifted.destination , kmem.read_memory(addr3_shifted.source_2) << shift);
                 kmem.write_memory(addr3_shifted.destination,  kmem.read_memory(addr3_shifted.destination) & (mask_40_bits | mask_41_bit)); // Зануляємо зайві біти
             }
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
         }
             break;
         case logic_operations_t::opcode_log_or:{
             kmem.write_memory(addr3_shifted.destination, kmem.read_memory(addr3_shifted.source_1) | kmem.read_memory(addr3_shifted.source_2));
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
             std::cout << "orr" << kmem.read_memory(addr3_shifted.destination) << std::endl;
         }
             break;
@@ -232,14 +238,14 @@ bool Kyiv_t::execute_opcode(){
             const word_t source_2 = kmem.read_memory(addr3_shifted.source_2);
             kmem.write_memory(addr3_shifted.destination,
                               (~(source_1 ^ source_2)) & mask41);
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
         }
             break;
         case logic_operations_t::opcode_log_and:{
 
             kmem.write_memory(addr3_shifted.destination, kmem.read_memory(addr3_shifted.source_1) & kmem.read_memory(addr3_shifted.source_2));
 
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
         }
             break;
 //==========================================================================================================
@@ -289,7 +295,7 @@ bool Kyiv_t::execute_opcode(){
             for (std::size_t i = 0; i < staged.words.size(); ++i)
                 kmem.write_memory(addr3_shifted.source_1 + i, staged.words[i]);
             // GY62 p.58: sequential control and next-command prefetch.
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
             K_reg = kmem.read_memory(C_reg);
         }
             break;
@@ -316,7 +322,7 @@ bool Kyiv_t::execute_opcode(){
                 kmem.write_memory(addr3_shifted.source_1 + i, staged.words[i]);
             h += staged.words.size(); // host physical-line cursor policy
             // GY62 printed p.58: C+1 -> C and memory[C] -> K.
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
             K_reg = kmem.read_memory(C_reg);
         }
             break;
@@ -480,7 +486,9 @@ bool Kyiv_t::execute_opcode(){
             if (experimental_drum) {
                 // Opcode 25 consumes RAW a2/a3, never addr3_shifted: GY62 p15.
                 // Validate next fetch before changing preparation state.
-                const addr_t next = C_reg + 1;
+                // Opcode 25: prevalidate the actual sequential next instruction,
+                // including low-10 rollover, before mutating drum state.
+                const addr_t next = next_sequential_C(C_reg);
                 const word_t next_k = kmem.read_memory(next);
                 experimental_drum->prepare(K_reg);
                 C_reg = next;
@@ -494,7 +502,7 @@ bool Kyiv_t::execute_opcode(){
                 drum_num_write = addr3_shifted.source_2;
                 drum_zone_write = addr3_shifted.destination;
             }
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
             K_reg = kmem.read_memory(C_reg);
         }
             break;
@@ -592,7 +600,7 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             // Emulator policy: stop even if overflow-stop blocking is enabled.
             if (abs_val2 == 0) {
                 T_reg = true;
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
                 return;
             }
             res_mul = ((mul_word_t) abs_val1 << 40) / (mul_word_t) abs_val2;
@@ -600,10 +608,10 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             if (res_mul >= (mul_word_t(1) << 40)) {
                 if (!overflow_stop_blocked()) {
                     T_reg = true;
-                    ++C_reg;
+                    C_reg = next_sequential_C(C_reg);
                     return;
                 }
-                ++C_reg; // skip the next instruction, then write low 40 bits below
+                C_reg = next_sequential_C(C_reg); // skip the next instruction, then write low 40 bits below
             }
             // std::cout << "Div " << res_mul << std::endl;
         }
@@ -641,12 +649,12 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             if (!overflow_stop_blocked())
             {
                 T_reg = true;
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
                 return;
             }
             else
             {
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
             }
         }
         kmem.write_memory(addr3.destination, static_cast<uint64_t>(res) & mask_40_bits);
@@ -667,10 +675,10 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         if (magnitude >= mask_41_bit) {
             if (!overflow_stop_blocked()) {
                 T_reg = true;
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
                 return;
             }
-            ++C_reg; // Blocking emergency stop skips the next instruction.
+            C_reg = next_sequential_C(C_reg); // Blocking emergency stop skips the next instruction.
         }
         kmem.write_memory(addr3.destination, (magnitude & mask_40_bits) | sign_of_second);
     } else if(opcode == arythm_operations_t::opcode_addcyc){
@@ -741,7 +749,7 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             kmem.write_memory(addr3.destination, kmem.read_memory(addr3.destination) | mask_41_bit);
 //        std::cout << "Div res: " << word_to_number(kmem[addr3.destination]) << std::endl;
     }
-    ++C_reg;
+    C_reg = next_sequential_C(C_reg);
 }
 
 
@@ -763,7 +771,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
             if(take_branch){
                 C_reg = addr3_shifted.destination;
             } else {
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
             }
         }
             break;
@@ -773,7 +781,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
             if (abs_val1 <= abs_val2) {
                 C_reg = addr3_shifted.destination;
             } else {
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
             }
         }
             break;
@@ -785,7 +793,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
                (kmem.read_memory(addr3_shifted.source_2) & word_mask)){
                 C_reg = addr3_shifted.destination;
             } else {
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
             }
         }
             break;
@@ -808,7 +816,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
                 //! Перевірити!
                 C_reg = addr3_shifted.destination;
             }else{
-                ++C_reg; //! Тут P_reg не мала б змінювати
+                C_reg = next_sequential_C(C_reg); //! Тут P_reg не мала б змінювати
             }
         }
             break;
@@ -828,7 +836,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
             if (A_reg == Loop_reg) {
                 C_reg = addr3_shifted.destination;
             } else {
-                ++C_reg;
+                C_reg = next_sequential_C(C_reg);
             }
 
             std::cout << "A_reg: " << A_reg << std::endl;
@@ -850,7 +858,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
             A_reg = word_to_addr3(kmem.read_memory(addr3_shifted.source_1)).source_2;
             word_t res = kmem.read_memory(A_reg);
             kmem.write_memory(addr3_shifted.destination, res);
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
         }
             break;
         case flow_control_operations_t::opcode_stop:{ //! TODO: Вона враховує стан кнопки на пульті?
@@ -873,7 +881,7 @@ void Kyiv_t::opcode_flow_control(const addr3_t& addr3_shifted, opcode_t opcode, 
             // If B_tumb == 2 -> stop by command number
             // I'm not sure what to do with 1st and 2nd B_tumb (maybe that should be handled in main???)
             T_reg = true;
-            ++C_reg;
+            C_reg = next_sequential_C(C_reg);
         }
             break;
     }

@@ -1,10 +1,10 @@
 opcode_octal	symbol	family	implementation	documentary_evidence	existing_coverage	open_issue_ids	assessment
-00	-	ZERO	SPECIAL_CASE	DOC_PARTIAL	ISA01,ISA03	U00_SEQ	NOOP; generic opcode zero special case
+00	-	ZERO	SPECIAL_CASE	DOC_PARTIAL	ISA01,ISA03	U00_SEQ	NOOP; generic opcode zero special case; H25/H18 UVK: seq10 C; zero opcode
 01	opcode_add	ARITH	IMPLEMENTED	DOC_POLICY	ISA01,ISA03,ISA06_D8_P1,P2-P10	U01_ZERO,OVF_STOP	Nonzero add tested; sum-zero sign M1 remains policy
 02	opcode_sub	ARITH	IMPLEMENTED	DOC	ISA01,ISA03,ISA06_D8_P1	OVF_STOP	Equal nonzero subtraction yields negative zero (fixed)
 03	opcode_addcmd	ARITH	IMPLEMENTED	DOC	ISA01,ISA03	OVF_STOP	Sign from original second operand, magnitude & overflow repaired
-04	opcode_jmp_less_or_equal	CONTROL	IMPLEMENTED	DOC_CONFLICT	ISA05_D1,D2	CMP0405	Signed-zero order tested; equality boundary policy
-05	opcode_jmp_abs_less_or_equal	CONTROL	IMPLEMENTED	DOC_CONFLICT	ISA05_D1,D2,ISA06_D8_P2-P10	CMP0405	Absolute equality boundary remains policy
+04	opcode_jmp_less_or_equal	CONTROL	IMPLEMENTED	DOC_CONFLICT	ISA05_D1,D2	CMP0405	Signed-zero order tested; equality boundary policy; H25/H18 UVK: on false branch seq10 C; true branch full11 target
+05	opcode_jmp_abs_less_or_equal	CONTROL	IMPLEMENTED	DOC_CONFLICT	ISA05_D1,D2,ISA06_D8_P2-P10	CMP0405	Absolute equality boundary remains policy; H25/H18 UVK: on false branch seq10 C; true branch full11 target
 06	opcode_subabs	ARITH	IMPLEMENTED	DOC_PARTIAL	ISA01,ISA04	SUBABS_ZERO	Subtraction of magnitudes; exact-zero sign unqualified
 07	opcode_addcyc	ARITH	IMPLEMENTED	DOC_CONFLICT	ISA04_D1-D5	CYC07_LSB,CYC07_ZERO	Carry-correction LSB discrepancy; no physical oracle
 10	opcode_mul	ARITH	IMPLEMENTED	DOC_PARTIAL	ISA04_D1-D4	MUL_EDGE	Integer magnitude product; signed-zero preservation verified in source audit
@@ -13,21 +13,21 @@ opcode_octal	symbol	family	implementation	documentary_evidence	existing_coverage
 13	opcode_log_shift	LOGIC	IMPLEMENTED	DOC	ISA06_D1-D3	WORD_WIDTH	41-bit shift, direction/count and alias tested
 14	opcode_log_or	LOGIC	IMPLEMENTED	DOC	ISA06_D1-D2	WORD_WIDTH	Full 41-bit logical OR tested
 15	opcode_log_and	LOGIC	IMPLEMENTED	DOC	ISA06_D1-D2	WORD_WIDTH	Full 41-bit logical AND tested
-16	opcode_jmp_equal	CONTROL	IMPLEMENTED	DOC	ISA05_D1-D2,ISA05_D6,ISA06_D8_P2-P10	WORD_WIDTH	Exact 41-bit word equality; signed zeros distinct
+16	opcode_jmp_equal	CONTROL	IMPLEMENTED	DOC	ISA05_D1-D2,ISA05_D6,ISA06_D8_P2-P10	WORD_WIDTH	Exact 41-bit word equality; signed zeros distinct; H25/H18 UVK: false seq10 C; true full11 target
 17	opcode_log_xor	LOGIC	IMPLEMENTED	DOC	ISA06_D1-D2	WORD_WIDTH	Full 41-bit logical XOR tested
 20	opcode_read_perfo_data	IO	CODE_ANOMALY	DOC_PARTIAL	NONE_TARGETED	IO_PC,IO_UNINIT,IO_UNTESTED	Input from text file; C unchanged; uninitialized flag
 21	opcode_read_perfo_binary	IO	CODE_ANOMALY	DOC_PARTIAL	NONE_TARGETED	IO_PC,IO_COUNTER,IO_UNTESTED	Input command codes; counter does not advance
 22	opcode_write_perfo_binary	IO	CODE_DEFECT	DOC_PARTIAL	NONE_TARGETED	IO_FALLTHROUGH,IO_RANGE,IO_UNTESTED	Output handler falls into opcode23
 23	opcode_write_magnetic_drum	IO	CODE_ANOMALY	DOC_PARTIAL	NONE_TARGETED	IO_RANGE,IO_UNTESTED	Output by file approximation; range interpretation open
 24	opcode_read_magnetic_drum	IO	CODE_ANOMALY	DOC_PARTIAL	NONE_TARGETED	IO_PC,IO_UNINIT,IO_UNTESTED	Drum input by file; C unchanged; uninitialized flag
-25	opcode_init_magnetic_drum	IO	CODE_ANOMALY	DOC_PARTIAL	NONE_TARGETED	IO_PC,IO_UNTESTED	Drum setup; C unchanged; transport model incomplete
-26	opcode_group_op_begin	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA05_D3-D5	REGISTER_WIDTH	Start group loads address field codes; overwide inputs OPEN
+25	opcode_init_magnetic_drum	IO	CODE_ANOMALY	DOC_PARTIAL	NONE_TARGETED	IO_PC,IO_UNTESTED	Drum setup; C unchanged; transport model incomplete; H25/H18 UVK: drum prepare next-prefetch uses seq10 C (extra old C_reg+1 site)
+26	opcode_group_op_begin	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA05_D3-D5	REGISTER_WIDTH	Start group loads address field codes; overwide inputs OPEN; H25/H18 UVK: no equality seq10 C, equality full11 target
 27	opcode_group_op_end	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA05_D3-D5	REGISTER_WIDTH	Group increment modulo 02000; Cy high bit OPEN
-30	opcode_call_negative	CONTROL	IMPLEMENTED	DOC_CONFLICT	ISA05_D1,D3,D5	CALL30_MOD	II source for P ambiguous across GY62 pp13/57
-31	opcode_fork_negative	CONTROL	IMPLEMENTED	DOC	ISA05_D1,D3,ISA06_D8_P5,P9,P10	NK_MODE	Sign dispatch incl +0 and -0 confirmed in model
-32	opcode_ret	CONTROL	IMPLEMENTED	DOC	ISA05_D3-D4	STOP_CONTROL	Returns via P and clears P (fixed)
-33	opcode_stop	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA03,ISA06_D8_P5	STOP_CONTROL	Unconditional STOP tested; next C and console modes OPEN
-34	opcode_F	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA05_D3,D5,D6	REGISTER_WIDTH	Historical F program tested; overwide indirect address OPEN
+30	opcode_call_negative	CONTROL	IMPLEMENTED	DOC_CONFLICT	ISA05_D1,D3,D5	CALL30_MOD	II source for P ambiguous across GY62 pp13/57; H25/H18 UVK: not-called seq10 C; taken loads C and P as full11 addresses
+31	opcode_fork_negative	CONTROL	IMPLEMENTED	DOC	ISA05_D1,D3,ISA06_D8_P5,P9,P10	NK_MODE	Sign dispatch incl +0 and -0 confirmed in model; H25/H18 UVK: either branch selects full11 address, no seq10
+32	opcode_ret	CONTROL	IMPLEMENTED	DOC	ISA05_D3-D4	STOP_CONTROL	Returns via P and clears P (fixed); H25/H18 UVK: direct full11 P -> C, 0 -> P
+33	opcode_stop	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA03,ISA06_D8_P5	STOP_CONTROL	Unconditional STOP tested; next C and console modes OPEN; H25/H18 UVK: post-STOP next C is HOST policy, not strict source
+34	opcode_F	CONTROL	IMPLEMENTED	DOC_PARTIAL	ISA05_D3,D5,D6	REGISTER_WIDTH	Historical F program tested; overwide indirect address OPEN; H25/H18 UVK: F completion seq10 C
 35	opcode_norm	ARITH	IMPLEMENTED	DOC_PARTIAL	ISA04_D1-D4	NORM_ALIAS	Zero/sign treatment source-derived; overlapping addresses OPEN
 36	-	UNMAPPED	NOT_MAPPED	NO_CONFIRMED_SPEC	NONE_TARGETED	UNMAPPED_CODES	No corresponding opcode enum/handler in current implementation
 37	-	UNMAPPED	NOT_MAPPED	NO_CONFIRMED_SPEC	NONE_TARGETED	UNMAPPED_CODES	No corresponding opcode enum/handler in current implementation

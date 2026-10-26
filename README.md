@@ -118,39 +118,61 @@ k1 = '(A1+E1A)
 |            Opcode           	| instruction (en) 	|                description               	|                                                                                                                       	| STOP         	|
 |:---------------------------:	|:----------------:	|:----------------------------------------:	|-----------------------------------------------------------------------------------------------------------------------	|--------------	|
 | Arithmetic operations       	|                  	|                                          	|                                                                                                                       	|              	|
-|              01             	|        add       	| addition                                 	| k1+k2=>k3 'C+1=>C                                                                                                     	| \|res\| ≥ 1  	|
-|              02             	|        sub       	| substruction                             	| k1-k2=>k3 'C+1=>C                                                                                                     	| \|res\| ≥ 1  	|
-|              03             	|        adc       	| addition of commands                     	| \| k1 + \|k2\| \| V sign of k2 => k3 'C+1=>C                                                                          	|              	|
-|              06             	|       suba       	| modulus substraction                     	| \|k1\| - \|k2\| => k3 'C+1=>C                                                                                         	|              	|
-|              07             	|      addcyc      	| cyclical addition                        	| k1+k2=>k3 if res ≥ 1 : k3 & k1 >> 40 ( carry from the sign bit goes to the least significant bit of the res ) 'C+1=>1 	|              	|
-|              10             	|        mul       	| multiplication without rounding          	| k1*k2=>k3 res>>40 'C+1=>C                                                                                             	|              	|
-|              11             	|       rmul       	| multiplication with rounding             	| k1*k2=>k3 res += 1<<39 res>>40 (1 is added to the highest of the discarded bits.) 'C+1=>C                             	|              	|
-|              12             	|        div       	| division                                 	| k1/k2=>k3 'C+1=>C                                                                                                     	|              	|
+|              01             	|        add       	| addition                                 	| k1+k2=>k3 seq(C)=>C                                                                                                     	| \|res\| ≥ 1  	|
+|              02             	|        sub       	| substruction                             	| k1-k2=>k3 seq(C)=>C                                                                                                     	| \|res\| ≥ 1  	|
+|              03             	|        adc       	| addition of commands                     	| \| k1 + \|k2\| \| V sign of k2 => k3 seq(C)=>C                                                                          	|              	|
+|              06             	|       suba       	| modulus substraction                     	| \|k1\| - \|k2\| => k3 seq(C)=>C                                                                                         	|              	|
+|              07             	|      addcyc      	| cyclical addition                        	| k1+k2=>k3 if res ≥ 1 : k3 & k1 >> 40 ( carry from the sign bit goes to the least significant bit of the res ) seq(C)=>C 	|              	|
+|              10             	|        mul       	| multiplication without rounding          	| k1*k2=>k3 res>>40 seq(C)=>C                                                                                             	|              	|
+|              11             	|       rmul       	| multiplication with rounding             	| k1*k2=>k3 res += 1<<39 res>>40 (1 is added to the highest of the discarded bits.) seq(C)=>C                             	|              	|
+|              12             	|        div       	| division                                 	| k1/k2=>k3 seq(C)=>C                                                                                                     	|              	|
 | Logical operations          	|                  	|                                          	|                                                                                                                       	|              	|
-|              13             	|        sh        	| logical shift                            	| if k2 < 0    >> else    << k1 >>/<< n => k3 n -- the number of orders of 3rd address of k2 'C+1=>C                    	|              	|
-|              14             	|        and       	| digital logical addition                 	| k1 & k2 => k3 'C+1=>C                                                                                                 	|              	|
-|              15             	|        or        	| digital logical "multiplication"         	| k1 \| k2 => k3 'C+1=>C                                                                                                	|              	|
-|              17              | xor (legacy mnemonic) | bitwise equivalence (XNOR) | ~(k1 ^ k2) & ((1ULL << 41) - 1) => k3; sign bit included; C+1=>C | |
-|              35             	|       norm       	| normalization                            	| k1 -- normalized exponent => k2 mantissa => k3 'C+1=>C                                                                	|              	|
+|              13             	|        sh        	| logical shift                            	| if k2 < 0    >> else    << k1 >>/<< n => k3 n -- the number of orders of 3rd address of k2 seq(C)=>C                    	|              	|
+|              14             	|        or       	| bitwise OR                 	| k1 \| k2 => k3 seq(C)=>C                                                                                                 	|              	|
+|              15             	|        and        	| bitwise AND         	| k1 & k2 => k3 seq(C)=>C                                                                                                	|              	|
+|              17              | xor (legacy mnemonic) | bitwise equivalence (XNOR) | ~(k1 ^ k2) & ((1ULL << 41) - 1) => k3; sign bit included; seq(C)=>C | |
+|              35             	|       norm       	| normalization                            	| k1 -- normalized exponent => k2 mantissa => k3 seq(C)=>C                                                                	|              	|
 | Control transfer operations 	|                  	|                                          	|                                                                                                                       	|              	|
-|              04             	|        jle       	| if 1  ≤  2                               	| if k1 ≤ k2: k3=>C else: 'C+1=>C                                                                                       	|              	|
-|              05             	|       jlea       	| if \| 1 \|  ≤  \| 2 \|                   	| if \|k2\| ≤ \|k2\|: k3=>C else: 'C+1=>C                                                                               	|              	|
-|              16             	|        je        	| if 1  =  2                               	| if k1 == k2: k3=>C else: 'C+1=>C                                                                                      	|              	|
-|              30             	|       nfork      	| if 1 ≤ -0                                	| if k1 ≤ -0: k3=>C k2=>P else: 'C+1=>C                                                                                 	|              	|
+|              04             	|        jle       	| if 1  ≤  2                               	| if k1 ≤ k2: k3=>C else: seq(C)=>C                                                                                       	|              	|
+|              05             	|       jlea       	| if \| 1 \|  ≤  \| 2 \|                   	| if \|k1\| ≤ \|k2\|: k3=>C else: seq(C)=>C                                                                               	|              	|
+|              16             	|        je        	| if 1  =  2                               	| if k1 == k2: k3=>C else: seq(C)=>C                                                                                      	|              	|
+|              30             	|       nfork      	| if 1 ≤ -0                                	| if k1 ≤ -0: k3=>C k2=>P else: seq(C)=>C                                                                                 	|              	|
 |              31             	|       ncall      	| 1 ≤ -0                                   	| if k1 ≤ -0: k3=>C else k2=>C                                                                                          	|              	|
-|              32             	|        ret       	| return                                   	|                                                                                                                       	|              	|
+|              32             	|        ret       	| return                                   	| P=>C; 0=>P (11-bit address, NO seq increment) |              	|
 | Modification of addresses   	|                  	|                                          	|                                                                                                                       	|              	|
-|              26             	|        gob       	| beginning of a group operation           	| k1=>Ц(loop) k2=>A if A=Ц: k3=>C else: 'C+1=>C                                                                         	|              	|
+|              26             	|        gob       	| beginning of a group operation           	| k1=>Ц(loop) k2=>A if A=Ц: k3=>C else: seq(C)=>C                                                                         	|              	|
 |              27             	|        goe       	| end of a group operation                 	| A+k1=>A if A=Ц: k3=>C else: k2=>C                                                                                     	|              	|
-|              34             	|        fop       	| call on the retainer (F)                 	| second address of k1 ==> A 'A=>k3 'C+1=>C                                                                             	|              	|
+|              34             	|        fop       	| call on the retainer (F)                 	| second address of k1 ==> A 'A=>k3 seq(C)=>C                                                                             	|              	|
 | Input/Output                	|                  	|                                          	|                                                                                                                       	|              	|
 |              20             	|        rdt       	| input of data from punched card          	| read data to 'k1, 'k1+1,..,'k2. Start reading with offset k3                                                          	|              	|
 |              21             	|        rbn       	| input of command from punched card       	| read command to 'k1, 'k1+1,...,'k2. Start reading with offset k3                                                      	|              	|
 |              22             	|        wbn       	| output to punched card                   	| write 'k1, 'k1+1,...'k2 to card                                                                                       	|              	|
 |              23             	|        wmd       	| write to magnetic drum                   	| write 'k1, 'k1+1,...'k2 to drum                                                                                       	|              	|
 |              24             	|        rmd       	| read from magnetic drum                  	| read from drum and write to 'k1, 'k1+1,..., 'k2                                                                        	|              	|
-|              25             	|        imd       	| init magnetic dram                       	| k2 -- number of magnetic dram (3 max) number of road k3 -- offset k1 -- 0 if read, 1 -- of write 'C+1=>C              	|              	|
+|              25             	|        imd       	| init magnetic dram                       	| k2 -- number of magnetic dram (3 max) number of road k3 -- offset k1 -- 0 if read, 1 -- of write seq(C)=>C              	|              	|
 |              33             	|      ostanov     	| stop                                     	|                                                                                                                       	|              	|
+
+**Command-counter/UVK note (DPS64, printed p. 158; H25/H18).**
+In the operation table, `seq(C)` denotes the **10-bit sequential counter step
+with the 11th bit preserved**, not 11-bit integer addition:
+`seq(C) = (C & 02000) | ((C + 1) & 01777)` (all values octal).
+This applies to ordinary fallthrough, an untaken conditional branch and each
+step of an overflow-blocked skip. Directly selected addresses (`k2`/`k3`),
+indirect group branch targets and `32` (`P -> C; 0 -> P`) are **full 11-bit loads**;
+do not truncate those targets to ten bits. Opcode `25` uses the same sequential
+step during checked next-command prefetch. For `33` and fault stops the emulator's
+post-stop `C` remains a HOST-observation, **not** a qualified historical rule.
+The `00` zero instruction also advances through `seq(C)`; it is not included
+among the 29 named operations in this table. Source and edge cases:
+[`docs/ARCH_UVK_COUNTER.md`](docs/ARCH_UVK_COUNTER.md).
+
+**Qualification (H25/H18R2–H25/H19R2):** The low-ten-bit sequential rule
+was checked against the original 1964 description and on the actual
+CPU implementation: 23/23 ISA probes, 282/282 H24 HOST regressions,
+the 1310-step H17 continuation (two modes), and post-integration native
+UVK/ISA probes. This is **not** a complete run of the historical UU
+program or an independent hardware oracle.
+
 ## GUI Usage
 
 GUI consists of such main parts:
