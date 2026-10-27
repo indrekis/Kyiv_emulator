@@ -736,7 +736,10 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
 //        std::cout << "norm_val_64: " << std::bitset<64>(res_for_norm) << std::endl;
 //        std::cout << "norm_val_41: " << std::bitset<41>(res_for_norm) << std::endl;
 
-        kmem.write_memory(addr3.source_2, power);
+        // PRIVATE H40R3 diagnostic fix: normalization order is negative.
+        // Zero shifts encode -0; these are sign-magnitude machine codes.
+        const word_t signed_order = mask_41_bit | static_cast<word_t>(power);
+        kmem.write_memory(addr3.source_2, signed_order);
         kmem.write_memory(addr3.destination, static_cast<uint64_t>(res_for_norm) & mask_40_bits);
         if (is_negative)
             kmem.write_memory(addr3.destination, kmem.read_memory(addr3.destination) | mask_41_bit);
