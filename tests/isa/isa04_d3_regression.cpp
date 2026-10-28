@@ -75,8 +75,8 @@ int main(){
     strict("10_nonzero_negative_product",run(010,SIGN|HALF,HALF),SIGN|QUARTER);
     strict("11_nonzero_negative_product",run(011,SIGN|HALF,HALF),SIGN|QUARTER);
     // DPS64 p. 153: zero suppresses normalizing shifts and clears counter.
-    norm_strict("35_positive_zero_no_shifts",0,0,0);
-    norm_strict("35_positive_quarter",QUARTER,1,HALF);
+    norm_strict("35_positive_zero_no_shifts",0,SIGN,0);
+    norm_strict("35_positive_quarter",QUARTER,SIGN|1,HALF);
     // DPS64 p. 153: order written first, mantissa second.
     strict("35_alias_second_third_final_mantissa",run(035,QUARTER,0,2,3,3),HALF);
     // Negative zero has a sign trigger and zero-detector ambiguity. Remain OBS.

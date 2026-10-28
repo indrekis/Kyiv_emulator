@@ -588,8 +588,9 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
             break;
         case arythm_operations_t::opcode_mul: [[fallthrough]];
         case arythm_operations_t::opcode_mul_round:
-            res_mul = sign1 * (mul_word_t) abs_val1 * sign2 * (mul_word_t) abs_val2;
-            std::cout << "H : " << res_mul << std::endl;
+            // H14: the sequential 45-bit accumulator computes the
+            // magnitude below; operand sign is handled separately.
+            res_mul = 0;
             break;
         case arythm_operations_t::opcode_norm: {
             res_for_norm = sign1 * (abs_val1 << power);
@@ -706,10 +707,22 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         assert(res_mul >= 0);
 
 
-        if (opcode == arythm_operations_t::opcode_mul_round) {
-            res_mul += 1ULL << 39;
+        // H14 model from DPS64 (1964), pp. 141, 149-150: 40 main bits
+        // and 5 guard bits; shift P2 before each conditional addition.
+        // Hardware-level timing and gate behavior remain unverified.
+        // The sign remains independent of magnitude (including negative zero).
+        std::uint64_t p1 = abs_val1 & mask_40_bits;
+        std::uint64_t p2 = (abs_val2 & mask_40_bits) << 5;
+        std::uint64_t acc = (opcode == arythm_operations_t::opcode_mul_round)
+            ? (std::uint64_t{1} << 4) : std::uint64_t{0};
+        constexpr std::uint64_t acc_mask_45 = (std::uint64_t{1} << 45) - 1;
+        for (unsigned cycle = 0; cycle < 40; ++cycle) {
+            const bool add = (p1 & (std::uint64_t{1} << 39)) != 0;
+            p2 >>= 1;
+            if (add) acc = (acc + p2) & acc_mask_45;
+            p1 = (p1 << 1) & mask_40_bits;
         }
-        res_mul = res_mul >> 40;
+        res_mul = acc >> 5;
 
         kmem.write_memory(addr3.destination, static_cast<uint64_t>(res_mul) & mask_40_bits);
         std::cout << "DEBUUUUUUUUG2 " << static_cast<uint64_t>(res_mul) << std::endl;

@@ -35,7 +35,7 @@ blob and is checked at execution by the CLI `--watch 3035`.
 ## Independent fixed-point oracle and expected control flow
 
 The 41-bit fixed-point word is sign-magnitude: one sign bit and 40
-fraction bits. For the **current CPU implementation of opcode 11**,
+fraction bits. For the **pre-H14 CPU implementation of opcode 11** (original observation),
 positive result magnitude is computed exactly as
 
 ```
@@ -84,3 +84,48 @@ and is compared against watched source cells and ROM as appropriate.
 A static audit marking `NATIVE_GATE=PENDING` describes the committed
 source artifact, not the eventual native execution outcome, which must
 be recorded in separate runtime logs or a later commit message.
+
+## H14 qualification and promotion decision (2026-10-28)
+
+The preceding sections are the original, immutable-in-meaning discrepancy
+record from before H14 promotion; the exact-product CPU predictions in that
+record are **historical baselines**, not the current emulator policy.
+
+DPS64 (1964), printed pp. 141 and 149–150, describes 40 principal and five
+additional accumulator bits, multiplier and multiplicand shifts, and an
+initial rounding bit. The qualified *software reconstruction* uses 40 cycles:
+
+```cpp
+uint64_t p1 = a & ((1ULL << 40) - 1);
+uint64_t p2 = (b & ((1ULL << 40) - 1)) << 5;
+uint64_t sum = rounded ? (1ULL << 4) : 0;
+for (unsigned i = 0; i < 40; ++i) {
+    const bool add = (p1 & (1ULL << 39)) != 0;
+    p2 >>= 1;
+    if (add) sum = (sum + p2) & ((1ULL << 45) - 1);
+    p1 = (p1 << 1) & ((1ULL << 40) - 1);
+}
+uint64_t magnitude = sum >> 5;
+```
+
+The sign is formed independently as the XOR of input signs, including signed
+zero; both opcodes `10` and `11` use this model, differing only by preload.
+
+The user-executed private native qualification on commit `b2bfe2c` recorded:
+- Independent Python contribution sum and C++ loop: `2691/2691`.
+- Real private-copy `Kyiv_t` matrix: `2691/2691`, source `H14-A/B/C=3/3`.
+- `D3`: multiplication `11/11`, no new failures; two pre-existing opcode 35
+  normalization-order expectations were obsolete after H23.
+- `D1`: no new mismatches other than the two `max × max` cases that asserted
+  the superseded exact-product CPU policy; three prior normalization-order
+  expectations were also obsolete.
+- Historical 10-case batch: `10/10`, nine historical matches, with `H17`
+  remaining a known, unchanged discrepancy.
+
+For maximal operands, the sequential model yields `17777777777774` for
+`10` (unrounded) and `17777777777775` for `11` (rounded), while the exact
+80-bit product truncated or rounded produces `17777777777776`. This is a
+**qualified software model**, not proof of every circuit-level microstep.
+`HARDWARE_ORACLE=UNAVAILABLE`; `H14_SOFTWARE_MODEL=QUALIFIED`;
+`H17=OPEN_UNCHANGED`. Previous static `NATIVE_GATE=PENDING` refers to the
+original archival observation, not the subsequently executed qualification.

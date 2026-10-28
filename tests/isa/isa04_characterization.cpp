@@ -104,9 +104,9 @@ int main(){
         uint64_t want=rounded_mul(SIGN|(SIGN/2),SIGN/2,false);
         return std::pair{go && v==want,"result="+oct(v)+", expected="+oct(want)};
     });
-    strict_case("10_mul_max_max_integer_oracle", [] {
+    strict_case("10_mul_max_max_45bit_accumulator", [] {
         auto [v,go]=run(010,MAG,MAG);
-        uint64_t want=rounded_mul(MAG,MAG,false);
+        uint64_t want=017777777777774ULL; // H14 45-bit, 40-cycle model
         return std::pair{go && v==want,"result="+oct(v)+", expected="+oct(want)};
     });
     strict_case("10_mul_truncation_at_half_lsb", [] {
@@ -126,29 +126,29 @@ int main(){
         auto [v,go]=run(011,1,SIGN/2-1);
         return std::pair{go && v==0,"result="+oct(v)+", expected=0"};
     });
-    strict_case("11_rmul_max_max_integer_oracle", [] {
+    strict_case("11_rmul_max_max_45bit_accumulator", [] {
         auto [v,go]=run(011,MAG,MAG);
-        uint64_t want=rounded_mul(MAG,MAG,true);
+        uint64_t want=017777777777775ULL; // GY62 p.172, H14-C
         return std::pair{go && v==want,"result="+oct(v)+", expected="+oct(want)};
     });
     strict_case("35_norm_half_already_normal", [] {
         Kyiv_t m;m.kmem.write_memory(0002,SIGN/2);setup(m,035);
         bool go=step(m);
         uint64_t exp=m.kmem.read_memory(0003), val=m.kmem.read_memory(0004);
-        return std::pair{go && m.C_reg==0101 && exp==0 && val==SIGN/2,
+        return std::pair{go && m.C_reg==0101 && exp==SIGN && val==SIGN/2,
             "exp="+oct(exp)+", mantissa="+oct(val)};
     });
     strict_case("35_norm_quarter_left_shift_one", [] {
         Kyiv_t m;m.kmem.write_memory(0002,SIGN/4);setup(m,035);
         bool go=step(m);
         uint64_t exp=m.kmem.read_memory(0003), val=m.kmem.read_memory(0004);
-        return std::pair{go && exp==1 && val==SIGN/2,"exp="+oct(exp)+", mantissa="+oct(val)};
+        return std::pair{go && exp==(SIGN|1) && val==SIGN/2,"exp="+oct(exp)+", mantissa="+oct(val)};
     });
     strict_case("35_norm_smallest_positive_lsb", [] {
         Kyiv_t m;m.kmem.write_memory(0002,1);setup(m,035);
         bool go=step(m);
         uint64_t exp=m.kmem.read_memory(0003), val=m.kmem.read_memory(0004);
-        return std::pair{go && exp==39 && val==SIGN/2,"exp="+oct(exp)+", mantissa="+oct(val)};
+        return std::pair{go && exp==(SIGN|39) && val==SIGN/2,"exp="+oct(exp)+", mantissa="+oct(val)};
     });
 
     // The following are observations only, pending scheme-level source reconciliation.
