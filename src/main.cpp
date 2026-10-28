@@ -10,6 +10,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include "kyiv.h"
+#include "kyiv_serial_division.h"
 #include "kyiv_decimal_input_plan.h"
 #include "kyiv_binary_input_plan.h"
 #include "kyiv_drum_input_plan.h"
@@ -604,7 +605,15 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
                 C_reg = next_sequential_C(C_reg);
                 return;
             }
-            res_mul = ((mul_word_t) abs_val1 << 40) / (mul_word_t) abs_val2;
+            // 1964 AU reconstruction: shift 45-position P2, append 40 quotient bits.
+            // The existing zero divisor / overflow STOP-and-skip policy is unchanged.
+            if (abs_val1 < abs_val2) {
+                res_mul = static_cast<mul_word_t>(
+                    kyiv_serial_division::quotient_magnitude(abs_val1, abs_val2));
+            } else {
+                // Quotients >= 1 remain governed by the existing HOST policy.
+                res_mul = ((mul_word_t) abs_val1 << 40) / (mul_word_t) abs_val2;
+            }
             // Quotients with magnitude EXACTLY 1 also overflow sign-magnitude fixed point.
             if (res_mul >= (mul_word_t(1) << 40)) {
                 if (!overflow_stop_blocked()) {

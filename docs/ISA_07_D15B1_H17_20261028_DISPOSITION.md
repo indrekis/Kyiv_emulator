@@ -1,6 +1,14 @@
 # H17 — division: bounded disposition after independent and native probes (2026-10-28)
 
-**Decision: OPEN — source/host discrepancy retained; do not change opcode `12`.**
+**Historical decision at `f85478c`: OPEN — source/host discrepancy retained; `12` unchanged.**
+
+**Superseding emulator resolution (H17 serial45 qualification):** A 40-cycle
+45-position shifted-P2 reconstruction reproduces both H16 and H17 from
+Glushkov–Yushchenko (1962), using the division mechanism described by
+Dashevsky–Shkabara–Yushchenko (1964), printed pp. 141 and 150–151.
+The following OPEN disposition is preserved as a record of the earlier
+`exact40` CPU, not the final result of the subsequently qualified CPU.
+Hardware-level waveform verification remains unavailable.
 
 This note supplements, rather than replaces, the original historical observations
 in `ISA_07_D15B1_H16_DIVISION_ONE_THIRD.md`,
@@ -63,3 +71,25 @@ simulation with discriminating examples, or a hardware oracle emerges.
 
 **Provenance:** local `H17_ANALYSIS=PASS`, `H17_NATIVE=PASS; CASES=68/68`,
 `H17_PRIVATE=PASS`; no separate hardware witness, no CPU change.
+
+
+## Subsequent source-backed resolution — serial45 production promotion
+
+- The first divisor subtraction retains its additional low-bit correction;
+  no missing-carry hypothesis, retroactive hardware revision or special-case
+  of the H17 example is required.
+- During each of 40 quotient cycles, the 45-position P2 divisor shifts right
+  and loses the discarded low bit. Quotient signs remain XOR of operand signs.
+- H16 `05252525252525`, H17 `22222222222200`: source matches 2/2.
+- Independent Python / C++ models: 1094/1094 common cases; 297 differences
+  from the older `exact40` policy on that SAME fixture set.
+- PRIVATE native `Kyiv_t` (before promotion): 1094/1094 both implementations;
+  state-equivalence 1132/1132; zero/overflow policy 11/11; historical batch
+  10/10 source matches; all on user MSYS2. No hardware oracle.
+- Production opcode `12` changes the magnitude algorithm ONLY for
+  `0 <= |a| < |b|`, leaving invalid/overflow host policy, sign encoding and
+  instruction control flow unchanged. There is no `1962`/`1964` selector.
+- The 1962/1964 revision hypothesis is **not demonstrated**. This model is a
+  functional circuit reconstruction, not a recovered timing-level netlist.
+- The old H17 original historical image and printed comparator are unchanged;
+  historical decision ledgers remain historical evidence of earlier stages.
