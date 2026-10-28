@@ -75,6 +75,7 @@ inline arguments extract(int argc, const char* const argv[]) {
 
 inline fs::path executable_path(const char* argv0) {
 #ifdef _WIN32
+    (void)argv0;
     std::wstring name(32768, L'\0');
     const auto n = GetModuleFileNameW(nullptr, &name[0], static_cast<DWORD>(name.size()));
     if (n == 0 || n >= name.size()) throw std::runtime_error("ROM_EXE_PATH_FAILED");

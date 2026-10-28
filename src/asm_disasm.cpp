@@ -114,30 +114,16 @@ int disassembly(const uint64_t & command_oct, Kyiv_memory_t & kmem, const addr3_
         assert(false);
     }
     result.append(" " + command.substr(2, 4) + " " + command.substr(6, 4) + " " + command.substr(10, 4));
-    word_t Addr_1_mask_shift = (40-6-11)+1;
-    word_t Addr_1_mask = 0b11'111'111'111ULL << (Addr_1_mask_shift);
-    word_t Addr_2_mask_shift = (40-6-12-11)+1;
-    word_t Addr_2_mask = 0b11'111'111'111ULL << (Addr_2_mask_shift);
-//    std::cout << "NUM : " << std::bitset<41>(command_oct) << std::endl;
-//    std::cout << "TRUE : " << std::bitset<41>(0'11'0002'3067'0002ULL) << std::endl;
     std::string val1 = std::to_string((word_to_number(kmem.read_memory(addr3.source_1)) )) + "  " +
                        std::to_string(word_to_number(kmem.read_memory(addr3.source_1)) * std::pow(2, -40));  //* std::pow(2, -40)
     std::string val2 = std::to_string(word_to_number(kmem.read_memory(addr3.source_2))) + "  " +
                        std::to_string(word_to_number(kmem.read_memory(addr3.source_2)) * std::pow(2, -40) );
     result.append("\t;; " + val1 + "\t" + val2);
     // std::cout << result << std::endl;
-    addr_t a = (command_oct & Addr_2_mask) >> Addr_2_mask_shift;
-//    std::cout << "TRUE : " << std::bitset<41>(a) << std::endl;
-//    std::cout << "val2 : " << kmem.read_memory((command_oct & Addr_2_mask) >> Addr_2_mask_shift) << std::endl;
     return 0;
 }
 
 int disassembly_text(const std::string file_from, const std::string file_to) {
-    word_t Addr_1_mask_shift = (40-6-11)+1;
-    word_t Addr_1_mask = 0b11'111'111'111ULL << (Addr_1_mask_shift-1);
-    word_t Addr_2_mask_shift = (40-6-12-11)+1;
-    word_t Addr_2_mask = 0b11'111'111'111ULL << (Addr_2_mask_shift-1);
-    word_t oct_command;
     std::map<std::string, std::string> program;
     std::map<std::string, std::string> jumps;
     size_t jump_counter = 0;
