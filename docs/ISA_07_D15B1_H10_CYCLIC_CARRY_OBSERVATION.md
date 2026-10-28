@@ -27,12 +27,14 @@ Use `SIGN = 1 << 40` (sign bit) and `MASK = SIGN - 1` (40-bit magnitude). The po
 | `2*x mod 2**40` (discard carry) | `16757367573624` | EXACT MATCH |
 | `(2*x + 1) mod 2**40` (end-around carry +1) | `16757367573625` | MISMATCH by 1 LSB |
 
-The current emulator's opcode `07` uses the second candidate as a deliberately provisional software policy. GY1962 printed p. 11 speaks of carrying back to the low bit; DPS1964 printed p. 102 describes a related correction. They do **not** alone establish the correct hardware behavior for this particular example. Possible typographical error, alternative adder convention, or source/implementation disagreement remains **OPEN**. Do not change opcode `07`, the data word `0020`, or the test program to force a pass.
+**Original H10 baseline:** opcode `07` used the second candidate as a provisional software policy. GY1962 printed p. 11 speaks of carrying back to the low bit; DPS1964 printed p. 102 describes a related reduction by one unit. The source-text tension remains historically **OPEN**.
+
+**Follow-up, 2026-10-28:** private CPU candidate removes the additional low-bit `+1` on carry, keeping `magnitude & ((1ULL << 40) - 1)`. Native observation: H10 result `16757367573624` matches printed cell `0020`; ten-case historical batch 10/10 (8 source matches, 2 independently documented discrepancies), D5 strict tests 7/7. The five D5 policy failures reflected the earlier implementation, not historical ISA requirements. The updated D5 suite includes a bounded exact-word two-step JE check and revised explicitly provisional boundary expectations. This is a **source-aligned software decision**, not independent verification of physical hardware. In particular, exact `+1`/`-1` signed-zero results remain policy, not historical oracle. No source image or ROM is modified.
 
 ## Safe native observations (not a source-success regression)
 
 Run the original image at `C=0151` with 1 and 2 steps, watching `0347`, `0007`, and `0020`. On the original printed result, the `0152` JE would branch to `0154` after two steps. With the current host candidate result (+1), JE falls through to `0153`. **Only in the fallthrough case** execute a third instruction and check original STOP with `CPU_STOP STEPS=3 C=0154`. Never execute `0154`: it reads operator-settable cell `3000` and its behavior cannot be qualified by this source fragment.
 
-The runner reports both `HISTORICAL_ORACLE_MATCH` and `HOST_POLICY_PLUS1_MATCH` separately. A complete observed `HOST_POLICY_PLUS1_MATCH=1` with `HISTORICAL_ORACLE_MATCH=0` is a **reproducible discrepancy**, not an ISA PASS. Two working directories are used to test path independence. No synthetic data mutation is needed. Source image SHA, unchanged ROM, CPU and all preceding historical images are strict gates.
+The original H10 runner reports `HISTORICAL_ORACLE_MATCH` and `HOST_POLICY_PLUS1_MATCH` separately; its OLD-POLICY assertions describe its original baseline and are not post-change regression criteria. The follow-up qualification uses the ten-case checkpoint batch (one historical H10 step), the D5 probe with two bounded historical steps, and Qt GUI native smoke. Source image, ROM and other historical fixtures remain unchanged.
 
 `H9_SOURCE_PROSE_CONFLICT=OPEN_UNCHANGED`; `HUMAN_INDEPENDENT_WITNESS=PENDING`; `HARDWARE_ORACLE=0`.

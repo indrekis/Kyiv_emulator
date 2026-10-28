@@ -1,6 +1,7 @@
 // ISA-04 D5: reproducible comparisons for opcode 007 (cyclic addition).
 // STRICT: documented nonoverflow cases and no emergency stop/skip on overflow.
-// POLICY: recorded implementation, NOT hardware-certified.
+// POLICY: source-aligned H10 candidate; boundary behavior is NOT hardware-certified.
+// STRICT: H10 exact machine words 0151/0152 also check the historical JE branch.
 // OBS: final result vs DPS64 printed-p102 *candidate*, not a historical oracle.
 #include <cstdint>
 #include <iostream>
@@ -105,6 +106,38 @@ void observe_zero(const char* title, std::uint64_t left, std::uint64_t right) {
     std::cout << "OBS " << title << " | raw=" << oct(o.result)
               << " [signed-zero convention unresolved]\n";
 }
+// GY1962 pp. 172-173: source-exact operand, reference and machine words.
+// Two bounded steps; NEVER execute the operator-dependent word at 0154.
+void historical_h10_two_step() {
+    constexpr auto operand = 0'17367573675712ULL;
+    constexpr auto expected = 0'16757367573624ULL;
+    constexpr auto addition = 0'07'0007'0007'0347ULL;
+    constexpr auto comparison = 0'16'0347'0020'0154ULL;
+    Kyiv_t m;
+    m.kmem.write_memory(0007, operand);
+    m.kmem.write_memory(0020, expected);
+    m.kmem.write_memory(0151, addition);
+    m.kmem.write_memory(0152, comparison);
+    m.C_reg = 0151;
+    bool first = false, second = false;
+    {
+        Silence silence;
+        first = m.execute_opcode();
+        second = m.execute_opcode();
+    }
+    const bool ok = first && second && !m.T_reg &&
+        m.kmem.read_memory(0347) == expected &&
+        m.kmem.read_memory(0007) == operand &&
+        m.kmem.read_memory(0020) == expected &&
+        m.C_reg == 0154;
+    ++strict_count;
+    failures += !ok;
+    std::cout << (ok ? "PASS " : "FAIL ") << "07_historical_h10_two_step"
+              << " | result=" << oct(m.kmem.read_memory(0347))
+              << " expected=" << oct(expected)
+              << " C=" << oct(m.C_reg) << " expected_C=154"
+              << " [0154 not executed]\n";
+}
 }
 
 int main() {
@@ -119,12 +152,14 @@ int main() {
     only_control("07_overflow_block_flag_does_not_skip", run(H, H+1, true));
     only_control("07_negative_overflow_does_not_stop", run(M | H, M | (H+1)));
 
-    // Snapshot POLICY: exact values of existing implementation, NOT a truth oracle.
-    check("07_policy_exact_plus_one", run(H, H), 1, true);
-    check("07_policy_exact_minus_one", run(M | H, M | H), M | 1, true);
-    check("07_policy_plus_one_lsb", run(H, H+1), 2, true);
-    check("07_policy_minus_one_lsb", run(M | H, M | (H+1)), M | 2, true);
-    check("07_policy_near_two", run(MAG, MAG), MAG, true);
+    // H10 source-aligned POLICY; +/-1 boundaries remain non-historical policy.
+    check("07_policy_exact_positive_unit", run(H, H), 0, true);
+    check("07_policy_exact_negative_unit", run(M | H, M | H), M, true);
+    check("07_policy_positive_unit_plus_lsb", run(H, H+1), 1, true);
+    check("07_policy_negative_unit_plus_lsb", run(M | H, M | (H+1)), M | 1, true);
+    check("07_policy_two_maximal_operands", run(MAG, MAG), MAG - 1, true);
+
+    historical_h10_two_step();
 
     // DPS64 p.102 candidate; exact +/-1 boundary is explicitly NOT asserted.
     compare_candidate("07_exact_plus_one", H, H);

@@ -683,18 +683,14 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         }
         kmem.write_memory(addr3.destination, (magnitude & mask_40_bits) | sign_of_second);
     } else if(opcode == arythm_operations_t::opcode_addcyc){
-        // ISA-04 D2: retain the existing *emulator* interpretation of the
-        // end-around carry, but express it solely as exact integer arithmetic.
-        // G-Y (1962), printed p. 11: a carry from the sign position enters
-        // the least-significant summator bit. D-P-S (1964), p. 102 describes
-        // subtraction/addition of one in fractional units. Their agreement
-        // at the final LSB (especially at |sum| == 1) is NOT established.
-        // Until resolved, carry cases remain explicitly marked POLICY/OBS
-        // in the tests, not accepted as historical ISA oracles.
+        // H10 source-aligned POLICY (GY1962 pp. 172-173, test 0151-0152):
+        // reduce the sum magnitude modulo 2^40, without extra end-around +1.
+        // DPS1964 p. 102 is compatible with reduction by one unit.
+        // GY1962 p. 11 has conflicting carry wording; exact +/-1 and
+        // signed-zero boundary behavior remain unverified on hardware.
         const bool negative_sum = (res < 0);
         const uint64_t magnitude = static_cast<uint64_t>(negative_sum ? -res : res);
-        const bool carry = (magnitude >= mask_41_bit);
-        const uint64_t wrapped = (magnitude + (carry ? 1ULL : 0ULL)) & mask_40_bits;
+        const uint64_t wrapped = magnitude & mask_40_bits;
         kmem.write_memory(addr3.destination, wrapped | (negative_sum ? mask_41_bit : 0ULL));
 
     } else if(opcode == arythm_operations_t::opcode_mul ||
