@@ -662,7 +662,8 @@ void Kyiv_t::opcode_arythm(const addr3_t& addr3, opcode_t opcode){
         if (is_negative)
             kmem.write_memory(addr3.destination, kmem.read_memory(addr3.destination) | mask_41_bit);
         //! "Нуль, получаемый как разность двух равных чисел, имеет отрицательный знак" -- стор. 13 Глушко-Ющенко, опис УПЧ
-        if (opcode == arythm_operations_t::opcode_sub && res == 0) {
+        if ((opcode == arythm_operations_t::opcode_sub ||
+             opcode == arythm_operations_t::opcode_subabs) && res == 0) {
             kmem.write_memory(addr3.destination, mask_41_bit);
             std::cout << "NEGATIVE 0" << mask_41_bit << std::endl;
         }
