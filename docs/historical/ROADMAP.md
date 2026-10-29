@@ -217,3 +217,12 @@ tempkyiv/kyivemu.exe image examples/historical/gy1962/au1_logic.k41 0043 22 --wa
 ## 11. Негайний наступний крок
 
 **A3: операторська процедура та відновлення `0042`.** Повторно звірити її з GY62, підтвердити локальний `ROM[3066]` і режим NK `3000`, окремо атрибутувати кожну зміну `RAM[0353]` перед входом у H19. Зробити приватну трасу без зміни канонічних `.k41`; лише після цього готувати source-only `0042` і інтеграційні сценарії. **Не** запускати неконтрольовані `0232`, `0252`, `0360`; не переходити до GUI до gate історичних програм.
+
+### H23-HW-SOURCE-REVIEW-2026-10-30 — hardware-oriented review (not a hardware oracle)
+
+- **Source review:** [`H23_SHIFT_HARDWARE_RECONSTRUCTION.md`](H23_SHIFT_HARDWARE_RECONSTRUCTION.md) — GY62 pp. 12, 173–174; DPS64 pp. 142–143, 149, 151–153, figures 69–71.
+- **A3:** native operator continuation and source `0042` PASS under a private assembled image; A3 embedded evidence checked in A4. Canonical `0042` has *not* been promoted to a source-only `.k41` yet.
+- **A4:** `PASS_A4_BOUNDED_CONTINUATIONS`, direct 3/3, natural `0042`/NK minus at CPU_STOP after 95 steps, `C=0331` (comparison `0327` failed, original STOP `0330`). Does **not** certify full AU.
+- **A5/H23:** `PASS_A5_NATIVE_CHARACTERIZATION` against HOST low-six-bit shift; `SOURCE_TEST_MATCH=NO`, `HARDWARE_ORACLE=NO`. The 1964 circuit/timing description provides a plausible **sign-trigger mechanism** distinguishing right shift −64 (expected −0) from −65 (expected +0), **not yet qualified as cycle-accurate fact**.
+- **Next gate:** private signal/timing hypothesis with `z₆`, `z₄₀`, `ИСдв2`, `ТЗн2`, `И₃`, `И₄`; test `−63/−64/−65`, signed zero, positive/negative operands; keep CPU, ROM, GUI and canonical sources unchanged. A full historical AU PASS and physical hardware evidence remain OPEN.
+- **Evidence on local machine:** `tempkyiv/A5_H23_SHIFT_BOUNDARY_EVIDENCE_V1.zip`, pinned SHA-256 `7b2e224aeee65dfbc913a672f344b757653abad9a52f390d878b3bb1dda8df15`. This path is local and should not be presumed committed to Git.

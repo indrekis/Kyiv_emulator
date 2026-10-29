@@ -114,3 +114,13 @@
 **A1–A2 закриті лише як статична інвентаризація; A в цілому залишається `PARTIAL`.** Наступне — `A3`: перевірити `0042` незалежним читанням, локальну `ROM[3066]`, операторський профіль `NK 3000`, реалізувати обмежений native trace без порушення оригінальних `.k41`. Після цього A4 — атрибуція scratch і I/O/path-обмежень, A5 — регресійний runner/catalog integration.
 
 **Не дозволено вважати виконаним:** натуральний повний цикл AU, повне відтворення псевдовипадкової послідовності, виконання команди `0360`, аудиторне чи фізичне hardware PASS.
+
+## H23-HW-SOURCE-REVIEW-2026-10-30: H23 shift mechanism source research
+
+The latest **hardware-source interpretation** supersedes the earlier one-line hypothesis that −64/−65 differ only because HOST masks counts mod 64. Review [H23_SHIFT_HARDWARE_RECONSTRUCTION.md](H23_SHIFT_HARDWARE_RECONSTRUCTION.md).
+
+- GY62 printed p. 174 specifies literal `0326 → −0` and `0331 → +0`; do not silently edit source commands.
+- DPS64 printed pp. 142, 151–152 and figs. 69–71 describe the counter in the low 6 sum bits, carry `z₆`, transfer `z₄₀`, right-operand sign flip-flop in `P₂`, and its reset by `ИСдв2`.
+- **Source-backed facts** and a **proposed timing reconstruction** are explicitly separated in the report. In particular, the boundary text on p. 152 inconsistently uses 63 and 64, so no physical cycle trace is certified.
+- `A3`: source/NK native bounded PASS; `A4`: natural continuation bounded PASS, STOP at `0330` after failed `0327` comparison; `A5`: HOST characterization PASS, source expected codes still not met. `HARDWARE_ORACLE=NO`.
+- Next: private signal-level discriminator before any CPU patch, source promotion or whole-AU qualification.
