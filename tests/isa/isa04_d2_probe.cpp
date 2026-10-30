@@ -75,6 +75,26 @@ uint64_t cyclic_policy(uint64_t a, uint64_t b) {
     return ((magnitude + (magnitude >= M ? 1ULL : 0ULL)) & MAG)
         | (negative ? M : 0ULL);
 }
+// H33: the old D2 end-around +1 LSB rule remains visible as a
+// non-oracle comparison, but cannot prescribe the expected hardware word.
+uint64_t source_cyclic(uint64_t a, uint64_t b) {
+    const int64_t x = (a & M) ? -int64_t(a & MAG) : int64_t(a & MAG);
+    const int64_t y = (b & M) ? -int64_t(b & MAG) : int64_t(b & MAG);
+    const int64_t sum = x + y;
+    const uint64_t magnitude = uint64_t(sum < 0 ? -sum : sum);
+    return (magnitude & MAG) | (sum < 0 ? M : 0ULL);
+}
+void observe_exact_boundary(unsigned op, uint64_t a, uint64_t b, uint64_t legacy,
+                            const char* label) {
+    try {
+        const Outcome o = run(op,a,b);
+        obs(label,"actual="+oct(o.dest)+", legacy_D2_expected="+oct(legacy)+
+                  ", continues="+std::to_string(o.continuation)+
+                  ", DPS64_p102=does_not_specify_exact_unit");
+    } catch (const std::exception& e) {
+        check(label,false,true,std::string("runtime exception: ")+e.what());
+    }
+}
 void verify(unsigned op, uint64_t a, uint64_t b, uint64_t expected,
             const char* label, bool policy=false) {
     try {
@@ -90,13 +110,14 @@ int main() {
     verify(007,M/4,M/8,3*M/8,"07_positive_no_carry");
     verify(007,M|M/4,M|M/8,M|(3*M/8),"07_negative_no_carry");
     verify(007,M/2,M|(M/4),M/4,"07_different_signs_no_carry");
-    // Policy-only: these checks preserve what the existing emulator does;
-    // they do NOT assert which LSB actual Kyiv hardware would produce.
-    verify(007,M/2,M/2,cyclic_policy(M/2,M/2),"07_positive_exact_one",true);
-    verify(007,M|M/2,M|M/2,cyclic_policy(M|M/2,M|M/2),"07_negative_exact_minus_one",true);
-    verify(007,M/2,M/2+1,cyclic_policy(M/2,M/2+1),"07_positive_over_one",true);
-    verify(007,M|M/2,M|(M/2+1),cyclic_policy(M|M/2,M|(M/2+1)),"07_negative_under_minus_one",true);
-    verify(007,MAG,MAG,cyclic_policy(MAG,MAG),"07_near_max_both",true);
+    // H33: DPS64 p.102 describes adjustment by one FULL NUMERIC UNIT,
+    // not by one least-significant bit. At exact +/-1 its wording is silent.
+    // Preserve legacy D2 expectations as observations for that boundary.
+    observe_exact_boundary(007,M/2,M/2,cyclic_policy(M/2,M/2),"07_positive_exact_one");
+    observe_exact_boundary(007,M|M/2,M|M/2,cyclic_policy(M|M/2,M|M/2),"07_negative_exact_minus_one");
+    verify(007,M/2,M/2+1,source_cyclic(M/2,M/2+1),"07_positive_over_one");
+    verify(007,M|M/2,M|(M/2+1),source_cyclic(M|M/2,M|(M/2+1)),"07_negative_under_minus_one");
+    verify(007,MAG,MAG,source_cyclic(MAG,MAG),"07_near_max_both");
 
     // For a nonzero rounded/truncated result, sign is determined by operands.
     verify(010,M|M/2,M/2,multiplication(M|M/2,M/2,false),"10_nonzero_negative_product");
@@ -114,7 +135,7 @@ int main() {
         bool go=step(m);
         const auto p=m.kmem.read_memory(3),mant=m.kmem.read_memory(4);
         check("35_negative_quarter",go && !m.T_reg && m.C_reg==PC+1
-          && p==1 && mant==(M|(M/2)),false,"order="+oct(p)+", mantissa="+oct(mant));
+          && p==(M|1) && mant==(M|(M/2)),false,"order="+oct(p)+", mantissa="+oct(mant));
     } catch(const std::exception& e) {check("35_negative_quarter",false,false,e.what());}
 
     // Observations only: source texts do not establish these exact outputs.

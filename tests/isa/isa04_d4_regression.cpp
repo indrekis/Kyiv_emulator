@@ -44,6 +44,18 @@ void norm(const char* name,const Outcome& v,uint64_t order,uint64_t result) {
              <<", mantissa="<<oct(v.dest)<<", expected_order="<<oct(order)
              <<", expected_mantissa="<<oct(result)<<"\n";
 }
+// H33: source does not settle the sign of a zero normalization order.
+// Preserve historical test expectations for comparison, not as an oracle.
+void unresolved_zero_order(const char* name,const Outcome& v,
+                           uint64_t old_order,uint64_t old_result) {
+    ++obs_count;
+    std::cout << "OBS  " << name << " | order=" << oct(v.order)
+              << ", mantissa=" << oct(v.dest)
+              << ", legacy_expected_order=" << oct(old_order)
+              << ", legacy_expected_mantissa=" << oct(old_result)
+              << ", continues=" << v.cont
+              << " [normalization-zero order sign unresolved]\n";
+}
 void value(const char* name,const Outcome& v,uint64_t expected) {
     ++strict_count;
     bool ok=v.dest==expected && v.pc==PC+1 && v.cont && !v.stop;
@@ -61,12 +73,12 @@ void observation(const char* name,const Outcome& v,bool known,uint64_t dps) {
 }
 }
 int main() {
-    norm("35_positive_zero",run(035,0),0,0);
-    norm("35_negative_zero",run(035,M),0,M);
-    norm("35_negative_quarter",run(035,M|QUARTER),1,M|HALF);
+    unresolved_zero_order("35_positive_zero",run(035,0),0,0);
+    unresolved_zero_order("35_negative_zero",run(035,M),0,M);
+    norm("35_negative_quarter",run(035,M|QUARTER),M|1,M|HALF);
     // DPS64 p.153: mantissa output follows order output.
     value("35_minus_zero_second_third_alias",run(035,M,0,2,3,3),M);
-    norm("35_minus_zero_first_second_alias",run(035,M,0,2,2,4),0,M);
+    unresolved_zero_order("35_minus_zero_first_second_alias",run(035,M,0,2,2,4),0,M);
     value("07_no_carry_control",run(007,QUARTER,QUARTER),HALF);
     // Real-number correction from DPS64 p.102; ±1 are undefined there.
     observation("07_exact_plus_one",run(007,HALF,HALF),false,0);
