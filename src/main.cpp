@@ -11,6 +11,7 @@
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include "kyiv.h"
 #include "kyiv_serial_division.h"
+#include "kyiv_shift_au1964.h"
 #include "kyiv_decimal_input_plan.h"
 #include "kyiv_binary_input_plan.h"
 #include "kyiv_drum_input_plan.h"
@@ -205,21 +206,13 @@ bool Kyiv_t::execute_opcode(){
             break;
 //==========================================================================================================
         case logic_operations_t::opcode_log_shift:{
-            //! TODO: Мені не повністю зрозуміло з обох книг, величина зсуву береться із RAM за адресою,
-            //! чи закодована в команді? Швидше перше -- але перевірити!
-            word_t shift = kmem.read_memory(addr3_shifted.source_1) ; // Глушко-Ющенко, стор 12, сверджує: "на число разрядов,
-            // равное абсолютной величине константы сдвига, размещаемой в шести младших разрядах ячейки а1"
-            // 2^6 -- 64, тому решта бітів справді просто дадуть нуль на виході, але все рівно маскую, щоб
-            // не було невизначеної поведінки С. Та й зразу знак викидаємо
-            std::cout << "shift: " << shift << std::endl;
-            shift &= 0b111'111;
-            std::cout << "shift after some and: " << shift << std::endl;
-            if(is_negative(kmem.read_memory(addr3_shifted.source_1))) {
-                kmem.write_memory(addr3_shifted.destination, kmem.read_memory(addr3_shifted.source_2) >> shift);
-            } else {
-                kmem.write_memory(addr3_shifted.destination , kmem.read_memory(addr3_shifted.source_2) << shift);
-                kmem.write_memory(addr3_shifted.destination,  kmem.read_memory(addr3_shifted.destination) & (mask_40_bits | mask_41_bit)); // Зануляємо зайві біти
-            }
+            // A6/H29: preferred AU 1964 reconstruction (H25/H28).
+            // z6 terminates counting; z40(64)=0; R64 can retain P2 sign.
+            // GY62 original opcode-013 source cases 0307..0331: 7/7.
+            const word_t shift_constant = kmem.read_memory(addr3_shifted.source_1);
+            const word_t operand = kmem.read_memory(addr3_shifted.source_2);
+            const auto result = kyiv_shift_au1964::shift013(shift_constant, operand);
+            kmem.write_memory(addr3_shifted.destination, result.word);
             C_reg = next_sequential_C(C_reg);
         }
             break;

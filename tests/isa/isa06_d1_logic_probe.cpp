@@ -136,10 +136,9 @@ int main() {
             {{2, 63}, {3, MASK41}}, 4, 0},
         {"13_right_63_all_bits_zero", 013, 2, 3, 4, 0,
             {{2, SIGN | 63}, {3, MASK41}}, 4, 0},
-        {"13_high_magnitude_bits_of_constant_ignored", 013, 2, 3, 4, 0,
-            {{2, (uint64_t{1} << 32) | 2}, {3, 1}}, 4, 4},
-        {"13_negative_high_magnitude_bits_ignored", 013, 2, 3, 4, 0,
-            {{2, SIGN | (uint64_t{1} << 30) | 1}, {3, SIGN}}, 4, SIGN >> 1},
+        // A6/H29: high magnitude bits are NOT ignorable in the AU-1964
+        // full-width counter reconstruction. The legacy HOST-mask cases
+        // have no historical oracle; preserve them as OBS below.
         {"13_shift_negative_zero_left_one", 013, 2, 3, 4, 0,
             {{2, 1}, {3, SIGN}}, 4, 0},
         {"13_shift_negative_zero_right_one", 013, 2, 3, 4, 0,
@@ -192,6 +191,13 @@ int main() {
             {{2, SIGN}, {3, 1}}, 0, 0}
     };
     for (const auto& tc : cases) strict(tc);
+
+    // H29 requalification (no change to GY62 historical expected words):
+    // original D1 HOST-mask expectations, now OBS outside 0..63.
+    observe("13_high_magnitude_bits_legacy_host_mask", 013, 2, 3, 4, 0,
+            {{2, (uint64_t{1} << 32) | 2}, {3, 1}}, 4);
+    observe("13_negative_high_magnitude_bits_legacy_host_mask", 013, 2, 3, 4, 0,
+            {{2, SIGN | (uint64_t{1} << 30) | 1}, {3, SIGN}}, 4);
 
     // These cases deliberately fall outside the documented RAM address range
     // (GY62 pp. 8-9) or use a ROM destination. They do not have a historical oracle.
