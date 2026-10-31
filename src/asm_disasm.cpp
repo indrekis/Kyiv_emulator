@@ -9,6 +9,7 @@
 #include "kyiv_drum_cli_v1.h"
 #include "kyiv_host_image_v1.h"
 #include "kyiv_rom_boot_v1.h"
+#include "kyiv_rom_module1_v1.h"
 
 #define COMMAND_SIZE 4
 
@@ -472,7 +473,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "./kyivemu command <num1> <num2> <operation_code> " << std::endl;
         std::cerr << "./kyivemu expression (<reg1>,<num1>) (<reg2>,<num2>) ... <C_reg> " << std::endl;
         std::cerr<< "./kyivemu removable_memory <file> (<reg1>,<num1>) ... <C_reg> "<< std::endl;
-        std::cerr << "./kyivemu image <file.k41> <start-octal> <max-steps-decimal> [--allow-rom] [--watch ADDR]..." << std::endl;
+        std::cerr << "./kyivemu image <file.k41> <start-octal> <max-steps-decimal> [--allow-rom] [--watch ADDR]... [--rom-module1 FILE --rom-module1-sha256 HEX]" << std::endl;
         std::cerr << "Optional trailing flag for all modes: --block-overflow-stop" << std::endl;
         std::filesystem::path docPath = std::filesystem::current_path() / "../documentation/documentation.txt";
         std::cerr << "For a list of supported commands and detailed instructions, please refer to the documentation file: "
@@ -494,16 +495,32 @@ int main(int argc, char *argv[]) {
         try {
             if (parsed.drum || block_overflow_stop)
                 throw std::runtime_error("IMAGE_SUFFIX_UNSUPPORTED");
-            const auto rom_args = kyiv_rom_boot_v1::extract(argc - 1, argv + 1);
+            const auto module_args = kyiv_rom_module1_v1::extract(argc - 1, argv + 1);
+            const auto rom_args = kyiv_rom_boot_v1::extract(
+                static_cast<int>(module_args.forwarded.size()),
+                module_args.forwarded.data());
             const auto cfg = kyiv_host_image_v1::parse(
                 static_cast<int>(rom_args.forwarded.size()),
                 rom_args.forwarded.data());
             const auto image = kyiv_host_image_v1::load_file(cfg.filename,
                                                              cfg.allow_rom);
-            // ROM and program preflight complete before CPU construction.
+            // ROM, optional selected module and program are independently
+            // validated before constructing/mutating the deferred CPU.
             const auto rom = kyiv_rom_boot_v1::read(rom_args, argv[0]);
+            const auto module = module_args.selected
+                ? std::make_unique<kyiv_rom_module1_v1::image>(
+                    kyiv_rom_module1_v1::read(module_args))
+                : std::unique_ptr<kyiv_rom_module1_v1::image>{};
+            if (module) kyiv_rom_module1_v1::reject_image_overlap(image);
             Kyiv_t image_machine(Kyiv_t::rom_boot_mode::deferred);
             kyiv_rom_boot_v1::install(image_machine, rom);
+            if (module) {
+                kyiv_rom_module1_v1::install_at_init(image_machine,*module);
+                std::cout << "H57-ROM-MODULE1 PASS WORDS=" << module->words.size()
+                          << " SHA256=" << module->sha256
+                          << " SOURCE_QUALIFIED=" << (module->source_qualified ? 1 : 0)
+                          << " HOST_OPT_IN=1\n";
+            }
             std::cout << "D15A3P3-ROM PASS SOURCE="
                       << (rom.source_is_default ? "DEFAULT" : "EXPLICIT")
                       << " WORDS=" << rom.words.size()
