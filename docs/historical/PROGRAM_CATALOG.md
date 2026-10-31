@@ -1,5 +1,8 @@
 # ЕОМ «Київ»: каталог історичних програм — інвентаризація A1–A2
 
+> **Актуальний статус H37 (2026-10-31):** ця сторінка описує статичну інвентаризацію A1–A2 станом на 2026-10-29, тому її старий напис `A3 NEXT` не є поточним. За H36/H37 `0042` пройшло **source-only native one-step**, а п’ять входів дали лише bounded observations; повний АУ **не пройшов**. Див. [H37_AU_SCENARIO_QUALIFICATION.md](H37_AU_SCENARIO_QUALIFICATION.md) і актуалізацію в [ROADMAP.md](ROADMAP.md). Канонічні 20 `.k41` та provenance не змінено.
+
+
 **Статус:** `A1–A2 DONE / STATIC_SOURCE_INVENTORY`; `A3 NEXT`; повний тест АУ — `HOLD`.\
 **Джерело:** Глушков, Ющенко, *«Вычислительная машина „Киев“»* (1962), друк. с. 122–123, 172–174; канонічні транскрипції репозиторію.\
 **Аудитний Git HEAD:** `a807eb1ff6d3d5fc643f0035035fe3905666c9be` (2026-10-29).\
@@ -124,3 +127,7 @@ The latest **hardware-source interpretation** supersedes the earlier one-line hy
 - **Source-backed facts** and a **proposed timing reconstruction** are explicitly separated in the report. In particular, the boundary text on p. 152 inconsistently uses 63 and 64, so no physical cycle trace is certified.
 - `A3`: source/NK native bounded PASS; `A4`: natural continuation bounded PASS, STOP at `0330` after failed `0327` comparison; `A5`: HOST characterization PASS, source expected codes still not met. `HARDWARE_ORACLE=NO`.
 - Next: private signal-level discriminator before any CPU patch, source promotion or whole-AU qualification.
+
+## H39 — bounded persistent-session observation
+
+H38 reproduced the 706 H36 independent trace rows and ran 699 steps in one persistent HOST session. Only entry `0214` changed its control path: at `0245` (operation `05`), fresh `→0247`, persistent `→0246`; final I/O boundary remains `0252`. H39 instrumented the operand at `0357` before each repeated branch, as well as its writes. The experiment uses unverified initial scratch RAM and manual PC/NK actions; it is **not** a full historical test PASS. Details: [`H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md`](H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md).

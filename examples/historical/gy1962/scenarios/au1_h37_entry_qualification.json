@@ -1,0 +1,113 @@
+{
+  "schema": "KYIV_HISTORICAL_AU_ENTRY_H37_V1",
+  "evidence_status": "BOUNDED_SOURCE_NATIVE_AND_HOST_OBSERVATION_NOT_FULL_AU",
+  "accepted_repository_head": "f15c879a1ba1110d6c14ff7ce526397b0eadcca2",
+  "source": "Glushkov-Yushchenko 1962, printed page 173, scan PDF page 172 (1-based); no hardware measurements",
+  "source_census": {
+    "images": 20,
+    "records": 238,
+    "unique_addresses": 220,
+    "repeated_records": 18,
+    "conflicts": 0,
+    "source_0042_missing_from_images": true
+  },
+  "source_only_word": {
+    "address": "0042",
+    "opcode": "01",
+    "a1": "3066",
+    "a2": "0000",
+    "a3": "0353",
+    "word": "01306600000353",
+    "origin": "SOURCE_PRINTED; visual second review of same scan",
+    "independent_second_scan": false,
+    "canonical_k41_unchanged": true,
+    "rom_3066_in_pinned_host": "14441766521042",
+    "native_one_step": {
+      "result": "PASS",
+      "ram0353_after": "14441766521042",
+      "pc_after": "0043"
+    },
+    "historical_full_oracle": false
+  },
+  "scenario_semantics": {
+    "mode": "DIAGNOSE_ONLY",
+    "execution_type": "BOUNDARY_OBSERVATIONS",
+    "ram_initial": "HOST_ZERO_INITIAL_RAM_UNVERIFIED",
+    "nk_false_means": "NK3000 cabinet ROM selected (not certified physical +NK setting)",
+    "nk_true_means": "NK3000 panel-selected with explicitly configured bit40=1 (negative zero)",
+    "nk3001_nk3002": "NOT_RECONSTRUCTED",
+    "io_policy": "DO_NOT_EXECUTE_OPCODES_020_THROUGH_025",
+    "external_0360": "DO_NOT_EXECUTE_UNSOURCED_WORD",
+    "max_steps_per_scenario": 256,
+    "forbidden_claims": [
+      "FULL_AU_PASS",
+      "HARDWARE_ORACLE",
+      "HISTORICAL_INITIAL_RAM"
+    ]
+  },
+  "cases": [
+    {
+      "id": "FULL_SOURCE0042_NK_MINUS",
+      "entry": "0042",
+      "nk3000_source": "PANEL_NEGATIVE_ZERO",
+      "observed_steps": 97,
+      "end_pc": "0360",
+      "end_reason": "EXTERNAL_0360_BOUNDARY",
+      "evidence_level": "NATIVE_BOUNDARY_OBSERVATION",
+      "historical_oracle": false
+    },
+    {
+      "id": "PART_I_NK_PLUS",
+      "entry": "0043",
+      "nk3000_source": "CABINET_ROM",
+      "observed_steps": 256,
+      "end_pc": "0047",
+      "end_reason": "STEP_LIMIT",
+      "evidence_level": "NATIVE_BOUNDARY_OBSERVATION",
+      "historical_oracle": false
+    },
+    {
+      "id": "PART_II_NK_PLUS",
+      "entry": "0110",
+      "nk3000_source": "CABINET_ROM",
+      "observed_steps": 256,
+      "end_pc": "0121",
+      "end_reason": "STEP_LIMIT",
+      "evidence_level": "NATIVE_BOUNDARY_OBSERVATION",
+      "historical_oracle": false
+    },
+    {
+      "id": "PART_III_NK_PLUS",
+      "entry": "0155",
+      "nk3000_source": "CABINET_ROM",
+      "observed_steps": 48,
+      "end_pc": "0360",
+      "end_reason": "EXTERNAL_0360_BOUNDARY",
+      "evidence_level": "NATIVE_BOUNDARY_OBSERVATION",
+      "historical_oracle": false
+    },
+    {
+      "id": "PART_IV_NK_PLUS",
+      "entry": "0214",
+      "nk3000_source": "CABINET_ROM",
+      "observed_steps": 49,
+      "end_pc": "0252",
+      "end_reason": "IO_BOUNDARY_NOT_EXECUTED",
+      "evidence_level": "NATIVE_BOUNDARY_OBSERVATION",
+      "historical_oracle": false
+    }
+  ],
+  "blocking_unknowns": [
+    "historical scratch RAM values and state from preceding fragments",
+    "documented operator actions for NK3000–NK3002",
+    "control flow beyond 0360",
+    "device I/O at 0232/0252",
+    "hardware measurement not available"
+  ],
+  "evidence": "H36 V2 SHA-verified native trace, source manifest and full H36 gate result",
+  "future_modes": {
+    "demo": "bounded trace presentation with labelled host assumptions",
+    "test": "only source-established 0042 one-step assertion currently strict",
+    "diagnose": "five observational paths only; never a historical full-program pass"
+  }
+}

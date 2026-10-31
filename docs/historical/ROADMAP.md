@@ -1,5 +1,8 @@
 # ЕОМ «Київ»: історичні програми — дорожня карта та журнал прогресу
 
+> **Актуалізація H37 (2026-10-31; база `f15c879`):** наведені нижче таблиці з датою 2026-10-29 є історичним зрізом. Після A6/H29–H34, H35 і H36/H37: команда `013` інтегрована та зафіксована (`0b5f54f`), ISA-04 D2/D4 узгоджено (`f15c879`), історична `0042` підтверджена лише як **приватна SOURCE_PRINTED + native one-step**, п’ять операторських входів — **BOUNDED HOST OBSERVATIONS**, повний тест АУ — **OPEN**. Деталі: [H37_AU_SCENARIO_QUALIFICATION.md](H37_AU_SCENARIO_QUALIFICATION.md); маніфест: `examples/historical/gy1962/scenarios/au1_h37_entry_qualification.json`. Не вважати попереднє `A3 NEXT` поточним станом.
+
+
 **Версія:** 1.1 · **Прийнято:** 2026-10-29 · **Статус:** ACTIVE / master plan\
 **Призначення:** постійний документ для продовження роботи між сесіями ChatGPT та після втрати розмовного контексту.\
 **Цільовий шлях у репозиторії:** `docs/historical/ROADMAP.md`\
@@ -226,3 +229,7 @@ tempkyiv/kyivemu.exe image examples/historical/gy1962/au1_logic.k41 0043 22 --wa
 - **A5/H23:** `PASS_A5_NATIVE_CHARACTERIZATION` against HOST low-six-bit shift; `SOURCE_TEST_MATCH=NO`, `HARDWARE_ORACLE=NO`. The 1964 circuit/timing description provides a plausible **sign-trigger mechanism** distinguishing right shift −64 (expected −0) from −65 (expected +0), **not yet qualified as cycle-accurate fact**.
 - **Next gate:** private signal/timing hypothesis with `z₆`, `z₄₀`, `ИСдв2`, `ТЗн2`, `И₃`, `И₄`; test `−63/−64/−65`, signed zero, positive/negative operands; keep CPU, ROM, GUI and canonical sources unchanged. A full historical AU PASS and physical hardware evidence remain OPEN.
 - **Evidence on local machine:** `tempkyiv/A5_H23_SHIFT_BOUNDARY_EVIDENCE_V1.zip`, pinned SHA-256 `7b2e224aeee65dfbc913a672f344b757653abad9a52f390d878b3bb1dda8df15`. This path is local and should not be presumed committed to Git.
+
+## H39 — persistent AU branch differential (2026-10-31)
+
+H37 qualified source-only 0042 and five bounded entry routes; H38 verified 706 fresh rows and 699 persistent steps with no implicit RAM/register reset. H39 native probe confirmed the first control divergence at `0245`/step 18 on entry `0214`, recorded all 2/5 visits and the operand `0357` and two diagnostic-only RAM[0353] interventions. See [`H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md`](H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md). **FULL_AU=OPEN; HARDWARE_ORACLE=NO.** H39 is documentation only; the next historically qualified task is `0357` provenance and guarded `0252` I/O, not a fabricated `0360`.
