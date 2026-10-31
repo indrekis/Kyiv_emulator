@@ -233,3 +233,12 @@ tempkyiv/kyivemu.exe image examples/historical/gy1962/au1_logic.k41 0043 22 --wa
 ## H39 — persistent AU branch differential (2026-10-31)
 
 H37 qualified source-only 0042 and five bounded entry routes; H38 verified 706 fresh rows and 699 persistent steps with no implicit RAM/register reset. H39 native probe confirmed the first control divergence at `0245`/step 18 on entry `0214`, recorded all 2/5 visits and the operand `0357` and two diagnostic-only RAM[0353] interventions. See [`H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md`](H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md). **FULL_AU=OPEN; HARDWARE_ORACLE=NO.** H39 is documentation only; the next historically qualified task is `0357` provenance and guarded `0252` I/O, not a fabricated `0360`.
+
+### H40–H44 — кваліфікований шлях АУ до HOST-виведення (2026-10-31)
+
+- **H40:** 4/4 обмежені стани RAM перед надрукованим `0252`, без I/O; залежність результату від збереженого `RAM[0353]`.
+- **H41:** HOST-профілі й політики відмов окремо від історичного принтера.
+- **H42:** 10/10 слів історичної ROM `3100–3111` та 7/7 нативних запусків (5 точних ненульових BCD, 2 спостереження нуля).
+- **H43:** `0252` виконано через продукційний CPU в окремих тимчасових каталогах: 17 спроб, 9 точних записів, 8 відмов без файлів, 9 переходів до `0253`.
+- **H44:** [`H44_AU_OUTPUT_PATH_QUALIFICATION.md`](H44_AU_OUTPUT_PATH_QUALIFICATION.md) і `au1_h44_io22_qualification.json` документують provenance, перевірені HOST-файли, обмеження та наступний етап.
+- **Відкрито:** невідомі історичні операторські дії, початковий RAM, реальна периферія та повний наскрізний тест АУ. `HARDWARE_ORACLE=NO`; випробування HOST не є апаратним еталоном.

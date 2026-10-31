@@ -131,3 +131,7 @@ The latest **hardware-source interpretation** supersedes the earlier one-line hy
 ## H39 — bounded persistent-session observation
 
 H38 reproduced the 706 H36 independent trace rows and ran 699 steps in one persistent HOST session. Only entry `0214` changed its control path: at `0245` (operation `05`), fresh `→0247`, persistent `→0246`; final I/O boundary remains `0252`. H39 instrumented the operand at `0357` before each repeated branch, as well as its writes. The experiment uses unverified initial scratch RAM and manual PC/NK actions; it is **not** a full historical test PASS. Details: [`H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md`](H39_PERSISTENT_AU_BRANCH_DIAGNOSTIC.md).
+
+## H44 — маршрут історичної програми АУ до команди `0252`
+
+Джерельно кваліфіковано `0252: 22 0354 0357 0253` (GY62, друк. с. 174) та ROM `3100–3111` (GY62, друк. с. 87). Докази H40–H43 підтверджують чотири набори RAM, 17 ізольованих спроб нативного `22` (9 записів, 8 відмов) і один окремо підготовлений BCD-дослід. Це **не** повне історичне виконання, не реконструкція фізичного принтера і не підтвердження автоматичного виклику ROM `3100` з АУ. Див. [`H44_AU_OUTPUT_PATH_QUALIFICATION.md`](H44_AU_OUTPUT_PATH_QUALIFICATION.md) і `examples/historical/gy1962/scenarios/au1_h44_io22_qualification.json`.

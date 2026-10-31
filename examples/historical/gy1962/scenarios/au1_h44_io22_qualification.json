@@ -1,0 +1,95 @@
+{
+  "schema": "kyiv-au-io22-h44-v1",
+  "head_before": "10eb39d94e64cc4b8c0adc81b8e95f5debeee4af",
+  "source": {
+    "book": "В. М. Глушков, Е. Л. Ющенко (1962), Вычислительная машина Киев: математическое описание",
+    "printed_page_0252_0253": 174,
+    "printed_page_3100": 87,
+    "printed_0252": "22 0354 0357 0253",
+    "printed_0253": "33 0000 0000 0012",
+    "rom_conversion": "3100-3111"
+  },
+  "evidence_sha256": {
+    "H40": "7925337c20d3ca91efe9558535e72a62e1f2e72ee892d8c6f8b58423b952f57f",
+    "H41": "0d34f4c85130eaf51da43dccf2e6e44fe6a1981b1097183533cdb710844dfae1",
+    "H42": "98051df8a167068a8f219502b13bdc6f1e898dfea897e2726bef8ea903c0c4d3",
+    "H43": "57249f3032c4eb0fea1c9043e482ecdc4949cea3ae06cd89642845d9c098aecf"
+  },
+  "trials": [
+    {
+      "name": "FRESH",
+      "description": "Незалежний",
+      "words_octal": [
+        "37777777777770",
+        "17777777777777",
+        "37777777777770",
+        "37777777777771"
+      ],
+      "instructions_until_0252": 49,
+      "status": "SOURCE_BOUNDARY_HOST_OBSERVATION"
+    },
+    {
+      "name": "PERSISTENT",
+      "description": "Спільна сесія",
+      "words_octal": [
+        "14441766521042",
+        "15140661737776",
+        "17175133200562",
+        "17175133200564"
+      ],
+      "instructions_until_0252": 42,
+      "status": "SOURCE_BOUNDARY_HOST_OBSERVATION"
+    },
+    {
+      "name": "FRESH_WITH_0353_FROM_PRIOR",
+      "description": "Незалежний, перенесено RAM[0353]",
+      "words_octal": [
+        "14441766521042",
+        "15140661737776",
+        "17175133200562",
+        "17175133200564"
+      ],
+      "instructions_until_0252": 42,
+      "status": "SOURCE_BOUNDARY_HOST_OBSERVATION"
+    },
+    {
+      "name": "PERSISTENT_WITH_0353_ZERO",
+      "description": "Спільна сесія, очищено RAM[0353]",
+      "words_octal": [
+        "37777777777770",
+        "17777777777777",
+        "37777777777770",
+        "37777777777771"
+      ],
+      "instructions_until_0252": 49,
+      "status": "SOURCE_BOUNDARY_HOST_OBSERVATION"
+    }
+  ],
+  "bcd_staged": [
+    {
+      "case": "PLUS_HALF",
+      "token": "+5000000000"
+    },
+    {
+      "case": "MINUS_HALF",
+      "token": "-5000000000"
+    },
+    {
+      "case": "PLUS_QUARTER",
+      "token": "+2500000000"
+    },
+    {
+      "case": "MINUS_QUARTER",
+      "token": "-2500000000"
+    }
+  ],
+  "io_attempts": 17,
+  "successful_host_writes": 9,
+  "expected_refusals": 8,
+  "verified_stops_0253": 9,
+  "full_historical_au": "OPEN",
+  "historical_printer_oracle": false,
+  "historical_operator_sequence": false,
+  "h40_0252_preview_performed_io": false,
+  "h43_sandbox_0252_executed": true
+}
