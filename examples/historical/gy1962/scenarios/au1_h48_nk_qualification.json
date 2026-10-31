@@ -1,0 +1,176 @@
+{
+  "schema": "KYIV_AU_NK_H48_V1",
+  "decision": "SOURCE_WORD_CONFIRMED_HOST_SINGLE_STEP_CONFIRMED_HISTORICAL_OPERATOR_OPEN",
+  "baseline_head": "7a463e259a067ca099e87083b11d9eb6dc7d2ed0",
+  "source": {
+    "book": "В. М. Глушков, Е. Л. Ющенко, 1962, Вычислительная машина «Киев»: математическое описание",
+    "printed_page": 174,
+    "words": {
+      "0254": "31300002140043",
+      "0255": "31300102140043"
+    },
+    "operator_control_pages": [
+      161,
+      164,
+      165
+    ]
+  },
+  "historical_correction": {
+    "original": "H45_OPERATOR_PROCEDURE_EVIDENCE_V1.zip / CLAIMS.json / AU_0254_0255",
+    "old_word_0254": "31000002140043",
+    "correct_word_0254": "31300002140043",
+    "original_evidence_untouched": true,
+    "canonical_k41_changed": false
+  },
+  "native_H47_v2": {
+    "evidence_sha256": "a2214cb312ce08bac6e2574c739a34c1c00254aaae0f5022fac04ba33f6867a6",
+    "status": "PASS_SOURCE_WORD_CORRIGENDUM_HOST_PROBE_NOT_HISTORICAL_PANEL",
+    "cases": [
+      {
+        "case": "ENTRY0254",
+        "pc_before": "0254",
+        "word": "31300002140043",
+        "selected_nk": "3000",
+        "selector": "CABINET",
+        "panel_value": "00000000000000",
+        "pc_after": "0214",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0254",
+        "pc_before": "0254",
+        "word": "31300002140043",
+        "selected_nk": "3000",
+        "selector": "CABINET",
+        "panel_value": "20000000000000",
+        "pc_after": "0214",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0254",
+        "pc_before": "0254",
+        "word": "31300002140043",
+        "selected_nk": "3000",
+        "selector": "PANEL",
+        "panel_value": "00000000000000",
+        "pc_after": "0214",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0254",
+        "pc_before": "0254",
+        "word": "31300002140043",
+        "selected_nk": "3000",
+        "selector": "PANEL",
+        "panel_value": "20000000000000",
+        "pc_after": "0043",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0255",
+        "pc_before": "0255",
+        "word": "31300102140043",
+        "selected_nk": "3001",
+        "selector": "CABINET",
+        "panel_value": "00000000000000",
+        "pc_after": "0214",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0255",
+        "pc_before": "0255",
+        "word": "31300102140043",
+        "selected_nk": "3001",
+        "selector": "CABINET",
+        "panel_value": "20000000000000",
+        "pc_after": "0214",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0255",
+        "pc_before": "0255",
+        "word": "31300102140043",
+        "selected_nk": "3001",
+        "selector": "PANEL",
+        "panel_value": "00000000000000",
+        "pc_after": "0214",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      },
+      {
+        "case": "ENTRY0255",
+        "pc_before": "0255",
+        "word": "31300102140043",
+        "selected_nk": "3001",
+        "selector": "PANEL",
+        "panel_value": "20000000000000",
+        "pc_after": "0043",
+        "loop_before": "0000",
+        "loop_after": "0000",
+        "a_before": "0000",
+        "a_after": "0000",
+        "ram_unchanged": "1",
+        "running": "1",
+        "note": "HOST_EXPERIMENT_NOT_HARDWARE"
+      }
+    ],
+    "ram_unchanged_all": true,
+    "H38_trace_rows_compared": 699,
+    "H46_events_compared": 26,
+    "device_io_executed": false
+  },
+  "unknowns": [
+    "historical NK words and physical switch timing",
+    "actual operator entry sequence",
+    "initial RAM and register state",
+    "external 0360 and full AU oracle"
+  ],
+  "full_AU": "OPEN",
+  "hardware_oracle": "NO",
+  "evidence_classification": {
+    "printed_words": "SOURCE",
+    "trial_results": "HOST_OBSERVATION",
+    "panel_values": "HOST_EXPERIMENT"
+  }
+}
