@@ -1,0 +1,9 @@
+{
+  "bundle_bytes": 5209963,
+  "bundle_file": "KYIV_H112_H1_WINDOWS_HTML_NEWLINE_FIX_V1.zip",
+  "bundle_sha256": "58f08b802c1ae95811d5687936ba6abd42d8421c050ab06e55f8add200d385c9",
+  "expected_native_cases": 29,
+  "expected_trajectory_points": 3408,
+  "html_sha256": "58f4ea65fa78e4f676bc748a1202ed16e8581884223e83c96fde5c842a5d3812",
+  "schema": "KYIV_H113_BUNDLE_PIN_V1"
+}

@@ -1,0 +1,38 @@
+name: Kyiv RK4 reconstructed evidence (offline)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/kyiv-rk4-evidence.yml'
+      - 'examples/rk4_reconstructed/**'
+  pull_request:
+    paths:
+      - '.github/workflows/kyiv-rk4-evidence.yml'
+      - 'examples/rk4_reconstructed/**'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-audit:
+    name: Pinned H112-H1 evidence / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      # actions/checkout v6.0.2; exact commit verified against actions/checkout tag.
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+      - name: Python version
+        run: python --version
+      - name: Self tests
+        run: python -m unittest discover -s examples/rk4_reconstructed/tests -p 'test_*.py' -v
+      - name: H112-H1 offline audit and report regeneration
+        run: python examples/rk4_reconstructed/run.py --out tempkyiv/H113_CI_${{ runner.os }}
+      - name: No tracked file modifications
+        run: git diff --exit-code -- . ':!docs/historical/ROADMAP.md'
