@@ -1,0 +1,3 @@
+# Preserve byte-exact H115-A source material on Windows.
+examples/historical/gy1962/rom_modules/fp_simulation_251_printed.k41 text eol=lf
+examples/historical/gy1962/rom_modules/fp_simulation_251_provenance.tsv text eol=lf
