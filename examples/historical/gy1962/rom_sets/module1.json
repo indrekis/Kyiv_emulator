@@ -1,0 +1,10 @@
+{
+  "schema": "KYIV_H114_ROMSET_V1",
+  "id": "module1",
+  "description": "Mathematical module 1; source-qualified 64 printed words; H62 HOST evidence",
+  "slots": [["3300", "3377"]],
+  "expected_printed_records": 64,
+  "pinned_source_sha256": "9c659521d263fe78c2d6356cb28bfeaac374c1e71d723e35cc60be19ad3e1e84",
+  "not_interchangeable_with": ["fp_simulation", "runge_kutta"],
+  "physical_hardware": "NOT_TESTED"
+}

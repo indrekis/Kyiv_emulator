@@ -1,0 +1,13 @@
+{
+  "schema": "KYIV_H114_ROMSET_V1",
+  "id": "fp_simulation",
+  "description": "GY1962 pp.112-117 alternative FP simulation ROM; H65-H71 source inventory; no historic fill",
+  "slots": [["3300", "3377"], ["3400", "3477"], ["3500", "3577"], ["3600", "3677"], ["3700", "3777"]],
+  "expected_printed_records": 251,
+  "missing_source_ranges": [["3506", "3507"], ["3552", "3556"], ["3574", "3577"], ["3706", "3777"]],
+  "direct_unknown_reference": "3566 -> 3574",
+  "source_k41": "NOT_TRACKED_REQUIRES_H66_TRANSFER",
+  "not_interchangeable_with": ["module1", "runge_kutta"],
+  "execution_status": "NOT_NUMERICALLY_QUALIFIED",
+  "physical_hardware": "NOT_TESTED"
+}
