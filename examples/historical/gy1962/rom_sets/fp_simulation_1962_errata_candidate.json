@@ -1,0 +1,51 @@
+{
+  "schema": "KYIV_H115_FP_ERRATA_CANDIDATE_V1",
+  "id": "fp_simulation_1962_three_word_candidate",
+  "classification": "SOURCE_DERIVED_CORRECTION_CANDIDATE_NOT_HISTORICALLY_CONFIRMED",
+  "canonical_source": "examples/historical/gy1962/rom_modules/fp_simulation_251_printed.k41",
+  "canonical_source_sha256": "ead80a8af8a207f619647ac1579ff934c6050a55d85a61b92a838ebd3d7662ba",
+  "original_source_book": "Glushkov and Yushchenko, Vychislitelnaya mashina Kiev, 1962, printed pp. 114-117",
+  "substitutions": [
+    {
+      "address": "3467",
+      "printed": "15002036070021",
+      "candidate": "15002036050021",
+      "reason": "Numerator mantissa extraction; compare printed 3434 and 3471; mask 3605, not 3607",
+      "evidence": "GY62 pp. 114-115,117"
+    },
+    {
+      "address": "3470",
+      "printed": "15002036070022",
+      "candidate": "15002036060022",
+      "reason": "Numerator exponent extraction; compare printed 3435 and 3472; mask 3606, not 3607",
+      "evidence": "GY62 pp. 114-115,117"
+    },
+    {
+      "address": "3474",
+      "printed": "10002236110022",
+      "candidate": "01002236110022",
+      "reason": "Add octal 0100 exponent bias after subtraction at 3473; multiplication by 0100 is fixed-point multiplication, not bias addition",
+      "evidence": "GY62 pp. 114-115,117; DPS64 printed p. 17"
+    }
+  ],
+  "native_windows_evidence": {
+    "stage": "H115-B8",
+    "production_cpu_modified": false,
+    "total_cases": 39,
+    "source_exact": 13,
+    "source_mismatch": 26,
+    "candidate_exact": 39,
+    "candidate_mismatch": 0,
+    "reference_anchors": "H115-B7: 7/7 byte-identical per variant",
+    "provenance": "H115_B8_FP_WIDE_NUMERIC_DIFFERENTIAL_EVIDENCE_V1.zip"
+  },
+  "remaining_open": [
+    "independent_1963_article_text_and_potential_corrected_listing",
+    "printed_256_versus_251_address_records",
+    "unprinted_ROM_3574_and_other_68_unknown_words",
+    "nonexact_quotients_and_rounding",
+    "signed_zero_division_by_zero_overflow_underflow_exponent_extremes",
+    "real_machine_ROM_and_operator_behavior"
+  ],
+  "promotion_policy": "Do not overwrite SOURCE_PRINTED and do not label candidate as physical-hardware-confirmed"
+}
