@@ -1,0 +1,26 @@
+{
+  "b16_original_rk4_image_sha256": "904b500e989f3280483534951386934b970c252a20de66ec8777104204f45e35",
+  "b19_evidence_sha256": "945ace309f4eebdd81a46ebd39a1e1c4c92a8bab96bdfa99df7769fe706aaac9",
+  "b19_status": "PASS_H115_B19_SIGNED_OVERFLOW_PRIVATE_ROM_BOUNDED_NOT_HISTORICAL",
+  "baseline_commit": "52829c6e2b261fa17304bb9d95561890fd394b6b",
+  "branch": "h114-fp-fast-track-romset",
+  "evidence_type": "BOUNDED_SOFTWARE_CPU_TESTS_NOT_PHYSICAL_HARDWARE_ORACLE",
+  "fixed_rom_path": "mem/ROM.txt",
+  "fixed_rom_sha256": "a1d9c28e969fa1d74966a78fdbb1bf85b4c45354a764cb8665a73b0a62bdab38",
+  "functional_image_sha256": "dd9f09ed319f54c61b655c5b4aa3df1eb69e0733ee76333577194f29fa75f120",
+  "historic_3574_status": "UNPRINTED_AND_UNMATERIALIZED",
+  "native_loader": "FULL_257_WORD_IMAGE_NO_IN_RUN_ROM_PATCHING",
+  "native_regression_image_loader_source_sha256": "e07e31ebb3df0597489655002218a63417f4e6cff7414231b9024dc6b809e4bc",
+  "native_rk4_image_loader_source_sha256": "4590731ab7e23f8824f0a2c1f493174237fd0af841f9c39109759c79c7eb933e",
+  "original_fixed_point_rk4": "NOT_SAME_AS_FP_RK4_ADAPTATION",
+  "patch_count": 12,
+  "schema": "KYIV_H115_B20_FP_ROM_PROVENANCE_V1",
+  "source_image_path": "examples/historical/gy1962/rom_modules/fp_simulation_251_printed.k41",
+  "source_image_sha256": "ead80a8af8a207f619647ac1579ff934c6050a55d85a61b92a838ebd3d7662ba",
+  "source_word_replacements": 6,
+  "unsourced_additions": 6,
+  "upstream_cpu_git_blob": {
+    "inc/kyiv.h": "13551c98bdc5940fd075925e40f6ca8448fe3feb",
+    "src/main.cpp": "f370e80ed199ce213a9dd4162cc5a997ff53a0e4"
+  }
+}

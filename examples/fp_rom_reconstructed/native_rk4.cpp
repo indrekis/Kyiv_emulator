@@ -1,0 +1,334 @@
+// H115-B16: autonomous classical RK4 integration, private FP-ROM reconstruction, no HOST PC updates
+// H115-B11: private ROM-only machine-branch candidate; no HOST PC overrides
+// vectors. No production CPU changes, guessed ROM words, or I/O.
+// Build with src/main.cpp and -Iinc. Not a physical-hardware oracle.
+#include "kyiv.h"
+#include "kyiv_rom_boot_v1.h"
+#include "kyiv_host_image_v1.h"
+#include <array>
+#include <cstdint>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+// src/main.cpp deliberately leaves its command disassembler in the other CLI
+// TU (which also has main()). Supply a no-op display function; CPU is unchanged.
+int disassembly(const std::uint64_t&, Kyiv_memory_t&, const addr3_t&) { return 0; }
+
+using W=std::uint64_t;
+static constexpr W mask41=(W{1}<<41)-1;
+static constexpr W signbit=(W{1}<<40);
+static W pack(unsigned op,unsigned a1,unsigned a2,unsigned a3){
+    if(op>037 || a1>07777 || a2>07777 || a3>07777) throw std::runtime_error("pack out of range");
+    return (W(op)<<36)|(W(a1)<<24)|(W(a2)<<12)|W(a3);
+}
+static std::string oct(W n,int width){std::ostringstream o;o<<std::oct<<std::setfill('0')<<std::setw(width)<<n;return o.str();}
+static W fp(bool neg,unsigned mantissa_numerator,unsigned mantissa_den_power,int p){
+    // Exact binary fractions for diagnostic fixtures (not general-purpose FP converter).
+    if(p < -64 || p > 63 || mantissa_den_power>33 || !mantissa_numerator)
+        throw std::runtime_error("bad FP fixture");
+    const W mant=(W(mantissa_numerator)<<(40-mantissa_den_power));
+    if(!(mant&(W(1)<<39)) || mant>=(W(1)<<40)) throw std::runtime_error("unnormalized FP fixture");
+    return (neg?signbit:0)|mant|W(p+64);
+}
+static bool in_valid_memory(W a){return a<02000 || (a>=03000 && a<04000);}
+static bool known(W a,const std::set<W>&rom){
+    if(a>=03000 && a<04000) return rom.count(a)!=0;
+    return a<02000;
+}
+static W effective(unsigned field,W A){
+    const W base=W(field)&03777;
+    return (base+((field&04000)?A:0))&03777;
+}
+static std::string check_instruction(Kyiv_t& cpu,W w,const std::set<W>&source){
+    const unsigned op=static_cast<unsigned>(w>>36),
+      a1=static_cast<unsigned>((w>>24)&07777),
+      a2=static_cast<unsigned>((w>>12)&07777),
+      a3=static_cast<unsigned>(w&07777);
+    if(op>=020 && op<=025) return "HOLD_IO_OPCODE";
+    const W A=cpu.A_reg;
+    const W x=effective(a1,A),y=effective(a2,A),z=effective(a3,A);
+    std::vector<W> reads;
+    if((op>=001 && op<=017 && op!=004 && op!=005 && op!=016) || op==035)
+        reads.push_back(x);
+    if(op==001 || op==002 || op==003 || op==004 || op==005 || op==006 ||
+       op==007 || op==010 || op==011 || op==012 || op==013 || op==014 ||
+       op==015 || op==016 || op==017) {
+        if(op==004 || op==005 || op==016) reads.push_back(x);
+        reads.push_back(y);
+    }
+    if(op==030 || op==031 || op==034) reads.push_back(x);
+    if(op==034 && known(x,source)) {
+        const W fetched=cpu.kmem.read_memory(x);
+        // F reads its second 12-bit address field as the indirect register;
+        // the CPU's actual opcode_F will use precisely this 12-bit value.
+        reads.push_back((fetched>>12)&07777);
+    }
+    for(W a:reads){
+        if(!in_valid_memory(a)) return "HOLD_OPERAND_INVALID_"+oct(a,4);
+        if(!known(a,source)) return "HOLD_UNKNOWN_ROM_OPERAND_"+oct(a,4);
+    }
+    // At least syntactically known opcode; no blanket permission for zero-filled ROM.
+    if(op>037 || op==036 || op==037) return "HOLD_UNSUPPORTED_OPCODE";
+    // Detect any attempt to write outside RAM, prior to CPU execution.
+    const bool writes_dest = op==001||op==002||op==003||op==006||op==007||
+        op==010||op==011||op==012||op==013||op==014||op==015||op==017||
+        op==034||op==035;
+    if(writes_dest && z>=02000) return "HOLD_DESTINATION_NOT_RAM_"+oct(z,4);
+    if(op==035 && y>=02000) return "HOLD_NORMALIZE_ORDER_DEST_NOT_RAM_"+oct(y,4);
+    return "OK";
+}
+
+
+// H115-B16: two iterations of classical RK4 for y'=-y, h=1/4.
+// The 19 arithmetic instructions are read through F(34) by the 1962 FP dispatcher.
+// The CPU never fetches any user instruction as its own opcode.
+// Independently calculated word-exact checkpoints are embedded below; no numeric
+// calculation is delegated to the HOST during execution.
+static constexpr std::size_t STATE_N=12;
+static const std::array<W,STATE_N> STATE_ADDRS={0100ULL, 0101ULL, 0120ULL, 0121ULL, 0122ULL, 0123ULL, 0124ULL, 0125ULL, 0126ULL, 0127ULL, 0130ULL, 0131ULL};
+struct Mark {W pointer;std::array<W,STATE_N> words;};
+static const std::vector<Mark> EXPECT={
+  {0240ULL, {010000000000101ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0241ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0242ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 030000000000076ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0243ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0244ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0245ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 036000000000075ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0246ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0247ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 00ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0250ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 036200000000076ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0251ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 00ULL, 00ULL, 00ULL, 00ULL}},
+  {0252ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 00ULL, 00ULL, 00ULL}},
+  {0253ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 036100000000101ULL, 00ULL, 00ULL}},
+  {0254ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 036100000000102ULL, 00ULL, 00ULL}},
+  {0255ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 031040000000103ULL, 00ULL, 00ULL}},
+  {0256ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 00ULL, 00ULL}},
+  {0257ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 032474000000101ULL, 00ULL}},
+  {0260ULL, {010000000000101ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 00ULL}},
+  {0261ULL, {014354000000100ULL, 00ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 00ULL}},
+  {0262ULL, {014354000000100ULL, 010000000000077ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 00ULL}},
+  {0263ULL, {014354000000100ULL, 010000000000077ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0264ULL, {014354000000100ULL, 010000000000077ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0240ULL, {014354000000100ULL, 010000000000077ULL, 030000000000101ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0241ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 016000000000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0242ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 034354000000075ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0243ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 036000000000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0244ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 016200000000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0245ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 032716400000075ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0246ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 036200000000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0247ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 014340000000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0250ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 033062140000076ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0251ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 034340000000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0252ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 032474000000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0253ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 033000260000101ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0254ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 033000260000102ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0255ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 036073260000102ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0256ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 036120000000076ULL, 010000000000076ULL}},
+  {0257ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 030211465000101ULL, 010000000000076ULL}},
+  {0260ULL, {014354000000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 033014634000076ULL, 010000000000076ULL}},
+  {0261ULL, {011550631000100ULL, 010000000000077ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 033014634000076ULL, 010000000000076ULL}},
+  {0262ULL, {011550631000100ULL, 010000000000100ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 033014634000076ULL, 010000000000076ULL}},
+  {0263ULL, {011550631000100ULL, 010000000000100ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 033014634000076ULL, 030000000000076ULL}},
+  {0265ULL, {011550631000100ULL, 010000000000100ULL, 034354000000100ULL, 012716400000100ULL, 032716400000100ULL, 013062140000100ULL, 033062140000100ULL, 011537350000100ULL, 031537350000100ULL, 030211465000103ULL, 033014634000076ULL, 030000000000076ULL}},
+};
+static const std::map<W,W> EXPECT_IMAGE={
+    {0100ULL,010000000000101ULL},
+    {0101ULL,00ULL},
+    {0102ULL,010000000000077ULL},
+    {0103ULL,010000000000076ULL},
+    {0104ULL,010000000000102ULL},
+    {0105ULL,014000000000103ULL},
+    {0106ULL,00ULL},
+    {0107ULL,014000000000077ULL},
+    {0120ULL,00ULL},
+    {0121ULL,00ULL},
+    {0122ULL,00ULL},
+    {0123ULL,00ULL},
+    {0124ULL,00ULL},
+    {0125ULL,00ULL},
+    {0126ULL,00ULL},
+    {0127ULL,00ULL},
+    {0130ULL,00ULL},
+    {0131ULL,00ULL},
+    {0240ULL,02010601000120ULL},
+    {0241ULL,011012001030121ULL},
+    {0242ULL,01010001210121ULL},
+    {0243ULL,02010601210122ULL},
+    {0244ULL,011012201030123ULL},
+    {0245ULL,01010001230123ULL},
+    {0246ULL,02010601230124ULL},
+    {0247ULL,011012401020125ULL},
+    {0250ULL,01010001250125ULL},
+    {0251ULL,02010601250126ULL},
+    {0252ULL,01012201240127ULL},
+    {0253ULL,011012701040127ULL},
+    {0254ULL,01012701200127ULL},
+    {0255ULL,01012701260127ULL},
+    {0256ULL,011012701020130ULL},
+    {0257ULL,012013001050130ULL},
+    {0260ULL,01010001300100ULL},
+    {0261ULL,01010101020101ULL},
+    {0262ULL,02010701010131ULL},
+    {0263ULL,031013102640265ULL},
+    {0264ULL,031000002400240ULL},
+    {0265ULL,033000000000000ULL},
+};
+static const std::set<W> MUTABLE_ADDRS={0100ULL, 0101ULL, 0120ULL, 0121ULL, 0122ULL, 0123ULL, 0124ULL, 0125ULL, 0126ULL, 0127ULL, 0130ULL, 0131ULL};
+static constexpr unsigned EXPECT_ARITHMETIC=38;
+static constexpr unsigned EXPECT_DECISIONS=2;
+static constexpr unsigned EXPECT_BACK_EDGES=1;
+int main(int argc,char**argv) {
+    if(argc!=8){std::cerr<<"usage: H115_B16_NATIVE FIXED_ROM FP_K41 RK4_K41 TRACE.tsv CHECKPOINTS.tsv SESSIONS.tsv EVENTS.tsv\n";return 2;}
+    try{
+        kyiv_rom_boot_v1::arguments boot;
+        boot.explicit_rom=true;boot.rom_filename=argv[1];
+        boot.expected_sha256=kyiv_rom_boot_v1::pinned_default_sha256;
+        const auto fixed=kyiv_rom_boot_v1::read(boot,argv[0]);
+        const auto fp_words=kyiv_host_image_v1::load_file(argv[2],true);
+        const auto user_words=kyiv_host_image_v1::load_file(argv[3],true);
+        std::map<W,W> source,user;
+        std::set<W> qualified;
+        for(const auto& w:fixed.words)qualified.insert(w.first);
+        for(const auto& w:fp_words){
+            if(w.first<03300||w.first>03777||w.second>mask41||!source.emplace(w.first,w.second).second)
+                throw std::runtime_error("HOLD_FP_SOURCE_FORMAT");
+            qualified.insert(w.first);
+        }
+        // B20: a single 257-word ROM image, never an in-run HOST overlay.
+        if(source.size()!=257 || source.count(03574) ||
+           source.at(03467)!=pack(015,0020,03605,0021) ||
+           source.at(03470)!=pack(015,0020,03606,0022) ||
+           source.at(03474)!=pack(001,0022,03611,0022) ||
+           source.at(03476)!=pack(005,0,0,03706) ||
+           source.at(03706)!=pack(005,0023,0021,03502) ||
+           source.at(03707)!=pack(005,0,0,03504) ||
+           source.at(03455)!=pack(004,0,0022,03370) ||
+           source.at(03367)!=pack(031,0021,03710,03712) ||
+           source.at(03710)!=pack(001,03042,0021,0021) ||
+           source.at(03711)!=pack(005,0,0,03370) ||
+           source.at(03712)!=pack(002,0021,03042,0021) ||
+           source.at(03713)!=pack(005,0,0,03370))
+            throw std::runtime_error("HOLD_FUNCTIONAL_ROM_ANCHOR_DRIFT");
+        qualified.insert(03000);qualified.insert(03706);qualified.insert(03707);
+        qualified.insert(03710);qualified.insert(03711);qualified.insert(03712);qualified.insert(03713);
+        for(const auto& w:user_words){
+            if(w.first==0||w.first>=02000||w.second>mask41||!user.emplace(w.first,w.second).second)
+                throw std::runtime_error("HOLD_USER_IMAGE_INVALID");
+        }
+        if(user!=EXPECT_IMAGE) throw std::runtime_error("HOLD_USER_IMAGE_WORD_DRIFT");
+        std::ofstream trace(argv[4],std::ios::binary), checkpoints(argv[5],std::ios::binary),
+                      sessions(argv[6],std::ios::binary),events(argv[7],std::ios::binary);
+        if(!trace||!checkpoints||!sessions||!events)throw std::runtime_error("HOLD_REPORT_OPEN");
+        trace<<"step\tpc_before\tword\tpc_after\tprogram_pointer_before\tprogram_pointer_after\tgate\n";
+        checkpoints<<"ordinal\tpointer\tstatus\tsteps";
+        for(const char *n:{"y", "t", "k1", "a", "k2", "b", "k3", "c", "k4", "sum", "scaled", "d"})checkpoints<<'\t'<<n<<"_expected\t"<<n<<"_observed";
+        checkpoints<<'\n';
+        sessions<<"case\tstatus\tsteps\tcheckpoints\tend_pc\tend_pointer\tarithmetic_ops\titerations\tback_edge_count\tdecisions\tactual_cpu_run\thardware_oracle\n";
+        events<<"step\tpc_before\topcode\tcurrent_pointer\tnew_pointer\tcomment\n";
+        Kyiv_t cpu(Kyiv_t::rom_boot_mode::deferred);
+        kyiv_rom_boot_v1::install(cpu,fixed);
+        for(const auto& w:fp_words)cpu.kmem.write_rom(w.first,w.second);
+        // B20: no per-cell ROM patching; fp_words above is the whole image.
+        for(const auto& w:user)cpu.kmem.write_memory(w.first,w.second);
+        cpu.kmem.set_panel_nk_word(03000,pack(0,0,0240,0));
+        cpu.kmem.select_panel_nk(03000,true);
+        cpu.emergency_stop_blocked=true;
+        cpu.C_reg=03300; // the only HOST PC assignment, before execution
+        unsigned steps=0,idx=0,arith=0,backs=0,decisions=0;
+        bool derived10=false,derived25=false,derived26=false,derived27=false;
+        W d10=0,d25=0,d26=0,d27=0;
+        std::string state="HOLD_MAX_STEPS";
+        constexpr unsigned LIMIT=5000;
+        while(steps<LIMIT){
+            const W pc=cpu.C_reg;
+            const W ptr=(cpu.kmem.read_memory(0014)>>12)&07777;
+            if(pc==03305){
+                if(idx>=EXPECT.size()){state="HOLD_EXTRA_DISPATCH";break;}
+                const Mark& ck=EXPECT[idx];
+                bool good=ptr==ck.pointer;
+                checkpoints<<idx<<'\t'<<oct(ptr,4)<<'\t';
+                for(std::size_t j=0;j<STATE_N;++j)if(cpu.kmem.read_memory(STATE_ADDRS[j])!=ck.words[j])good=false;
+                checkpoints<<(good?"WORD_MATCH":"WORD_MISMATCH")<<'\t'<<steps;
+                for(std::size_t j=0;j<STATE_N;++j)checkpoints<<'\t'<<oct(ck.words[j],14)<<'\t'<<oct(cpu.kmem.read_memory(STATE_ADDRS[j]),14);
+                checkpoints<<'\n';
+                if(!good){state="HOLD_CHECKPOINT_DRIFT";break;}
+                if(ptr>=0241 && ptr<=0263)++arith;
+                if(ptr==0264||ptr==0265)++decisions;
+                if(ptr==0240&&idx>0)++backs;
+                ++idx;
+                if(idx==EXPECT.size()){state="PASS_RK4_MACHINE_ODE_NOT_HISTORICAL";break;}
+            }
+            if(!in_valid_memory(pc)||!known(pc,qualified)){
+                state="HOLD_UNKNOWN_EXECUTION_ADDRESS_"+oct(pc,4);break;
+            }
+            if(user.count(pc)){state="HOLD_RAW_USER_INSTRUCTION_FETCH_"+oct(pc,4);break;}
+            const bool admit10=pc==0010&&derived10&&cpu.kmem.read_memory(0010)==d10;
+            const bool admit25=pc==0025&&derived25&&cpu.kmem.read_memory(0025)==d25;
+            const bool admit26=pc==0026&&derived26&&cpu.kmem.read_memory(0026)==d26;
+            const bool admit27=pc==0027&&derived27&&cpu.kmem.read_memory(0027)==d27;
+            if(pc<03000 && pc!=0011 && pc!=0012 && !admit10 && !admit25 && !admit26 && !admit27){
+                state="HOLD_UNQUALIFIED_RAM_EXEC_"+oct(pc,4);break;
+            }
+            if(pc==03574){state="HOLD_UNPRINTED_ROM_3574";break;}
+            if(pc>=03600 && pc<=03627){state="HOLD_ROM_CONSTANT_EXEC";break;}
+            const W w=cpu.kmem.read_memory(pc);
+            if(pc<03000 && w==0){state="HOLD_RAM_ZERO_EXEC";break;}
+            const std::string safe=check_instruction(cpu,w,qualified);
+            if(safe!="OK"){state="HOLD_PRE_EXECUTION_"+safe;break;}
+            W ex10=0,ex25=0,ex26=0,ex27=0;
+            if(pc==03317){if(w!=pack(001,0011,0,0010)){state="HOLD_SOURCE_3317";break;}ex10=cpu.kmem.read_memory(0011);}
+            if(pc==03300){if(w!=pack(001,0,03621,0026)){state="HOLD_SOURCE_3300";break;}ex26=cpu.kmem.read_memory(03621);}
+            if(pc==03301){if(w!=pack(001,0,03622,0027)){state="HOLD_SOURCE_3301";break;}ex27=cpu.kmem.read_memory(03622);}
+            if(pc==03333){if(w!=pack(014,0013,03613,0025)){state="HOLD_SOURCE_3333";break;}ex25=cpu.kmem.read_memory(0013)|cpu.kmem.read_memory(03613);}
+            const bool cont=cpu.execute_opcode();
+            if(pc==03317){d10=ex10;derived10=cpu.kmem.read_memory(0010)==d10;}
+            if(pc==03300){d26=ex26;derived26=cpu.kmem.read_memory(0026)==d26;}
+            if(pc==03301){d27=ex27;derived27=cpu.kmem.read_memory(0027)==d27;}
+            if(pc==03333){d25=ex25;derived25=cpu.kmem.read_memory(0025)==d25;}
+            if((pc==03317&&!derived10)||(pc==03300&&!derived26)||(pc==03301&&!derived27)||(pc==03333&&!derived25)){
+                state="HOLD_SOURCE_DERIVED_TRAMPOLINE";break;
+            }
+            if(pc==03455 && w!=pack(004,0,0022,03370)){state="HOLD_ROUNDING_PRIVATE_DRIFT";break;}
+            if(pc==03476 && (w!=pack(005,0,0,03706)||cpu.C_reg!=03706)){state="HOLD_DIVISION_ROUTER_DRIFT";break;}
+            if(pc==03706 && w!=pack(005,0023,0021,03502)){state="HOLD_DIVISION_COMP_DRIFT";break;}
+            if(pc==03707 && (w!=pack(005,0,0,03504)||cpu.C_reg!=03504)){state="HOLD_DIVISION_FALLTHROUGH_DRIFT";break;}
+            if(pc==03474 && w!=pack(001,0022,03611,0022)){state="HOLD_BIAS_WORD_DRIFT";break;}
+            // User program/data are immutable unless explicitly declared as mutable FP state.
+            for(const auto& e:user)if(!MUTABLE_ADDRS.count(e.first)&&cpu.kmem.read_memory(e.first)!=e.second){
+                state="HOLD_USER_SOURCE_MUTATION";break;
+            }
+            if(state=="HOLD_USER_SOURCE_MUTATION")break;
+            const W newptr=(cpu.kmem.read_memory(0014)>>12)&07777;
+            if(ptr!=newptr && (pc==03304||pc==03305||pc==03320||pc==03372||pc==03317||pc==03572)){
+                events<<steps+1<<'\t'<<oct(pc,4)<<'\t'<<oct(w>>36,2)
+                      <<'\t'<<oct(ptr,4)<<'\t'<<oct(newptr,4)<<"\tPOINTER_CHANGE\n";
+            }
+            ++steps;
+            trace<<steps<<'\t'<<oct(pc,4)<<'\t'<<oct(w,14)<<'\t'
+                 <<oct(cpu.C_reg,4)<<'\t'<<oct(ptr,4)<<'\t'<<oct(newptr,4)<<'\t'
+                 <<(cont?"CONTINUE":"CPU_STOP")<<'\n';
+            if(!cont){state="HOLD_CPU_STOP";break;}
+        }
+        if(state=="PASS_RK4_MACHINE_ODE_NOT_HISTORICAL"){
+            if(idx!=EXPECT.size()||backs!=EXPECT_BACK_EDGES||decisions!=EXPECT_DECISIONS||
+               arith!=EXPECT_ARITHMETIC||cpu.C_reg!=03305||
+               ((cpu.kmem.read_memory(0014)>>12)&07777)!=0265)
+                state="HOLD_RK4_COVERAGE";
+        }
+        sessions<<"RK4_NEG_Y"<<'\t'<<state<<'\t'<<steps<<'\t'<<idx<<'\t'
+          <<oct(cpu.C_reg,4)<<'\t'<<oct((cpu.kmem.read_memory(0014)>>12)&07777,4)<<'\t'
+          <<arith<<'\t'<<2<<'\t'<<backs<<'\t'<<decisions<<"\t1\tNO\n";
+        trace.flush();checkpoints.flush();sessions.flush();events.flush();
+        if(!trace||!checkpoints||!sessions||!events)throw std::runtime_error("HOLD_REPORT_WRITE");
+        std::cerr<<"H115_B16 RK4_NEG_Y "<<state<<" steps="<<steps<<" checkpoints="<<idx
+          <<" backs="<<backs<<" decisions="<<decisions<<" arithmetic="<<arith<<"\n";
+        return state=="PASS_RK4_MACHINE_ODE_NOT_HISTORICAL"?0:4;
+    }catch(const std::exception&ex){std::cerr<<"HOLD_H115_B16_NATIVE_EXCEPTION "<<ex.what()<<"\n";return 5;}
+}

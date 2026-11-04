@@ -1,0 +1,107 @@
+{
+  "functional_image_records": 257,
+  "historical_equivalence": "NOT_CLAIMED",
+  "historical_source_records": 251,
+  "patches": [
+    {
+      "address_octal": "3367",
+      "classification": "REPLACEMENT_OF_PRINTED_WORD",
+      "functional_word_octal": "31002137103712",
+      "original_word_octal": "01304200210021",
+      "rationale": "B19_SIGNED_OVERFLOW_ROUTER",
+      "stage": "B19"
+    },
+    {
+      "address_octal": "3455",
+      "classification": "REPLACEMENT_OF_PRINTED_WORD",
+      "functional_word_octal": "04000000223370",
+      "original_word_octal": "04000000223376",
+      "rationale": "B12C_ROUNDING_ROUTE",
+      "stage": "B12C"
+    },
+    {
+      "address_octal": "3467",
+      "classification": "REPLACEMENT_OF_PRINTED_WORD",
+      "functional_word_octal": "15002036050021",
+      "original_word_octal": "15002036070021",
+      "rationale": "B8_BIAS_MANTISSA_MASK",
+      "stage": "B8"
+    },
+    {
+      "address_octal": "3470",
+      "classification": "REPLACEMENT_OF_PRINTED_WORD",
+      "functional_word_octal": "15002036060022",
+      "original_word_octal": "15002036070022",
+      "rationale": "B8_BIAS_MANTISSA_MASK",
+      "stage": "B8"
+    },
+    {
+      "address_octal": "3474",
+      "classification": "REPLACEMENT_OF_PRINTED_WORD",
+      "functional_word_octal": "01002236110022",
+      "original_word_octal": "10002236110022",
+      "rationale": "B8_EXPONENT_ACCUMULATOR_OPCODE",
+      "stage": "B8"
+    },
+    {
+      "address_octal": "3476",
+      "classification": "REPLACEMENT_OF_PRINTED_WORD",
+      "functional_word_octal": "05000000003706",
+      "original_word_octal": "04000000223502",
+      "rationale": "B11_DIVISION_ROUTER",
+      "stage": "B11"
+    },
+    {
+      "address_octal": "3706",
+      "classification": "SYNTHETIC_UNPRINTED_WORD",
+      "functional_word_octal": "05002300213502",
+      "original_word_octal": null,
+      "rationale": "B11_DIVISION_COMPARE_SYNTHETIC",
+      "stage": "B11"
+    },
+    {
+      "address_octal": "3707",
+      "classification": "SYNTHETIC_UNPRINTED_WORD",
+      "functional_word_octal": "05000000003504",
+      "original_word_octal": null,
+      "rationale": "B11_DIVISION_FALLTHROUGH_SYNTHETIC",
+      "stage": "B11"
+    },
+    {
+      "address_octal": "3710",
+      "classification": "SYNTHETIC_UNPRINTED_WORD",
+      "functional_word_octal": "01304200210021",
+      "original_word_octal": null,
+      "rationale": "B19_OVERFLOW_POSITIVE_SYNTHETIC",
+      "stage": "B19"
+    },
+    {
+      "address_octal": "3711",
+      "classification": "SYNTHETIC_UNPRINTED_WORD",
+      "functional_word_octal": "05000000003370",
+      "original_word_octal": null,
+      "rationale": "B19_OVERFLOW_POSITIVE_RETURN_SYNTHETIC",
+      "stage": "B19"
+    },
+    {
+      "address_octal": "3712",
+      "classification": "SYNTHETIC_UNPRINTED_WORD",
+      "functional_word_octal": "02002130420021",
+      "original_word_octal": null,
+      "rationale": "B19_OVERFLOW_NEGATIVE_SYNTHETIC",
+      "stage": "B19"
+    },
+    {
+      "address_octal": "3713",
+      "classification": "SYNTHETIC_UNPRINTED_WORD",
+      "functional_word_octal": "05000000003370",
+      "original_word_octal": null,
+      "rationale": "B19_OVERFLOW_NEGATIVE_RETURN_SYNTHETIC",
+      "stage": "B19"
+    }
+  ],
+  "replaced_printed": 6,
+  "schema": "KYIV_H115_B20_FUNCTIONAL_FP_PATCHES_V1",
+  "synthetic_unprinted": 6,
+  "unknown_3574": "NOT_MATERIALIZED"
+}
