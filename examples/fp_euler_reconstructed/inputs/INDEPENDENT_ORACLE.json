@@ -1,0 +1,90 @@
+{
+  "all_dyadic_exact": true,
+  "analytic_solution_at_t=1": "exp(-1) (comparison only, not FP oracle)",
+  "equation": "dy/dt=-y",
+  "final_y": "81/256",
+  "historical_claim": "NONE",
+  "initial": {
+    "d": "0",
+    "delta": "0",
+    "h": "1/4",
+    "t": "0",
+    "threshold": "7/8",
+    "y": "1"
+  },
+  "method": "explicit Euler",
+  "program": {
+    "arithmetic": [
+      "0230",
+      "0231",
+      "0232",
+      "0233"
+    ],
+    "conditional_branch": "0234",
+    "entry": "0230",
+    "loop_back": "0235",
+    "sentinel": "0236"
+  },
+  "recurrence": "delta=h*y; y=y-delta; t=t+h; d=(7/8)-t",
+  "schema": "KYIV_H115_B15_EULER_FRACTION_V1",
+  "step": "1/4",
+  "steps": [
+    {
+      "delta": "1/4",
+      "delta_word": "10000000000077",
+      "difference": "5/8",
+      "difference_word": "12000000000100",
+      "iteration": 1,
+      "negative_exit": false,
+      "t_after": "1/4",
+      "t_before": "0",
+      "t_word": "10000000000077",
+      "y_after": "3/4",
+      "y_before": "1",
+      "y_word": "14000000000100"
+    },
+    {
+      "delta": "3/16",
+      "delta_word": "14000000000076",
+      "difference": "3/8",
+      "difference_word": "14000000000077",
+      "iteration": 2,
+      "negative_exit": false,
+      "t_after": "1/2",
+      "t_before": "1/4",
+      "t_word": "10000000000100",
+      "y_after": "9/16",
+      "y_before": "3/4",
+      "y_word": "11000000000100"
+    },
+    {
+      "delta": "9/64",
+      "delta_word": "11000000000076",
+      "difference": "1/8",
+      "difference_word": "10000000000076",
+      "iteration": 3,
+      "negative_exit": false,
+      "t_after": "3/4",
+      "t_before": "1/2",
+      "t_word": "14000000000100",
+      "y_after": "27/64",
+      "y_before": "9/16",
+      "y_word": "15400000000077"
+    },
+    {
+      "delta": "27/256",
+      "delta_word": "15400000000075",
+      "difference": "-1/8",
+      "difference_word": "30000000000076",
+      "iteration": 4,
+      "negative_exit": true,
+      "t_after": "1",
+      "t_before": "3/4",
+      "t_word": "10000000000101",
+      "y_after": "81/256",
+      "y_before": "27/64",
+      "y_word": "12100000000077"
+    }
+  ],
+  "stop_policy": "last negative d exits modeled opcode31; 0236 sentinel not executed"
+}

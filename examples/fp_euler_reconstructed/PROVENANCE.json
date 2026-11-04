@@ -1,0 +1,43 @@
+{
+  "cpu_source_baseline_branch": "h114-fp-fast-track-romset",
+  "cpu_source_baseline_head": "82bcacc0ad0e96abc23b98616b6390aa7715d3f6",
+  "evidence_sha256": "d2e4b797de6821b46cb8ec12022348508628a117db77c58d05682b976d752bca",
+  "example": "explicit Euler y-prime=-y y(0)=1 h=1/4 4 steps",
+  "historical_accuracy": "NOT_ASSERTED",
+  "image_sha256": "c0007fbe8bbb42084e87f768244fd8f49ccd0377b4fb966cc7204f6cac4b9165",
+  "native_cpp_sha256": "53952441ae9e5dcb17e0f4be45fa1e9eca1aa635617b93e1e2754581f52ee100",
+  "no_production_cpu_changes": true,
+  "oracle_sha256": "8a9d6b6946e4193aaa13fad89f1f631615fb8c5fab6c6d3f3af783e82149205b",
+  "original_evidence_status": "PASS_H115_B15_EULER_MACHINE_ODE_NOT_HISTORICAL",
+  "original_native_proof": {
+    "back_edges": 3,
+    "checkpoint_matches": 24,
+    "decisions": 4,
+    "final_fraction": "81/256",
+    "fp_arithmetic": 16,
+    "sessions": 1,
+    "steps": 619
+  },
+  "printed_fp_251_source_sha256": "ead80a8af8a207f619647ac1579ff934c6050a55d85a61b92a838ebd3d7662ba",
+  "private_rom_changes": {
+    "3455": "04000000223370",
+    "3467": "15002036050021",
+    "3470": "15002036060022",
+    "3474": "01002236110022",
+    "3476": "05000000003706",
+    "3706": "05002300213502",
+    "3707": "05000000003504"
+  },
+  "rom_sha256": "a1d9c28e969fa1d74966a78fdbb1bf85b4c45354a764cb8665a73b0a62bdab38",
+  "schema": "KYIV_H115_B17_FP_EULER_EXAMPLE_V1",
+  "source_3574": "UNKNOWN_UNFILLED",
+  "status": "RECONSTRUCTED_PRIVATE_FP_ROM_NATIVE_PASS_H115_B15",
+  "upstream_baseline_git_blob_sha1": {
+    "inc/kyiv.h": "13551c98bdc5940fd075925e40f6ca8448fe3feb",
+    "inc/kyiv_host_image_v1.h": "60b259d83e32aee174dca5a09c91a21fc0d3e4a7",
+    "inc/kyiv_rom_boot_v1.h": "bbbe7d923ab759de197272b5427d6fc11b48d09b",
+    "inc/kyiv_serial_division.h": "476650d44a7f874dd40a1d2e63372d560402c306",
+    "inc/kyiv_shift_au1964.h": "bde620fa13d4fb82e74b81dce0703b93bb3c85b6",
+    "src/main.cpp": "f370e80ed199ce213a9dd4162cc5a997ff53a0e4"
+  }
+}
