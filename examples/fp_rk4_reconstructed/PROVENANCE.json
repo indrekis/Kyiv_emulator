@@ -1,0 +1,50 @@
+{
+  "algorithm": "classical RK4 f(y)=-y y(0)=1 h=1/4 two steps; compensated bounded intermediate sums",
+  "branch": "h114-fp-fast-track-romset",
+  "fixed_rom_sha256": "a1d9c28e969fa1d74966a78fdbb1bf85b4c45354a764cb8665a73b0a62bdab38",
+  "historical_3574": "UNKNOWN_UNFILLED",
+  "historical_accuracy": "NOT_ASSERTED",
+  "historical_source_changed": false,
+  "image_sha256": "2e3d47e8daedf8abdafbec59622f9ce4866bec3b75132520a3029e1f4ccfc110",
+  "independent_oracle_sha256": "a511d41dd44935e5b22001a0948eb752b6dd9e92ed1bf4b2eb3211c066e2d541",
+  "native_acceptance": {
+    "arithmetic_operations": 50,
+    "back_edges": 1,
+    "checkpoints": 54,
+    "conditions": 2,
+    "final_fraction": "2544025/4194304",
+    "iterations": 2,
+    "sessions": 1,
+    "steps": 1637
+  },
+  "negative_B16_evidence_sha256": "ec353fdf388c7a9fac4cf060ab3b9d378b8f743dfebb6fdd044429580e76adff",
+  "open_defect": "FP addition of same-sign negative mantissas whose magnitude sums to >1: original B16 at 0252 wraps by +2; fixed in user program by bounded ordering, not fixed in ROM",
+  "oracle_source_sha256": "27bc91199004d7fd06661a97b153c5db51931e337a5daabc421460b82bc5e082",
+  "original_evidence_sha256": "a61a7702fa07c98661b01a618a50e59d435e405ff1a19ffcfeae069dd4417e6a",
+  "original_evidence_status": "PASS_H115_B16_R1_BOUNDED_SUM_RK4_NOT_HISTORICAL",
+  "original_native_sha256": "e4cbf1410336d33bb7c0930d0c6f58253f60fff65eccf7434461676b6cc938eb",
+  "printed_fp_251_source_sha256": "ead80a8af8a207f619647ac1579ff934c6050a55d85a61b92a838ebd3d7662ba",
+  "prior_B15_evidence_sha256": "d2e4b797de6821b46cb8ec12022348508628a117db77c58d05682b976d752bca",
+  "private_rom_changes": {
+    "3455": "04000000223370",
+    "3467": "15002036050021",
+    "3470": "15002036060022",
+    "3474": "01002236110022",
+    "3476": "05000000003706",
+    "3706": "05002300213502",
+    "3707": "05000000003504"
+  },
+  "production_cpu_changed": false,
+  "schema": "KYIV_H115_B18_FP_RK4_RECONSTRUCTED_EXAMPLE_V1",
+  "source_baseline_head": "82bcacc0ad0e96abc23b98616b6390aa7715d3f6",
+  "stage_baseline_head": "74f4211b4d688ba2408b0de41af1e57eb7d98d45",
+  "status": "PASS_H115_B16_R1_BOUNDED_SUM_RK4_NOT_HISTORICAL",
+  "upstream_baseline_git_blob_sha1": {
+    "inc/kyiv.h": "13551c98bdc5940fd075925e40f6ca8448fe3feb",
+    "inc/kyiv_host_image_v1.h": "60b259d83e32aee174dca5a09c91a21fc0d3e4a7",
+    "inc/kyiv_rom_boot_v1.h": "bbbe7d923ab759de197272b5427d6fc11b48d09b",
+    "inc/kyiv_serial_division.h": "476650d44a7f874dd40a1d2e63372d560402c306",
+    "inc/kyiv_shift_au1964.h": "bde620fa13d4fb82e74b81dce0703b93bb3c85b6",
+    "src/main.cpp": "f370e80ed199ce213a9dd4162cc5a997ff53a0e4"
+  }
+}
