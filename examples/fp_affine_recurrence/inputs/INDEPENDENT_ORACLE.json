@@ -1,0 +1,72 @@
+{
+  "end_pointer": "0306",
+  "entry": "0300",
+  "initial": "1/4",
+  "iterations": [
+    {
+      "d": "5/8",
+      "d_word": "12000000000100",
+      "iteration": 1,
+      "stop": false,
+      "t": "1/4",
+      "t_word": "10000000000077",
+      "tmp": "3/4",
+      "tmp_word": "14000000000100",
+      "x": "3/8",
+      "x_word": "14000000000077"
+    },
+    {
+      "d": "3/8",
+      "d_word": "14000000000077",
+      "iteration": 2,
+      "stop": false,
+      "t": "1/2",
+      "t_word": "10000000000100",
+      "tmp": "7/8",
+      "tmp_word": "16000000000100",
+      "x": "7/16",
+      "x_word": "16000000000077"
+    },
+    {
+      "d": "1/8",
+      "d_word": "10000000000076",
+      "iteration": 3,
+      "stop": false,
+      "t": "3/4",
+      "t_word": "14000000000100",
+      "tmp": "15/16",
+      "tmp_word": "17000000000100",
+      "x": "15/32",
+      "x_word": "17000000000077"
+    },
+    {
+      "d": "-1/8",
+      "d_word": "30000000000076",
+      "iteration": 4,
+      "stop": true,
+      "t": "1",
+      "t_word": "10000000000101",
+      "tmp": "31/32",
+      "tmp_word": "17400000000100",
+      "x": "31/64",
+      "x_word": "17400000000077"
+    }
+  ],
+  "machine_dispatches": 24,
+  "machine_ram_data_addresses": [
+    "0100",
+    "0101",
+    "0102",
+    "0103",
+    "0104",
+    "0105",
+    "0106"
+  ],
+  "recurrence": "x[n+1]=(x[n]+1/2)/2",
+  "schema": "KYIV_H115_B23_AFFINE_RECURRENCE_EXACT_V1",
+  "source_image_sha256": "da748e3e54d95b5d05c0b9161e4ef2a4fe020244ecc637f508cfa3b251ba6327",
+  "step_count": 4,
+  "threshold": "7/8",
+  "type": "new USER program (not historically sourced)",
+  "x_final": "31/64"
+}

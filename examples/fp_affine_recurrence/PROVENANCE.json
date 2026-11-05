@@ -1,0 +1,18 @@
+{
+  "schema": "KYIV_H115_B23_USER_FP_PROVENANCE_V1",
+  "origin": "NEW_USER_PROGRAM_2026_NOT_HISTORICAL",
+  "derivation": "independent dyadic affine recurrence; not copied from Euler or RK4 programs",
+  "machine_cpu": "production Kyiv_t; unchanged",
+  "start": "0300",
+  "terminal_pointer": "0306",
+  "conditional_branch": "0304",
+  "loop_back": "0305",
+  "functional_rom": "examples/fp_rom_reconstructed/inputs/FP_FUNCTIONAL_1962_RECONSTRUCTED.k41",
+  "functional_rom_sha256": "dd9f09ed319f54c61b655c5b4aa3df1eb69e0733ee76333577194f29fa75f120",
+  "fixed_rom_sha256": "a1d9c28e969fa1d74966a78fdbb1bf85b4c45354a764cb8665a73b0a62bdab38",
+  "historical_transcription_unchanged": true,
+  "historical_authenticity": "NOT_CLAIMED",
+  "native_status": "PENDING_H115_B23_USER_GATE",
+  "baseline_short_head": "d39d212",
+  "dependency": "H115-B22 R2 generic fp-image PASS; H115-B20 functional ROM PASS"
+}
