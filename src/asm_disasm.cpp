@@ -10,6 +10,7 @@
 #include "kyiv_host_image_v1.h"
 #include "kyiv_rom_boot_v1.h"
 #include "kyiv_rom_module1_v1.h"
+#include "kyiv_fp_cli_v2.h"
 
 #define COMMAND_SIZE 4
 
@@ -470,6 +471,7 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <mode> [arguments...]" << std::endl;
         std::cerr << "Modes:" << std::endl;
+        std::cerr << "./kyivemu fp-image PROGRAM.k41 ENTRY_OCTAL MAX_STEPS_DECIMAL --fp-rom ROM.k41 --fp-sha256 HEX [--end-pointer ADDR] [--watch ADDR]..." << std::endl;
         std::cerr << "./kyivemu command <num1> <num2> <operation_code> " << std::endl;
         std::cerr << "./kyivemu expression (<reg1>,<num1>) (<reg2>,<num2>) ... <C_reg> " << std::endl;
         std::cerr<< "./kyivemu removable_memory <file> (<reg1>,<num1>) ... <C_reg> "<< std::endl;
@@ -481,6 +483,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     std::string mode = argv[1];
+    if (mode == "fp-image") return kyiv_fp_cli_v2::run(argc, argv);
     // D14-C2-H3/A2: explicit HOST-only suffix; legacy positionals survive.
     kyiv_drum_cli_v1::parsed_suffix parsed;
     try {
