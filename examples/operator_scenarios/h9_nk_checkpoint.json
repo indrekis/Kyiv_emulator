@@ -1,0 +1,139 @@
+{
+  "actions": [
+    {
+      "expect": {
+        "C": "0143",
+        "STEPS": 0
+      },
+      "op": "state",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "op": "set_nk",
+      "origin": "HOST_TEST",
+      "word": "00000000000001"
+    },
+    {
+      "address": "3000",
+      "count": 1,
+      "expect": [
+        "00000000000001"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "op": "save",
+      "origin": "HOST_TEST"
+    },
+    {
+      "count": 1,
+      "expect": {
+        "executed": 1,
+        "path": [
+          "0143"
+        ],
+        "state": {
+          "C": "0144",
+          "STEPS": 1
+        }
+      },
+      "op": "step",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "0347",
+      "count": 1,
+      "expect": [
+        "00010004002001"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "op": "clear_nk",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "count": 1,
+      "expect": [
+        "00000000000000"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "op": "restore",
+      "origin": "HOST_TEST"
+    },
+    {
+      "expect": {
+        "C": "0143",
+        "STEPS": 0
+      },
+      "op": "state",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "count": 1,
+      "expect": [
+        "00000000000001"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "count": 1,
+      "expect": {
+        "executed": 1,
+        "path": [
+          "0143"
+        ],
+        "state": {
+          "C": "0144",
+          "STEPS": 1
+        }
+      },
+      "op": "step",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "0347",
+      "count": 1,
+      "expect": [
+        "00010004002001"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "op": "clear_nk",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "count": 1,
+      "expect": [
+        "00000000000000"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    }
+  ],
+  "description": "H9 operator NK selection, persistent CPU step and full checkpoint replay (HOST reconstruction, not hardware oracle)",
+  "entry": "0143",
+  "id": "h9_nk_checkpoint",
+  "max_steps": 8,
+  "origin": "HOST_TEST",
+  "program": {
+    "path": "examples/historical/gy1962/au1_addition_0143_0150.k41",
+    "sha256": "9ce78e80c2be1361c25248a8ff06c34cd6a16dd252d219c900264360cb250ac7"
+  },
+  "rom_set": "math_module1",
+  "schema": "KYIV_H116_OPERATOR_SCENARIO_V1"
+}

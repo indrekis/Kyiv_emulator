@@ -1,0 +1,90 @@
+{
+  "actions": [
+    {
+      "address": "3300",
+      "count": 1,
+      "expect": [
+        "01000036210026"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3001",
+      "op": "set_nk",
+      "origin": "HOST_TEST",
+      "word": "00000000000017"
+    },
+    {
+      "address": "3000",
+      "count": 3,
+      "expect": [
+        "00000000000000",
+        "00000000000017",
+        "00000000000000"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "op": "save",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3001",
+      "op": "clear_nk",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "count": 3,
+      "expect": [
+        "00000000000000",
+        "00000000000000",
+        "00000000000000"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "op": "restore",
+      "origin": "HOST_TEST"
+    },
+    {
+      "address": "3000",
+      "count": 3,
+      "expect": [
+        "00000000000000",
+        "00000000000017",
+        "00000000000000"
+      ],
+      "op": "dump",
+      "origin": "HOST_TEST"
+    },
+    {
+      "count": 1,
+      "expect": {
+        "executed": 1,
+        "path": [
+          "0001"
+        ],
+        "state": {
+          "STEPS": 1
+        }
+      },
+      "op": "step",
+      "origin": "HOST_TEST"
+    }
+  ],
+  "description": "Load H115 FP ROM set in persistent backend, select NK3001 then switch back to cabinet before RAM STOP (HOST smoke only)",
+  "entry": "0001",
+  "id": "fp_rom_nk_smoke",
+  "max_steps": 4,
+  "origin": "HOST_TEST",
+  "program": {
+    "path": "examples/rom_scenarios/inputs/romset_smoke_stop.k41",
+    "sha256": "76cc0855bc864bcf93fbc3f124f0df82966586e889447c8aaed74170afa4fe91"
+  },
+  "rom_set": "fp_functional",
+  "schema": "KYIV_H116_OPERATOR_SCENARIO_V1"
+}

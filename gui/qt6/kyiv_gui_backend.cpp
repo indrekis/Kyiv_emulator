@@ -4,6 +4,7 @@
 #include "kyiv.h"
 #include "kyiv_host_image_v1.h"
 #include "kyiv_rom_boot_v1.h"
+#include "kyiv_rom_set_image_v1.h"
 
 #include <cctype>
 #include <algorithm>
@@ -107,12 +108,15 @@ public:
 
 struct Server {
     kyiv_rom_boot_v1::image rom;
+    std::optional<kyiv_rom_set_image_v1::image> rom_set;
     std::unique_ptr<Kyiv_t> cpu;
     std::optional<Snapshot> checkpoint;
     std::uint64_t executed=0;
     bool fault=false;
 
-    explicit Server(const std::string& rom_path) {
+    explicit Server(const std::string& rom_path,
+                    const std::string& set_path,
+                    const std::string& set_sha) {
         kyiv_rom_boot_v1::arguments args;
         args.explicit_rom=true;
         args.rom_filename=rom_path;
@@ -120,6 +124,12 @@ struct Server {
         rom=kyiv_rom_boot_v1::read(args, "");
         if (!rom.sha_pinned || rom.sha256!=args.expected_sha256)
             throw std::runtime_error("ROM_SHA_UNPINNED");
+        if (!set_path.empty()) {
+            kyiv_rom_set_image_v1::arguments opt;
+            opt.selected=true; opt.filename=set_path;
+            opt.expected_sha256=kyiv_rom_set_image_v1::normalize_sha(set_sha);
+            rom_set=kyiv_rom_set_image_v1::read(opt);
+        }
     }
     Kyiv_t& get() {
         if (!cpu) throw std::runtime_error("LOAD_IMAGE_FIRST");
@@ -129,7 +139,8 @@ struct Server {
         if (a.empty()) throw std::runtime_error("EMPTY_REQUEST");
         if (a[0]=="PING") {
             require_args(a,1);
-            return "OK\tPING\tPROTOCOL=1\tROM_SHA256="+rom.sha256;
+            return "OK\tPING\tPROTOCOL=1\tROM_SHA256="+rom.sha256+
+                   (rom_set ? "\tROMSET_SHA256="+rom_set->sha256 : "");
         }
         if (a[0]=="LOAD") {
             require_args(a,3);
@@ -142,6 +153,7 @@ struct Server {
             const auto image=kyiv_host_image_v1::load_file(a[1],false);
             auto next=std::make_unique<Kyiv_t>(Kyiv_t::rom_boot_mode::deferred);
             kyiv_rom_boot_v1::install(*next,rom);
+            if (rom_set) kyiv_rom_set_image_v1::install_at_init(*next,*rom_set);
             for (const auto& rec:image) {
                 if (rec.first>=03000) throw std::runtime_error("ROM_IMAGE_NOT_ALLOWED");
                 next->kmem.write_memory(rec.first,rec.second);
@@ -230,12 +242,16 @@ struct Server {
 }
 
 int main(int argc,char** argv) {
-    if (argc!=2) {
-        std::cerr << "Usage: kyiv_gui_backend.exe PATH_TO_ROM_TXT\n";
+    if ((argc!=2 && argc!=6) ||
+        (argc==6 && (std::string(argv[2])!="--rom-set-image" ||
+                      std::string(argv[4])!="--rom-set-sha256"))) {
+        std::cerr << "Usage: kyiv_gui_backend.exe PATH_TO_ROM_TXT "
+                     "[--rom-set-image IMAGE.k41 --rom-set-sha256 HEX]\n";
         return 2;
     }
     try {
-        Server server(argv[1]);
+        Server server(argv[1],argc==6 ? argv[3] : "",
+                      argc==6 ? argv[5] : "");
         std::string line;
         while (std::getline(std::cin,line)) {
             try {
