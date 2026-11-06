@@ -1,0 +1,16 @@
+{
+  "schema": "KYIV_H116_ROM_MODULE_V1",
+  "id": "math_module1",
+  "description": "Mathematical interchangeable module No. 1 (GY1962, printed pp.94–95).",
+  "image": "examples/historical/gy1962/rom_modules/module1_3300_3377.k41",
+  "sha256": "9c659521d263fe78c2d6356cb28bfeaac374c1e71d723e35cc60be19ad3e1e84",
+  "slots": [
+    [
+      "3300",
+      "3377"
+    ]
+  ],
+  "records": 64,
+  "provenance": "SOURCE_TRANSCRIPTION",
+  "critical_unknown": []
+}

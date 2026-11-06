@@ -1,0 +1,34 @@
+{
+  "schema": "KYIV_H116_ROM_MODULE_V1",
+  "id": "fp_1962_printed",
+  "description": "Sparse source transcription of printed 1962 FP interpreter. NOT a qualified executable functional ROM.",
+  "image": "examples/historical/gy1962/rom_modules/fp_simulation_251_printed.k41",
+  "sha256": "ead80a8af8a207f619647ac1579ff934c6050a55d85a61b92a838ebd3d7662ba",
+  "slots": [
+    [
+      "3300",
+      "3377"
+    ],
+    [
+      "3400",
+      "3477"
+    ],
+    [
+      "3500",
+      "3577"
+    ],
+    [
+      "3600",
+      "3677"
+    ],
+    [
+      "3700",
+      "3777"
+    ]
+  ],
+  "records": 251,
+  "provenance": "SOURCE_TRANSCRIPTION",
+  "critical_unknown": [
+    "3574"
+  ]
+}

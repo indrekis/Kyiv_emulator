@@ -1,0 +1,9 @@
+{
+  "schema": "KYIV_H116_ROM_SET_V1",
+  "id": "math_module1",
+  "description": "Explicit ROM set selecting math_module1; no implicit missing-address fill",
+  "modules": [
+    "math_module1"
+  ],
+  "fixed_rom_sha256": "a1d9c28e969fa1d74966a78fdbb1bf85b4c45354a764cb8665a73b0a62bdab38"
+}
