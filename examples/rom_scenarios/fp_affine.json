@@ -1,0 +1,24 @@
+{
+  "description": "fp affine machine execution",
+  "end_pointer": "0306",
+  "entry": "0300",
+  "expect": {
+    "dispatches": 24,
+    "status": "END_POINTER",
+    "steps": 623
+  },
+  "id": "fp_affine",
+  "max_steps": 2500,
+  "mode": "fp-image",
+  "origin": "Independent synthetic FP user program, four affine recurrence iterations",
+  "program": {
+    "path": "examples/fp_affine_recurrence/inputs/AFFINE_RECURRENCE.k41",
+    "sha256": "da748e3e54d95b5d05c0b9161e4ef2a4fe020244ecc637f508cfa3b251ba6327"
+  },
+  "rom_set": "fp_functional",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0100": "17400000000077",
+    "0103": "10000000000101"
+  }
+}

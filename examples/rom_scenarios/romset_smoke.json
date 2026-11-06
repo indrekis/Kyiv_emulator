@@ -1,0 +1,23 @@
+{
+  "description": "romset smoke machine execution",
+  "end_pointer": null,
+  "entry": "0001",
+  "expect": {
+    "dispatches": null,
+    "status": "CPU_STOP",
+    "steps": 1
+  },
+  "id": "romset_smoke",
+  "max_steps": 10,
+  "mode": "image",
+  "origin": "Host-only ROM-set loading smoke: CPU executes a RAM STOP, not mathematical module code",
+  "program": {
+    "path": "examples/rom_scenarios/inputs/romset_smoke_stop.k41",
+    "sha256": "76cc0855bc864bcf93fbc3f124f0df82966586e889447c8aaed74170afa4fe91"
+  },
+  "rom_set": "math_module1",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "3300": "01000000000003"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "description": "fp rk4 machine execution",
+  "end_pointer": "0265",
+  "entry": "0240",
+  "expect": {
+    "dispatches": 42,
+    "status": "END_POINTER",
+    "steps": 1305
+  },
+  "id": "fp_rk4",
+  "max_steps": 4000,
+  "mode": "fp-image",
+  "origin": "Functional reconstructed FP-ROM, original B16 RK4 two steps, not historical RK4 block4",
+  "program": {
+    "path": "examples/fp_rom_reconstructed/reference/RK4_ORIGINAL_B16.k41",
+    "sha256": "904b500e989f3280483534951386934b970c252a20de66ec8777104204f45e35"
+  },
+  "rom_set": "fp_functional",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0100": "11550631000100",
+    "0101": "10000000000100"
+  }
+}

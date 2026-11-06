@@ -1,0 +1,24 @@
+{
+  "description": "fp euler machine execution",
+  "end_pointer": "0236",
+  "entry": "0230",
+  "expect": {
+    "dispatches": 24,
+    "status": "END_POINTER",
+    "steps": 623
+  },
+  "id": "fp_euler",
+  "max_steps": 2000,
+  "mode": "fp-image",
+  "origin": "Functional reconstructed FP-ROM, forward Euler four steps; not historical ROM",
+  "program": {
+    "path": "examples/fp_euler_reconstructed/inputs/EULER_IMAGE.k41",
+    "sha256": "c0007fbe8bbb42084e87f768244fd8f49ccd0377b4fb966cc7204f6cac4b9165"
+  },
+  "rom_set": "fp_functional",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0100": "12100000000077",
+    "0102": "10000000000101"
+  }
+}
