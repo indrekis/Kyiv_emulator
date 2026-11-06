@@ -10,6 +10,7 @@
 #include "kyiv_host_image_v1.h"
 #include "kyiv_rom_boot_v1.h"
 #include "kyiv_rom_module1_v1.h"
+#include "kyiv_rom_set_image_v1.h"
 #include "kyiv_fp_cli_v2.h"
 
 #define COMMAND_SIZE 4
@@ -498,7 +499,10 @@ int main(int argc, char *argv[]) {
         try {
             if (parsed.drum || block_overflow_stop)
                 throw std::runtime_error("IMAGE_SUFFIX_UNSUPPORTED");
-            const auto module_args = kyiv_rom_module1_v1::extract(argc - 1, argv + 1);
+            const auto set_args = kyiv_rom_set_image_v1::extract(argc - 1, argv + 1);
+            const auto module_args = kyiv_rom_module1_v1::extract(
+                static_cast<int>(set_args.forwarded.size()),
+                set_args.forwarded.data());
             const auto rom_args = kyiv_rom_boot_v1::extract(
                 static_cast<int>(module_args.forwarded.size()),
                 module_args.forwarded.data());
@@ -515,6 +519,12 @@ int main(int argc, char *argv[]) {
                     kyiv_rom_module1_v1::read(module_args))
                 : std::unique_ptr<kyiv_rom_module1_v1::image>{};
             if (module) kyiv_rom_module1_v1::reject_image_overlap(image);
+            if (set_args.selected && (module || cfg.allow_rom))
+                throw std::runtime_error("H116_SET_CONFLICTING_OVERLAY_OR_ROM_PROGRAM");
+            const auto romset = set_args.selected
+                ? std::make_unique<kyiv_rom_set_image_v1::image>(
+                    kyiv_rom_set_image_v1::read(set_args))
+                : std::unique_ptr<kyiv_rom_set_image_v1::image>{};
             Kyiv_t image_machine(Kyiv_t::rom_boot_mode::deferred);
             kyiv_rom_boot_v1::install(image_machine, rom);
             if (module) {
@@ -523,6 +533,12 @@ int main(int argc, char *argv[]) {
                           << " SHA256=" << module->sha256
                           << " SOURCE_QUALIFIED=" << (module->source_qualified ? 1 : 0)
                           << " HOST_OPT_IN=1\n";
+            }
+            if (romset) {
+                kyiv_rom_set_image_v1::install_at_init(image_machine,*romset);
+                std::cout << "H116-ROMSET PASS WORDS=" << romset->words.size()
+                          << " SHA256=" << romset->sha256
+                          << " HOST_OPT_IN=1 SOURCE_AUTHENTICATED=NO\n";
             }
             std::cout << "D15A3P3-ROM PASS SOURCE="
                       << (rom.source_is_default ? "DEFAULT" : "EXPLICIT")
