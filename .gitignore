@@ -36,3 +36,8 @@
 build/
 float128ToInt.py
 tempkyiv/
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo

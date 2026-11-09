@@ -2,6 +2,13 @@
 // Persistent C++ CPU backend, versioned tab-separated protocol (v1).
 // No dependency on Tkinter/Python, Qt Designer, QML, or generated moc files.
 #include <QApplication>
+#include <QCryptographicHash>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QSignalBlocker>
+#include <QTemporaryDir>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
@@ -41,6 +48,7 @@
 #include <cstdint>
 #include <utility>
 #include <limits>
+#include <memory>
 
 namespace {
 QString octal(quint64 value, int width) {
@@ -119,11 +127,16 @@ class MainWindow final : public QMainWindow {
     bool busy_=false, ready_=false, loaded_=false, running_=false, faulted_=false;
     QString root_, rom_, image_;
     quint64 command_=0,c_=0,a_=0,p_=0,loop_=0,batchCount_=0;
-    bool t_=false;
+    bool t_=false, fpDone_=false;
+    QString selectedRunMode_=QStringLiteral("image"), selectedEndPointer_;
+    QString loadedRunMode_=QStringLiteral("image");
     int memStart_=0;
 
     QLineEdit *imageEdit_=nullptr,*startEdit_=nullptr,*memoryEdit_=nullptr,*nkWord_=nullptr;
-    QComboBox *demo_=nullptr,*nkAddr_=nullptr,*speed_=nullptr;
+    QComboBox *demo_=nullptr,*nkAddr_=nullptr,*speed_=nullptr,*romSets_=nullptr;
+    QLabel *romSource_=nullptr, *runModeLabel_=nullptr;
+    QString activeScenarioId_, activeBackendSet_;
+    std::unique_ptr<QTemporaryDir> preparedRom_;
     QSpinBox *limit_=nullptr;
     QPushButton *load_=nullptr,*step_=nullptr,*run_=nullptr,*pause_=nullptr,*reset_=nullptr,*save_=nullptr,*restore_=nullptr,*setNk_=nullptr,*clearNk_=nullptr;
     QLabel *status_=nullptr,*regC_=nullptr,*regK_=nullptr,*regA_=nullptr,*regP_=nullptr,*regLoop_=nullptr,*regT_=nullptr,*steps_=nullptr,*imageInfo_=nullptr;
@@ -183,6 +196,17 @@ class MainWindow final : public QMainWindow {
         top->addWidget(startEdit_);
         load_=new QPushButton(QString::fromUtf8("Завантажити"));top->addWidget(load_);
         outer->addLayout(top);
+        auto* catalogRow=new QHBoxLayout;
+        catalogRow->addWidget(new QLabel(QString::fromUtf8("Змінна ПЗП:")));
+        romSets_=new QComboBox;romSets_->addItem(QString::fromUtf8("Лише ROM.txt"),QString());
+        catalogRow->addWidget(romSets_,1);
+        auto* refreshCatalog=new QPushButton(QString::fromUtf8("Оновити каталог"));
+        catalogRow->addWidget(refreshCatalog);
+        romSource_=infoLabel(QString::fromUtf8("ROM.txt · без змінного блока"));
+        catalogRow->addWidget(romSource_,2);
+        outer->addLayout(catalogRow);
+        runModeLabel_=infoLabel(QString::fromUtf8("Режим: машинні команди CPU"));
+        outer->addWidget(runModeLabel_);
 
         auto* imageRow=new QHBoxLayout;
         imageEdit_=new QLineEdit;
@@ -283,13 +307,33 @@ class MainWindow final : public QMainWindow {
         connect(demo_,QOverload<int>::of(&QComboBox::currentIndexChanged),this,[this](int idx){
             Q_UNUSED(idx);
             const QStringList parts=demo_->currentData().toString().split('|');
-            if(parts.size()==2){image_=repoFile(parts[0]);imageEdit_->setText(image_);startEdit_->setText(parts[1]);}
+            if(parts.size()>=2){
+                image_=repoFile(parts[0]);imageEdit_->setText(image_);startEdit_->setText(parts[1]);
+                const bool scenario=(parts.size()==6 && !parts[3].startsWith(QStringLiteral("dual_")));
+                activeScenarioId_=scenario?parts[3]:QString();
+                selectedRunMode_=(parts.size()==6)?parts[4]:QStringLiteral("image");
+                selectedEndPointer_=(parts.size()==6)?parts[5]:QString();
+                const QString set=(parts.size()>=4)?parts[2]:QString();
+                const int index=romSets_->findData(set);
+                if(index>=0)romSets_->setCurrentIndex(index);
+                runModeLabel_->setText(selectedRunMode_==QStringLiteral("fp-image")
+                    ?QString::fromUtf8("Режим: FP-команди через програмну МП на CPU «Києва»")
+                    :QString::fromUtf8("Режим: пряме виконання машинних команд CPU"));
+            }
         });
         connect(choose,&QPushButton::clicked,this,[this]{
             const QString name=QFileDialog::getOpenFileName(this,QString::fromUtf8("Обрати образ «Києва»"),root_,QStringLiteral("KYIV41 (*.k41);;All files (*)"));
-            if(!name.isEmpty()) {image_=name;imageEdit_->setText(name);}
+            if(!name.isEmpty()) {
+                activeScenarioId_.clear();selectedRunMode_=QStringLiteral("image");selectedEndPointer_.clear();
+                demo_->setCurrentIndex(-1);image_=name;imageEdit_->setText(name);
+                runModeLabel_->setText(QString::fromUtf8("Режим: пряме виконання машинних команд CPU"));
+            }
         });
         connect(load_,&QPushButton::clicked,this,[this]{loadImage();});
+        connect(refreshCatalog,&QPushButton::clicked,this,[this]{populateCatalog();});
+        connect(romSets_,QOverload<int>::of(&QComboBox::currentIndexChanged),this,[this](int i){
+            romSource_->setText(i>=0?romSets_->itemData(i,Qt::UserRole+1).toString():QString());
+        });
         connect(step_,&QPushButton::clicked,this,[this]{running_=false;updateButtons();enqueue({"STEP",QStringLiteral("STEP\t1")});});
         connect(run_,&QPushButton::clicked,this,[this]{running_=true;updateButtons();setStatus(QString::fromUtf8("Автоматичне виконання"));});
         connect(pause_,&QPushButton::clicked,this,[this]{
@@ -307,7 +351,7 @@ class MainWindow final : public QMainWindow {
         });
         connect(clearNk_,&QPushButton::clicked,this,[this]{enqueue({"CLEARNK",QStringLiteral("CLEARNK\t%1").arg(nkAddr_->currentText())});});
         connect(&runTimer_,&QTimer::timeout,this,[this]{
-            if(running_ && ready_ && loaded_ && !busy_ && requests_.isEmpty() && backend_.state()==QProcess::Running)
+            if(running_ && ready_ && loaded_ && !fpDone_ && !t_ && !busy_ && requests_.isEmpty() && backend_.state()==QProcess::Running)
                 enqueue({"STEP",QStringLiteral("STEP\t%1").arg(limit_->value())});
         });
         connect(speed_,QOverload<int>::of(&QComboBox::currentIndexChanged),this,[this](int){
@@ -326,8 +370,8 @@ class MainWindow final : public QMainWindow {
     void updateButtons(){
         const bool active=ready_&&loaded_&&!faulted_;
         load_->setEnabled(ready_);
-        step_->setEnabled(active&&!running_&&!t_);
-        run_->setEnabled(active&&!running_&&!t_);
+        step_->setEnabled(active&&!running_&&!t_&&!fpDone_);
+        run_->setEnabled(active&&!running_&&!t_&&!fpDone_);
         pause_->setEnabled(active&&running_);
         reset_->setEnabled(ready_&&loaded_);
         save_->setEnabled(active);restore_->setEnabled(active);
@@ -345,14 +389,196 @@ class MainWindow final : public QMainWindow {
             busy_=false;running_=false;faulted_=true;setStatus(QString::fromUtf8("Помилка передавання команди backend"));updateButtons();
         }
     }
+    // Run the existing C1a/C2a validators through a bounded, shell-free process.
+    bool catalogCall(const QStringList& command,QJsonObject& result,QString& error) {
+        const QString tool=repoFile(QStringLiteral("tools/historical/qt_rom_browser_v1.py"));
+        if(!QFileInfo(tool).isFile()){error=QString::fromUtf8("Не знайдено Qt ROM bridge");return false;}
+        QProcess process;
+        process.setWorkingDirectory(root_);
+        process.start(QStringLiteral("python"),QStringList{QStringLiteral("-B"),tool,
+                       QStringLiteral("--repo"),root_}+command);
+        if(!process.waitForStarted(4000)){
+            error=QString::fromUtf8("Python не запустився: ")+process.errorString();return false;
+        }
+        if(!process.waitForFinished(30000)){
+            process.kill();process.waitForFinished(1000);
+            error=QString::fromUtf8("Тайм-аут підготовки ROM-каталогу");return false;
+        }
+        const auto output=process.readAllStandardOutput();
+        const auto diagnostic=process.readAllStandardError();
+        if(process.exitStatus()!=QProcess::NormalExit||process.exitCode()!=0||output.size()>131072){
+            error=QString::fromUtf8(diagnostic.left(450));return false;
+        }
+        QJsonParseError parseError;
+        const auto doc=QJsonDocument::fromJson(output,&parseError);
+        if(parseError.error!=QJsonParseError::NoError||!doc.isObject()){
+            error=QString::fromUtf8("Некоректна JSON-відповідь каталогу");return false;
+        }
+        result=doc.object();
+        if(!result.value(QStringLiteral("status")).toString().startsWith(QStringLiteral("PASS_H116_H1_"))){
+            error=QString::fromUtf8("Валідація ROM-каталогу не пройдена");return false;
+        }
+        return true;
+    }
+    void populateCatalog(){
+        QJsonObject report;QString error;
+        if(!catalogCall({QStringLiteral("list")},report,error)){
+            setStatus(QString::fromUtf8("ROM-каталог недоступний: ")+error);
+            return;  // Preserve the old, already validated selections.
+        }
+        const QString previous=romSets_->currentData().toString();
+        const QString demoPrevious=demo_->currentData().toString();
+        QSignalBlocker pauseRom(romSets_),pauseDemo(demo_);
+        romSets_->clear();
+        romSets_->addItem(QString::fromUtf8("Лише ROM.txt"),QString());
+        romSets_->setItemData(0,QString::fromUtf8("ROM.txt · без змінного блока"),Qt::UserRole+1);
+        for(const auto value:report.value(QStringLiteral("sets")).toArray()){
+            const auto item=value.toObject();
+            const QString id=item.value(QStringLiteral("id")).toString();
+            const QString info=item.value(QStringLiteral("provenance")).toString()+
+                QString::fromUtf8(" · невідомих слів: ")+
+                QString::number(item.value(QStringLiteral("unknown")).toInt());
+            romSets_->addItem(id,id);
+            const int n=romSets_->count()-1;
+            romSets_->setItemData(n,info,Qt::UserRole+1);
+            romSets_->setItemData(n,item.value(QStringLiteral("description")).toString(),Qt::ToolTipRole);
+        }
+        const int index=romSets_->findData(previous);
+        romSets_->setCurrentIndex(index<0?0:index);
+        romSource_->setText(romSets_->currentData(Qt::UserRole+1).toString());
+        while(demo_->count()>2)demo_->removeItem(2);
+        for(const auto value:report.value(QStringLiteral("scenarios")).toArray()){
+            const auto item=value.toObject();
+            const QString id=item.value(QStringLiteral("id")).toString();
+            const QString data=item.value(QStringLiteral("program")).toString()+"|"+
+                item.value(QStringLiteral("entry")).toString()+"|"+
+                item.value(QStringLiteral("rom_set")).toString()+"|"+id+"|"+
+                item.value(QStringLiteral("mode")).toString()+"|"+
+                item.value(QStringLiteral("end_pointer")).toString();
+            demo_->addItem(QString::fromUtf8("Сценарій · ")+id,data);
+            demo_->setItemData(demo_->count()-1,
+                item.value(QStringLiteral("origin")).toString()+"\n"+
+                item.value(QStringLiteral("description")).toString(),Qt::ToolTipRole);
+        }
+        // H116 Dual Euler: one pinned 38-word image, two routes through the same Kyiv CPU.
+        const QString dual=QStringLiteral("examples/dual_euler_reconstructed/EULER_DUAL_MODE.k41");
+        demo_->addItem(QString::fromUtf8("Dual Euler · CPU (експеримент)"),
+                       dual+QStringLiteral("|0200||dual_cpu|image|"));
+        demo_->addItem(QString::fromUtf8("Dual Euler · МП (експеримент)"),
+                       dual+QStringLiteral("|0210|fp_functional|dual_fp|fp-image|0236"));
+        const int d=demo_->findData(demoPrevious);
+        if(d>=0)demo_->setCurrentIndex(d);
+        else activeScenarioId_.clear();
+        setStatus(QString::fromUtf8("ROM-каталог перевірено; сценарії доступні"));
+    }
+    // Destroying a session is deliberate only when the selected ROM set changes.
+    bool restartForRom(const QStringList& args,const QString& set){
+        backend_.disconnect(this);
+        if(backend_.state()==QProcess::Running){
+            backend_.write("QUIT\n");backend_.closeWriteChannel();
+            if(!backend_.waitForFinished(1300)){
+                backend_.kill();backend_.waitForFinished(1300);
+            }
+        }
+        if(backend_.state()!=QProcess::NotRunning){
+            fatal(QString::fromUtf8("Не вдалося зупинити стару CPU-сесію"));return false;
+        }
+        // Old QUIT acknowledgement belongs to the discarded process, not to PING.
+        backend_.readAllStandardOutput();
+        backend_.readAllStandardError();
+        ready_=false;loaded_=false;faulted_=false;running_=false;busy_=false;t_=false;fpDone_=false;
+        readBuffer_.clear();requests_.clear();inFlight_={};
+        activeBackendSet_=set;
+        startBackend(args);
+        return true;
+    }
     void loadImage() {
         running_=false;batchCount_=0;
         quint64 start=0;
         if(!parseOct(startEdit_->text(),4,03777,start)||start==0) {alert(this,QString::fromUtf8("Старт має містити 4 вісімкові цифри та допустиму адресу."));return;}
         if(image_.isEmpty()||!QFileInfo::exists(image_)) {alert(this,QString::fromUtf8("Файл образу не знайдено."));return;}
         if(image_.contains('\t')||image_.contains('\r')||image_.contains('\n')) {alert(this,QString::fromUtf8("Неприпустимі символи в шляху."));return;}
-        requests_.clear();
-        enqueue({"LOAD",QStringLiteral("LOAD\t%1\t%2").arg(QFileInfo(image_).absoluteFilePath(),octal(start,4))});
+        QString program=QFileInfo(image_).absoluteFilePath();
+        const QString selected=romSets_->currentData().toString();
+        const bool fp=selectedRunMode_==QStringLiteral("fp-image");
+        if(fp && selected.isEmpty()) {
+            alert(this,QString::fromUtf8("Для запуску через МП необхідний FP-ROM"));return;
+        }
+        quint64 end=0;
+        if(fp && (!parseOct(selectedEndPointer_,4,01777,end) || end==0)) {
+            alert(this,QString::fromUtf8("Для МП потрібний коректний end-pointer"));return;
+        }
+        const QString dual=repoFile(QStringLiteral("examples/dual_euler_reconstructed/EULER_DUAL_MODE.k41"));
+        if(QFileInfo(program).absoluteFilePath()==QFileInfo(dual).absoluteFilePath()) {
+            QFile f(dual);
+            if(!f.open(QIODevice::ReadOnly) ||
+               QCryptographicHash::hash(f.readAll(),QCryptographicHash::Sha256).toHex()!=
+                 QByteArrayLiteral("6312ad73e0ae6268016777126bf1f92c214819a94e00dabf5785bb51b0de7a9e")) {
+                alert(this,QString::fromUtf8("Експериментальний образ Dual Euler: SHA-256 не збігається"));return;
+            }
+        }
+        const QString loadKind=fp?QStringLiteral("LOADFP"):QStringLiteral("LOAD");
+        auto loadLine=[&](){return loadKind+QStringLiteral("\t")+program+
+             QStringLiteral("\t")+octal(start,4)+
+             (fp?QStringLiteral("\t")+selectedEndPointer_:QString());};
+        if(!selected.isEmpty()){
+            auto temporary=std::make_unique<QTemporaryDir>(
+                repoFile(QStringLiteral("tempkyiv/qt_h1_rom_XXXXXX")));
+            if(!temporary->isValid()){
+                alert(this,QString::fromUtf8("Не вдалося створити приватний каталог ROM"));return;
+            }
+            QJsonObject manifest;QString error;
+            QStringList args{QStringLiteral("prepare"),selected,QStringLiteral("--out"),
+                             QDir(temporary->path()).absoluteFilePath(QStringLiteral("set"))};
+            if(!activeScenarioId_.isEmpty()){
+                args<<QStringLiteral("--scenario")<<activeScenarioId_;
+            }
+            if(!catalogCall(args,manifest,error)){
+                alert(this,QString::fromUtf8("ROM-комплект не пройшов перевірку: ")+error);
+                return; // Keep the currently running CPU unchanged.
+            }
+            if(manifest.value(QStringLiteral("set")).toString()!=selected){
+                alert(this,QString::fromUtf8("Помилка ідентичності ROM-комплекту"));return;
+            }
+            if(!activeScenarioId_.isEmpty()){
+                if(manifest.value(QStringLiteral("scenario_id")).toString()!=activeScenarioId_){
+                    alert(this,QString::fromUtf8("Помилка ідентичності сценарію"));return;
+                }
+                program=manifest.value(QStringLiteral("program_path")).toString();
+                const QString entry=manifest.value(QStringLiteral("entry")).toString();
+                if(entry!=octal(start,4)||!QFileInfo(program).isFile()){
+                    alert(this,QString::fromUtf8("Старт або програма сценарію змінилися"));return;
+                }
+            }
+            const QString romImage=manifest.value(QStringLiteral("rom_path")).toString();
+            const QString sha=manifest.value(QStringLiteral("sha256")).toString();
+            if(!QFileInfo(romImage).isFile()||sha.size()!=64){
+                alert(this,QString::fromUtf8("Неповний підготовлений ROM-образ"));return;
+            }
+            const QByteArray digest=QCryptographicHash::hash(
+                [&](){QFile f(romImage);if(!f.open(QIODevice::ReadOnly))return QByteArray();
+                return f.readAll();}(),QCryptographicHash::Sha256).toHex();
+            if(QString::fromLatin1(digest)!=sha){
+                alert(this,QString::fromUtf8("SHA-256 ROM-образу не збігається"));return;
+            }
+            // Keep the staged files alive while the persistent backend runs.
+            if(!restartForRom({rom_,QStringLiteral("--rom-set-image"),romImage,
+                               QStringLiteral("--rom-set-sha256"),sha},selected))return;
+            preparedRom_=std::move(temporary);
+            loadedRunMode_=fp?QStringLiteral("fp-image"):QStringLiteral("image");fpDone_=false;
+            requests_.enqueue({loadKind,loadLine()});
+        }else{
+            if(!activeBackendSet_.isEmpty()){
+                if(!restartForRom({rom_},QString()))return;
+                preparedRom_.reset();
+                loadedRunMode_=fp?QStringLiteral("fp-image"):QStringLiteral("image");fpDone_=false;
+                requests_.enqueue({loadKind,loadLine()});
+            }else{
+                requests_.clear();
+                loadedRunMode_=fp?QStringLiteral("fp-image"):QStringLiteral("image");fpDone_=false;
+                enqueue({loadKind,loadLine()});
+            }
+        }
         updateButtons();
     }
     void refreshMemory(){
@@ -373,8 +599,10 @@ class MainWindow final : public QMainWindow {
         parseOct(map.value("C"),4,03777,c_);parseOct(map.value("K"),14,(quint64(1)<<41)-1,command_);
         parseOct(map.value("A"),4,03777,a_);parseOct(map.value("P"),4,03777,p_);parseOct(map.value("LOOP"),4,03777,loop_);
         t_=map.value("T")=="1";
+        fpDone_=(loadedRunMode_==QStringLiteral("fp-image") &&
+                 map.value(QStringLiteral("END_POINTER"))==QStringLiteral("1"));
         lamps_->setState(command_,c_,a_,p_,loop_,t_);
-        if(t_)running_=false;
+        if(t_ || fpDone_)running_=false;
         updateButtons();
     }
     void backendResponse(const QString& line) {
@@ -396,7 +624,7 @@ class MainWindow final : public QMainWindow {
         }
         const QString kind=inFlight_.kind;
         busy_=false;
-        if(kind=="LOAD") {
+        if(kind=="LOAD"||kind=="LOADFP") {
             loaded_=true;faulted_=false;traceArea_->clear();traceArea_->appendPlainText(QString::fromUtf8("Завантажено: ")+image_);
             imageInfo_->setText(fields.size()>2?fields[2]:QString::fromUtf8("Завантажено"));
             applyState(fields.mid(2));
@@ -411,8 +639,9 @@ class MainWindow final : public QMainWindow {
                 for(const auto& pc:pcs)traceArea_->appendPlainText(pc);
             }
             applyState(fields.mid(2));
-            if(t_)setStatus(QString::fromUtf8("CPU зупинено командою STOP"));
-            if(!running_||t_||batchCount_%12==0)requests_.enqueue({"DUMP",QStringLiteral("DUMP\t%1\t32").arg(octal(memStart_,4))});
+            if(fpDone_)setStatus(QString::fromUtf8("МП завершила програму на межі диспетчера (не STOP)"));
+            else if(t_)setStatus(QString::fromUtf8("CPU зупинено (STOP або аварійний останов)"));
+            if(!running_||t_||fpDone_||batchCount_%12==0)requests_.enqueue({"DUMP",QStringLiteral("DUMP\t%1\t32").arg(octal(memStart_,4))});
         } else if(kind=="DUMP") {
             QString data, start;
             for(const auto& field:fields){if(field.startsWith("DATA="))data=field.mid(5);if(field.startsWith("START="))start=field.mid(6);}
@@ -436,7 +665,7 @@ class MainWindow final : public QMainWindow {
         setStatus(detail);updateButtons();
         alert(this,detail);
     }
-    void startBackend() {
+    void startBackend(const QStringList& customArgs={}) {
         const QString exe=QDir(QCoreApplication::applicationDirPath()).absoluteFilePath(
 #ifdef Q_OS_WIN
             QStringLiteral("kyiv_gui_backend.exe")
@@ -446,7 +675,7 @@ class MainWindow final : public QMainWindow {
         );
         if(!QFileInfo::exists(exe)){fatal(QString::fromUtf8("Не знайдено backend: ")+exe);return;}
         backend_.setProgram(exe);
-        backend_.setArguments({rom_});
+        backend_.setArguments(customArgs.isEmpty()?QStringList{rom_}:customArgs);
         backend_.setWorkingDirectory(root_);
         backend_.setProcessChannelMode(QProcess::SeparateChannels);
         connect(&backend_,&QProcess::started,this,[this]{
@@ -478,10 +707,12 @@ class MainWindow final : public QMainWindow {
     }
 public:
     explicit MainWindow(QString root,QString rom,QWidget* parent=nullptr) : QMainWindow(parent),root_(std::move(root)),rom_(std::move(rom)){
-        makeUI();startBackend();
+        makeUI();populateCatalog();startBackend();
     }
     ~MainWindow() override {
         runTimer_.stop();
+        // waitForFinished() may deliver OK QUIT; no more UI callbacks on teardown.
+        backend_.disconnect(this);
         if(backend_.state()==QProcess::Running){
             backend_.write("QUIT\n");backend_.closeWriteChannel();
             if(!backend_.waitForFinished(1200))backend_.kill();

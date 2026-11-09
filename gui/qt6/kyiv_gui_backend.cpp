@@ -113,6 +113,18 @@ struct Server {
     std::optional<Snapshot> checkpoint;
     std::uint64_t executed=0;
     bool fault=false;
+    // HOST FP dispatcher boundary: not a machine STOP instruction.
+    std::optional<std::uint64_t> fp_end_pointer;
+    bool fp_done=false;
+    bool saved_fp_done=false;
+
+    bool at_fp_end(const Kyiv_t& m) const {
+        return fp_end_pointer && m.C_reg==03305 &&
+               ((m.kmem.read_memory(00014)>>12)&07777ULL)==*fp_end_pointer;
+    }
+    std::string fp_status() const {
+        return fp_end_pointer && fp_done ? "\tEND_POINTER=1" : "";
+    }
 
     explicit Server(const std::string& rom_path,
                     const std::string& set_path,
@@ -142,8 +154,10 @@ struct Server {
             return "OK\tPING\tPROTOCOL=1\tROM_SHA256="+rom.sha256+
                    (rom_set ? "\tROMSET_SHA256="+rom_set->sha256 : "");
         }
-        if (a[0]=="LOAD") {
-            require_args(a,3);
+        if (a[0]=="LOAD" || a[0]=="LOADFP") {
+            const bool fp = a[0]=="LOADFP";
+            require_args(a,fp ? 4 : 3);
+            if (fp && !rom_set) throw std::runtime_error("FP_ROM_SET_REQUIRED");
             if (a[1].empty() || a[1].find('\n')!=std::string::npos ||
                 a[1].find('\r')!=std::string::npos)
                 throw std::runtime_error("INVALID_IMAGE_PATH");
@@ -151,6 +165,19 @@ struct Server {
             if (!kyiv_host_image_v1::usable_address(start))
                 throw std::runtime_error("INVALID_START");
             const auto image=kyiv_host_image_v1::load_file(a[1],false);
+            std::optional<std::uint64_t> end;
+            if (fp) {
+                if (start>=02000) throw std::runtime_error("FP_ENTRY_NOT_RAM");
+                if (std::none_of(image.begin(),image.end(),[start](const auto& rec){
+                        return rec.first==start;
+                    })) throw std::runtime_error("FP_ENTRY_ABSENT");
+                const auto value=parse_octal(a[3],4,01777);
+                if (!kyiv_host_image_v1::usable_address(value) ||
+                    std::none_of(image.begin(),image.end(),[value](const auto& rec){
+                        return rec.first==value;
+                    })) throw std::runtime_error("FP_END_POINTER_ABSENT");
+                end=value;
+            }
             auto next=std::make_unique<Kyiv_t>(Kyiv_t::rom_boot_mode::deferred);
             kyiv_rom_boot_v1::install(*next,rom);
             if (rom_set) kyiv_rom_set_image_v1::install_at_init(*next,*rom_set);
@@ -158,24 +185,37 @@ struct Server {
                 if (rec.first>=03000) throw std::runtime_error("ROM_IMAGE_NOT_ALLOWED");
                 next->kmem.write_memory(rec.first,rec.second);
             }
-            next->C_reg=start;
+            if (fp) {
+                // H115-B22: enter the ROM interpreter, never execute FP user opcodes as CPU opcodes.
+                next->kmem.set_panel_nk_word(03000,start<<12);
+                next->kmem.select_panel_nk(03000,true);
+                next->emergency_stop_blocked=true;
+                next->C_reg=03300;
+            } else {
+                next->C_reg=start;
+            }
             cpu.swap(next); // No loss of old state if any input validation failed.
             checkpoint.reset(); executed=0; fault=false;
-            return "OK\tLOAD\tWORDS="+std::to_string(image.size())+"\t"+state(*cpu,executed);
+            fp_end_pointer=end; fp_done=false; saved_fp_done=false;
+            return std::string("OK\t")+(fp ? "LOADFP" : "LOAD")+
+                   "\tWORDS="+std::to_string(image.size())+"\t"+state(*cpu,executed)+
+                   (fp ? "\tFP_ENTRY="+oct(start,4)+"\tFP_END_POINTER="+oct(*end,4) : "");
         }
         if (a[0]=="STATE") {
             require_args(a,1);
-            return "OK\tSTATE\t"+state(get(),executed);
+            return "OK\tSTATE\t"+state(get(),executed)+fp_status();
         }
         if (a[0]=="STEP") {
             require_args(a,2);
             const auto n=parse_count(a[1],32);
             Kyiv_t& m=get();
             if (fault) throw std::runtime_error("CPU_FAULT_RELOAD_OR_RESTORE");
-            if (m.T_reg) return "OK\tSTEP\tEXECUTED=0\tPATH=-\t"+state(m,executed);
+            if (m.T_reg || fp_done) return "OK\tSTEP\tEXECUTED=0\tPATH=-\t"+
+                                            state(m,executed)+fp_status();
             std::string path;
             unsigned done=0;
             for (;done<n && !m.T_reg;++done) {
+                if (at_fp_end(m)) { fp_done=true; break; }
                 if (!path.empty()) path+=',';
                 path+=oct(m.C_reg,4);
                 try {
@@ -185,10 +225,12 @@ struct Server {
                     if (!cont) break;
                 } catch (...) {fault=true;throw;}
             }
+            // Detect completion even when the last requested step reached the boundary.
+            if (at_fp_end(m)) fp_done=true;
             // 'done' excludes the last instruction when it stops the CPU.
             const unsigned actual=static_cast<unsigned>(std::count(path.begin(),path.end(),',')) + (path.empty()?0:1);
             return "OK\tSTEP\tEXECUTED="+std::to_string(actual)+
-                   "\tPATH="+(path.empty()?"-":path)+"\t"+state(m,executed);
+                   "\tPATH="+(path.empty()?"-":path)+"\t"+state(m,executed)+fp_status();
         }
         if (a[0]=="DUMP") {
             require_args(a,3);
@@ -207,14 +249,16 @@ struct Server {
         if (a[0]=="SAVE") {
             require_args(a,1);
             checkpoint=save(get(),executed);
-            return "OK\tSAVE\t"+state(*cpu,executed);
+            saved_fp_done=fp_done;
+            return "OK\tSAVE\t"+state(*cpu,executed)+fp_status();
         }
         if (a[0]=="RESTORE") {
             require_args(a,1);
             if (!checkpoint) throw std::runtime_error("NO_CHECKPOINT");
             restore(get(),*checkpoint);
             executed=checkpoint->executed;fault=false;
-            return "OK\tRESTORE\t"+state(*cpu,executed);
+            fp_done=saved_fp_done;
+            return "OK\tRESTORE\t"+state(*cpu,executed)+fp_status();
         }
         if (a[0]=="SETNK") {
             require_args(a,3);
