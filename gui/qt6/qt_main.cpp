@@ -133,13 +133,26 @@ class MainWindow final : public QMainWindow {
     int memStart_=0;
 
     QLineEdit *imageEdit_=nullptr,*startEdit_=nullptr,*memoryEdit_=nullptr,*nkWord_=nullptr;
-    QComboBox *demo_=nullptr,*nkAddr_=nullptr,*speed_=nullptr,*romSets_=nullptr;
+    QComboBox *demo_=nullptr,*nkAddr_=nullptr,*speed_=nullptr,*romSets_=nullptr,*operatorSelect_=nullptr;
     QLabel *romSource_=nullptr, *runModeLabel_=nullptr;
+    QPushButton *operatorReplay_=nullptr;
     QString activeScenarioId_, activeBackendSet_;
     std::unique_ptr<QTemporaryDir> preparedRom_;
+    // H118: validated C2a oracle, checked in this very GUI backend session.
+    QJsonObject pendingOracle_, loadedOracle_;
+    QStringList oracleWatchAddresses_;
+    bool oracleAuditing_=false, oracleFinished_=false, oracleEligible_=true;
+    int oracleWatchIndex_=0;
+    quint64 actualSteps_=0, fpDispatches_=0;
+    // H118: C2b actions use the SAME persistent backend that drives the lamps.
+    QJsonArray operatorActions_;
+    bool operatorActive_=false, operatorWaitingLoad_=false;
+    int operatorIndex_=0;
+    QString operatorId_;
     QSpinBox *limit_=nullptr;
     QPushButton *load_=nullptr,*step_=nullptr,*run_=nullptr,*pause_=nullptr,*reset_=nullptr,*save_=nullptr,*restore_=nullptr,*setNk_=nullptr,*clearNk_=nullptr;
     QLabel *status_=nullptr,*regC_=nullptr,*regK_=nullptr,*regA_=nullptr,*regP_=nullptr,*regLoop_=nullptr,*regT_=nullptr,*steps_=nullptr,*imageInfo_=nullptr;
+    QLabel *fpDispatchLabel_=nullptr,*regFpDispatches_=nullptr;
     LampPanel *lamps_=nullptr;
     QTableWidget *memoryTable_=nullptr;
     QPlainTextEdit *traceArea_=nullptr;
@@ -167,6 +180,21 @@ class MainWindow final : public QMainWindow {
     void setStatus(const QString& s) {
         status_->setText(s);
         statusBar()->showMessage(s);
+    }
+    // UI-only indicator: the backend owns the counter; the C2a manifest owns
+    // its expected value. A terminal END_POINTER visit is counted by H115.
+    void updateFpDispatches() {
+        if(!fpDispatchLabel_ || !regFpDispatches_)return;
+        const bool visible=loaded_ && loadedRunMode_==QStringLiteral("fp-image");
+        fpDispatchLabel_->setVisible(visible);
+        regFpDispatches_->setVisible(visible);
+        if(!visible)return;
+        const auto expected=loadedOracle_.value(QStringLiteral("dispatches"));
+        const QString actual=QString::number(fpDispatches_);
+        if(expected.isDouble() && expected.toInt(-1)>=0)
+            regFpDispatches_->setText(actual+QStringLiteral(" / ")+QString::number(expected.toInt()));
+        else
+            regFpDispatches_->setText(actual+QString::fromUtf8(" / —"));
     }
     QString repoFile(const QString& suffix) const {return QDir(root_).absoluteFilePath(suffix);}
     void makeUI() {
@@ -205,6 +233,17 @@ class MainWindow final : public QMainWindow {
         romSource_=infoLabel(QString::fromUtf8("ROM.txt · без змінного блока"));
         catalogRow->addWidget(romSource_,2);
         outer->addLayout(catalogRow);
+        auto* operatorRow=new QHBoxLayout;
+        operatorRow->addWidget(new QLabel(QString::fromUtf8("Сценарій оператора:")));
+        operatorSelect_=new QComboBox;
+        operatorSelect_->addItem(QString::fromUtf8("— обрати C2b сценарій —"), QString());
+        operatorRow->addWidget(operatorSelect_,1);
+        auto* operatorRefresh=new QPushButton(QString::fromUtf8("Оновити C2b"));
+        operatorRow->addWidget(operatorRefresh);
+        operatorReplay_=new QPushButton(QString::fromUtf8("Відтворити й перевірити"));
+        operatorReplay_->setStyleSheet(buttonStyle());
+        operatorRow->addWidget(operatorReplay_);
+        outer->addLayout(operatorRow);
         runModeLabel_=infoLabel(QString::fromUtf8("Режим: машинні команди CPU"));
         outer->addWidget(runModeLabel_);
 
@@ -252,6 +291,16 @@ class MainWindow final : public QMainWindow {
         addRegisters(registerGrid,1,2,QString::fromUtf8("Ц"),regLoop_);
         addRegisters(registerGrid,1,4,QStringLiteral("T"),regT_);
         addRegisters(registerGrid,2,0,QString::fromUtf8("Виконано"),steps_);
+        fpDispatchLabel_=new QLabel(QString::fromUtf8("Дисп. МП"));
+        fpDispatchLabel_->setStyleSheet(QStringLiteral("color:#95aabc"));
+        regFpDispatches_=infoLabel(QStringLiteral("0 / —"));
+        regFpDispatches_->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+        const QString hint=QString::fromUtf8("Відвідування диспетчера МП (PC=3305), включно з межею END_POINTER; фактичне / очікуване");
+        fpDispatchLabel_->setToolTip(hint);
+        regFpDispatches_->setToolTip(hint);
+        registerGrid->addWidget(fpDispatchLabel_,2,2);
+        registerGrid->addWidget(regFpDispatches_,2,3);
+        fpDispatchLabel_->hide();regFpDispatches_->hide();
         upperLayout->addWidget(regs);
         auto* lampGroup=group(QString::fromUtf8("Індикатори — функціональне представлення"));
         auto* lampLayout=new QVBoxLayout(lampGroup);
@@ -331,6 +380,9 @@ class MainWindow final : public QMainWindow {
         });
         connect(load_,&QPushButton::clicked,this,[this]{loadImage();});
         connect(refreshCatalog,&QPushButton::clicked,this,[this]{populateCatalog();});
+        connect(operatorRefresh,&QPushButton::clicked,this,[this]{populateOperators();});
+        connect(operatorReplay_,&QPushButton::clicked,this,[this]{startOperatorReplay();});
+        connect(operatorSelect_,QOverload<int>::of(&QComboBox::currentIndexChanged),this,[this](int){updateButtons();});
         connect(romSets_,QOverload<int>::of(&QComboBox::currentIndexChanged),this,[this](int i){
             romSource_->setText(i>=0?romSets_->itemData(i,Qt::UserRole+1).toString():QString());
         });
@@ -341,18 +393,26 @@ class MainWindow final : public QMainWindow {
             if(!busy_&&requests_.isEmpty())refreshMemory();
         });
         connect(reset_,&QPushButton::clicked,this,[this]{loadImage();});
-        connect(save_,&QPushButton::clicked,this,[this]{enqueue({"SAVE","SAVE"});});
-        connect(restore_,&QPushButton::clicked,this,[this]{running_=false;updateButtons();enqueue({"RESTORE","RESTORE"});});
+        connect(save_,&QPushButton::clicked,this,[this]{invalidateOracle();enqueue({"SAVE","SAVE"});});
+        connect(restore_,&QPushButton::clicked,this,[this]{invalidateOracle();running_=false;updateButtons();enqueue({"RESTORE","RESTORE"});});
         connect(refresh,&QPushButton::clicked,this,[this]{refreshMemory();});
         connect(setNk_,&QPushButton::clicked,this,[this]{
             quint64 word=0;
             if(!parseOct(nkWord_->text(),14,(quint64(1)<<41)-1,word)) {alert(this,QString::fromUtf8("Потрібне 41-бітове слово у форматі 14 вісімкових цифр."));return;}
+            invalidateOracle();
             enqueue({"SETNK",QStringLiteral("SETNK\t%1\t%2").arg(nkAddr_->currentText(),octal(word,14))});
         });
-        connect(clearNk_,&QPushButton::clicked,this,[this]{enqueue({"CLEARNK",QStringLiteral("CLEARNK\t%1").arg(nkAddr_->currentText())});});
+        connect(clearNk_,&QPushButton::clicked,this,[this]{invalidateOracle();enqueue({"CLEARNK",QStringLiteral("CLEARNK\t%1").arg(nkAddr_->currentText())});});
         connect(&runTimer_,&QTimer::timeout,this,[this]{
-            if(running_ && ready_ && loaded_ && !fpDone_ && !t_ && !busy_ && requests_.isEmpty() && backend_.state()==QProcess::Running)
-                enqueue({"STEP",QStringLiteral("STEP\t%1").arg(limit_->value())});
+            if(running_ && ready_ && loaded_ && !fpDone_ && !t_ && !busy_ && requests_.isEmpty() && backend_.state()==QProcess::Running){
+                int count=limit_->value();
+                if(!loadedOracle_.isEmpty() && !oracleFinished_ && oracleEligible_){
+                    const qint64 remaining=loadedOracle_.value(QStringLiteral("max_steps")).toInt()-qint64(actualSteps_);
+                    if(remaining<=0){running_=false;oracleHold(QStringLiteral("STEP_LIMIT"));return;}
+                    count=std::min(count,int(remaining));
+                }
+                enqueue({"STEP",QStringLiteral("STEP\t%1").arg(count)});
+            }
         });
         connect(speed_,QOverload<int>::of(&QComboBox::currentIndexChanged),this,[this](int){
             runTimer_.setInterval(speed_->currentData().toInt());
@@ -368,8 +428,10 @@ class MainWindow final : public QMainWindow {
         updateButtons();
     }
     void updateButtons(){
-        const bool active=ready_&&loaded_&&!faulted_;
-        load_->setEnabled(ready_);
+        const bool active=ready_&&loaded_&&!faulted_&&!operatorActive_;
+        load_->setEnabled(ready_&&!operatorActive_);
+        if(operatorReplay_)operatorReplay_->setEnabled(ready_&&!operatorActive_&&!running_&&!busy_&&
+                  operatorSelect_&&!operatorSelect_->currentData().toString().isEmpty());
         step_->setEnabled(active&&!running_&&!t_&&!fpDone_);
         run_->setEnabled(active&&!running_&&!t_&&!fpDone_);
         pause_->setEnabled(active&&running_);
@@ -471,6 +533,235 @@ class MainWindow final : public QMainWindow {
         else activeScenarioId_.clear();
         setStatus(QString::fromUtf8("ROM-каталог перевірено; сценарії доступні"));
     }
+    // C2b validation and copy are pure preflight; only Qt owns the executing CPU.
+    bool operatorCall(const QStringList& args,QJsonObject& result,QString& error){
+        const QString tool=repoFile(QStringLiteral("tools/historical/qt_h118_operator_v1.py"));
+        if(!QFileInfo(tool).isFile()){error=QStringLiteral("H118 operator bridge missing");return false;}
+        QProcess process;
+        process.setWorkingDirectory(root_);
+        process.start(QStringLiteral("python"),QStringList{QStringLiteral("-B"),tool,
+                          QStringLiteral("--repo"),root_}+args);
+        if(!process.waitForStarted(4000)){
+            error=QStringLiteral("Cannot start Python: ")+process.errorString();return false;
+        }
+        if(!process.waitForFinished(30000)){
+            process.kill();process.waitForFinished(1000);
+            error=QStringLiteral("H118 operator preflight timeout");return false;
+        }
+        const auto output=process.readAllStandardOutput();
+        const auto diag=process.readAllStandardError();
+        if(process.exitStatus()!=QProcess::NormalExit||process.exitCode()!=0||output.size()>131072){
+            error=QString::fromUtf8(diag.left(450));return false;
+        }
+        QJsonParseError pe;
+        const auto doc=QJsonDocument::fromJson(output,&pe);
+        if(pe.error!=QJsonParseError::NoError||!doc.isObject()){
+            error=QStringLiteral("Invalid H118 operator JSON");return false;
+        }
+        result=doc.object();
+        if(!result.value(QStringLiteral("status")).toString().startsWith(QStringLiteral("PASS_H118_OPERATOR_"))){
+            error=QStringLiteral("H118 operator preflight HOLD");return false;
+        }
+        return true;
+    }
+    void populateOperators(){
+        if(operatorActive_)return;
+        QJsonObject report;QString error;
+        if(!operatorCall({QStringLiteral("list")},report,error)){
+            setStatus(QStringLiteral("C2b catalog HOLD: ")+error);return;
+        }
+        const QString previous=operatorSelect_->currentData().toString();
+        QSignalBlocker block(operatorSelect_);
+        operatorSelect_->clear();
+        operatorSelect_->addItem(QString::fromUtf8("— обрати C2b сценарій —"),QString());
+        for(const auto& value:report.value(QStringLiteral("items")).toArray()){
+            const auto item=value.toObject();
+            const QString id=item.value(QStringLiteral("id")).toString();
+            operatorSelect_->addItem(id,id);
+            operatorSelect_->setItemData(operatorSelect_->count()-1,
+                item.value(QStringLiteral("origin")).toString()+QStringLiteral(" · ")+
+                item.value(QStringLiteral("description")).toString(),Qt::ToolTipRole);
+        }
+        const int index=operatorSelect_->findData(previous);
+        operatorSelect_->setCurrentIndex(index>=0?index:0);
+        updateButtons();
+    }
+    static QMap<QString,QString> responseMap(const QStringList& parts){
+        QMap<QString,QString> data;
+        for(int i=2;i<parts.size();++i){
+            const int eq=parts[i].indexOf('=');
+            if(eq<=0)continue;
+            const QString key=parts[i].left(eq);
+            if(data.contains(key))return {};
+            data.insert(key,parts[i].mid(eq+1));
+        }
+        return data;
+    }
+    bool stateMatches(const QMap<QString,QString>& data,const QJsonObject& expected) const {
+        for(auto it=expected.begin();it!=expected.end();++it){
+            const QString value=it.value().isDouble()
+                   ?QString::number(it.value().toInt()):it.value().toString();
+            if(data.value(it.key())!=value)return false;
+        }
+        return true;
+    }
+    QString operatorCommand(const QJsonObject& a) const {
+        const QString op=a.value(QStringLiteral("op")).toString();
+        if(op==QStringLiteral("set_nk"))return QStringLiteral("SETNK\t")+a.value(QStringLiteral("address")).toString()+QStringLiteral("\t")+a.value(QStringLiteral("word")).toString();
+        if(op==QStringLiteral("clear_nk"))return QStringLiteral("CLEARNK\t")+a.value(QStringLiteral("address")).toString();
+        if(op==QStringLiteral("step"))return QStringLiteral("STEP\t")+QString::number(a.value(QStringLiteral("count")).toInt());
+        if(op==QStringLiteral("dump"))return QStringLiteral("DUMP\t")+a.value(QStringLiteral("address")).toString()+QStringLiteral("\t")+QString::number(a.value(QStringLiteral("count")).toInt());
+        if(op==QStringLiteral("state"))return QStringLiteral("STATE");
+        if(op==QStringLiteral("save"))return QStringLiteral("SAVE");
+        if(op==QStringLiteral("restore"))return QStringLiteral("RESTORE");
+        return {};
+    }
+    void operatorHold(const QString& reason){
+        operatorActive_=false;operatorWaitingLoad_=false;running_=false;
+        requests_.clear();
+        traceArea_->appendPlainText(QStringLiteral("H118 C2b HOLD: ")+reason);
+        setStatus(QStringLiteral("C2b HOLD: ")+reason);
+        updateButtons();
+    }
+    void queueNextOperator(){
+        if(!operatorActive_||operatorWaitingLoad_)return;
+        if(operatorIndex_==operatorActions_.size()){
+            operatorActive_=false;
+            traceArea_->appendPlainText(QStringLiteral("PASS_H118_C2B_GUI_PERSISTENT_HOST_NOT_HARDWARE"));
+            setStatus(QString::fromUtf8("C2b PASS — усі дії та oracle перевірені на CPU (не апаратний доказ)"));
+            updateButtons();
+            return;
+        }
+        const QJsonObject a=operatorActions_.at(operatorIndex_).toObject();
+        const QString line=operatorCommand(a);
+        if(line.isEmpty()){operatorHold(QStringLiteral("UNKNOWN_ACTION"));return;}
+        requests_.enqueue({line.section('\t',0,0),line});
+    }
+    bool checkOperatorResponse(const QStringList& fields,QString& reason){
+        if(operatorIndex_>=operatorActions_.size()){
+            reason=QStringLiteral("ACTION_OVERFLOW");return false;
+        }
+        const auto a=operatorActions_.at(operatorIndex_).toObject();
+        const QString op=a.value(QStringLiteral("op")).toString();
+        const QMap<QString,QString> data=responseMap(fields);
+        if(data.isEmpty()){reason=QStringLiteral("MISSING_RESPONSE_FIELDS");return false;}
+        bool correct=false;
+        if(op==QStringLiteral("set_nk"))
+            correct=data.value(QStringLiteral("ADDR"))==a.value(QStringLiteral("address")).toString() &&
+                    data.value(QStringLiteral("WORD"))==a.value(QStringLiteral("word")).toString();
+        else if(op==QStringLiteral("clear_nk"))
+            correct=data.value(QStringLiteral("ADDR"))==a.value(QStringLiteral("address")).toString();
+        else if(op==QStringLiteral("state"))
+            correct=stateMatches(data,a.value(QStringLiteral("expect")).toObject());
+        else if(op==QStringLiteral("step")){
+            const auto expected=a.value(QStringLiteral("expect")).toObject();
+            QStringList pcs;
+            for(const auto& v:expected.value(QStringLiteral("path")).toArray())pcs<<v.toString();
+            correct=data.value(QStringLiteral("EXECUTED"))==QString::number(expected.value(QStringLiteral("executed")).toInt()) &&
+                    data.value(QStringLiteral("PATH"))==pcs.join(',') &&
+                    stateMatches(data,expected.value(QStringLiteral("state")).toObject());
+        }else if(op==QStringLiteral("dump")){
+            QStringList values;
+            for(const auto& v:a.value(QStringLiteral("expect")).toArray())values<<v.toString();
+            correct=data.value(QStringLiteral("START"))==a.value(QStringLiteral("address")).toString() &&
+                    data.value(QStringLiteral("COUNT"))==QString::number(a.value(QStringLiteral("count")).toInt()) &&
+                    data.value(QStringLiteral("DATA"))==values.join(',');
+        }else if(op==QStringLiteral("save")||op==QStringLiteral("restore"))
+            correct=data.contains(QStringLiteral("C")) && data.contains(QStringLiteral("STEPS"));
+        if(!correct){reason=QStringLiteral("ACTION_%1_ORACLE_MISMATCH_%2").arg(operatorIndex_).arg(op);return false;}
+        traceArea_->appendPlainText(QStringLiteral("C2b %1 %2: %3").arg(operatorIndex_+1).arg(op).arg(fields.mid(2).join(' ')).left(550));
+        if(op==QStringLiteral("step")||op==QStringLiteral("restore")||op==QStringLiteral("state"))applyState(fields.mid(2));
+        return true;
+    }
+    void startOperatorReplay(){
+        if(operatorActive_||running_||busy_||!ready_||!requests_.isEmpty())return;
+        const QString id=operatorSelect_->currentData().toString();
+        if(id.isEmpty())return;
+        auto temporary=std::make_unique<QTemporaryDir>(repoFile(QStringLiteral("tempkyiv/qt_h118_op_XXXXXX")));
+        if(!temporary->isValid()){
+            alert(this,QStringLiteral("H118: cannot create tempkyiv directory"));return;
+        }
+        const QString output=QDir(temporary->path()).absoluteFilePath(QStringLiteral("prepared"));
+        QJsonObject report;QString error;
+        if(!operatorCall({QStringLiteral("prepare"),id,QStringLiteral("--out"),output},report,error)){
+            alert(this,QStringLiteral("C2b preflight HOLD: ")+error);return;
+        }
+        if(report.value(QStringLiteral("id")).toString()!=id || !report.value(QStringLiteral("actions")).isArray()){
+            alert(this,QStringLiteral("C2b response identity mismatch"));return;
+        }
+        const QString romFile=report.value(QStringLiteral("rom_path")).toString();
+        const QString romSha=report.value(QStringLiteral("rom_sha256")).toString();
+        const QString program=report.value(QStringLiteral("program_path")).toString();
+        const QString programSha=report.value(QStringLiteral("program_sha256")).toString();
+        auto matches=[](const QString& path,const QString& expected){
+            QFile file(path);
+            if(!file.open(QIODevice::ReadOnly))return false;
+            return expected.size()==64 && QCryptographicHash::hash(file.readAll(),QCryptographicHash::Sha256).toHex()==expected.toLatin1();
+        };
+        if(!matches(romFile,romSha)||!matches(program,programSha)){
+            alert(this,QStringLiteral("C2b pinned image SHA mismatch"));return;
+        }
+        const QString entry=report.value(QStringLiteral("entry")).toString();
+        quint64 start=0;
+        if(!parseOct(entry,4,01777,start)||start==0){alert(this,QStringLiteral("C2b invalid entry"));return;}
+        if(!restartForRom({rom_,QStringLiteral("--rom-set-image"),romFile,
+                           QStringLiteral("--rom-set-sha256"),romSha},
+                           report.value(QStringLiteral("rom_set")).toString()))return;
+        // Retain validated input and the action plan until replay completes.
+        temporary->setAutoRemove(false);  // Private reproducibility evidence is retained.
+        preparedRom_=std::move(temporary);
+        operatorActions_=report.value(QStringLiteral("actions")).toArray();
+        operatorIndex_=0;operatorActive_=true;operatorWaitingLoad_=true;operatorId_=id;
+        loadedOracle_={};pendingOracle_={};oracleAuditing_=false;oracleFinished_=true;
+        loadedRunMode_=QStringLiteral("image");fpDone_=false;
+        requests_.enqueue({QStringLiteral("LOAD"),QStringLiteral("LOAD\t")+program+QStringLiteral("\t")+entry});
+        updateButtons();
+        setStatus(QStringLiteral("C2b replay: ")+id);
+    }
+    void invalidateOracle(){
+        if(!loadedOracle_.isEmpty()&&!oracleFinished_){
+            oracleEligible_=false;
+            traceArea_->appendPlainText(QStringLiteral("C2a oracle skipped: manual NK/checkpoint change"));
+        }
+    }
+    void oracleHold(const QString& reason){
+        running_=false;oracleAuditing_=false;oracleFinished_=true;
+        traceArea_->appendPlainText(QStringLiteral("H118 C2a HOLD: ")+reason);
+        setStatus(QStringLiteral("C2a HOLD: ")+reason);updateButtons();
+    }
+    void nextOracleWatch(){
+        if(!oracleAuditing_)return;
+        if(oracleWatchIndex_>=oracleWatchAddresses_.size()){
+            oracleAuditing_=false;oracleFinished_=true;
+            traceArea_->appendPlainText(QStringLiteral("PASS_H118_C2A_GUI_NATIVE_ORACLE_NOT_HARDWARE"));
+            setStatus(QString::fromUtf8("C2a PASS — машинні слова й лічильники збігаються (не історичний oracle)"));
+            updateButtons();return;
+        }
+        const QString addr=oracleWatchAddresses_.at(oracleWatchIndex_);
+        requests_.enqueue({QStringLiteral("DUMP"),QStringLiteral("DUMP\t")+addr+QStringLiteral("\t1")});
+    }
+    void startOracleAudit(){
+        if(loadedOracle_.isEmpty()||oracleFinished_||oracleAuditing_)return;
+        if(!oracleEligible_){
+            oracleHold(QStringLiteral("MANUAL_STATE_MODIFICATION"));return;
+        }
+        const QString expectedStatus=loadedOracle_.value(QStringLiteral("status")).toString();
+        const QString status=fpDone_?QStringLiteral("END_POINTER"):(t_?QStringLiteral("CPU_STOP"):QStringLiteral("LIMIT"));
+        if(status!=expectedStatus){oracleHold(QStringLiteral("STATUS_EXPECTED_%1_ACTUAL_%2").arg(expectedStatus,status));return;}
+        if(actualSteps_!=quint64(loadedOracle_.value(QStringLiteral("steps")).toInt())){
+            oracleHold(QStringLiteral("STEP_COUNT_MISMATCH"));return;
+        }
+        if(expectedStatus==QStringLiteral("END_POINTER") &&
+            fpDispatches_!=quint64(loadedOracle_.value(QStringLiteral("dispatches")).toInt())){
+            oracleHold(QStringLiteral("FP_DISPATCH_COUNT_MISMATCH"));return;
+        }
+        const auto watched=loadedOracle_.value(QStringLiteral("watches")).toObject();
+        oracleWatchAddresses_=watched.keys();oracleWatchIndex_=0;
+        if(oracleWatchAddresses_.isEmpty()){oracleHold(QStringLiteral("NO_WATCHES"));return;}
+        oracleAuditing_=true;
+        traceArea_->appendPlainText(QStringLiteral("C2a: terminal status/steps/dispatches matched; checking RAM/ROM"));
+        nextOracleWatch();
+    }
     // Destroying a session is deliberate only when the selected ROM set changes.
     bool restartForRom(const QStringList& args,const QString& set){
         backend_.disconnect(this);
@@ -487,6 +778,7 @@ class MainWindow final : public QMainWindow {
         backend_.readAllStandardOutput();
         backend_.readAllStandardError();
         ready_=false;loaded_=false;faulted_=false;running_=false;busy_=false;t_=false;fpDone_=false;
+        updateFpDispatches();
         readBuffer_.clear();requests_.clear();inFlight_={};
         activeBackendSet_=set;
         startBackend(args);
@@ -517,6 +809,7 @@ class MainWindow final : public QMainWindow {
                 alert(this,QString::fromUtf8("Експериментальний образ Dual Euler: SHA-256 не збігається"));return;
             }
         }
+        QJsonObject nextOracle;  // Only published after CPU LOAD succeeds.
         const QString loadKind=fp?QStringLiteral("LOADFP"):QStringLiteral("LOAD");
         auto loadLine=[&](){return loadKind+QStringLiteral("\t")+program+
              QStringLiteral("\t")+octal(start,4)+
@@ -545,9 +838,22 @@ class MainWindow final : public QMainWindow {
                     alert(this,QString::fromUtf8("Помилка ідентичності сценарію"));return;
                 }
                 program=manifest.value(QStringLiteral("program_path")).toString();
+                nextOracle=manifest.value(QStringLiteral("oracle")).toObject();
+                if(nextOracle.value(QStringLiteral("id")).toString()!=activeScenarioId_ ||
+                   nextOracle.value(QStringLiteral("mode")).toString()!=selectedRunMode_){
+                    alert(this,QStringLiteral("C2a oracle identity mismatch"));return;
+                }
                 const QString entry=manifest.value(QStringLiteral("entry")).toString();
                 if(entry!=octal(start,4)||!QFileInfo(program).isFile()){
                     alert(this,QString::fromUtf8("Старт або програма сценарію змінилися"));return;
+                }
+                // Recheck the pinned staged RAM bytes immediately before LOAD,
+                // not just the Python preflight's original/tracked source.
+                QFile pinnedProgram(program);
+                const QString programSha=manifest.value(QStringLiteral("program_sha256")).toString();
+                if(!pinnedProgram.open(QIODevice::ReadOnly)||programSha.size()!=64||
+                   QCryptographicHash::hash(pinnedProgram.readAll(),QCryptographicHash::Sha256).toHex()!=programSha.toLatin1()){
+                    alert(this,QStringLiteral("C2a staged RAM SHA mismatch"));return;
                 }
             }
             const QString romImage=manifest.value(QStringLiteral("rom_path")).toString();
@@ -565,16 +871,19 @@ class MainWindow final : public QMainWindow {
             if(!restartForRom({rom_,QStringLiteral("--rom-set-image"),romImage,
                                QStringLiteral("--rom-set-sha256"),sha},selected))return;
             preparedRom_=std::move(temporary);
+            pendingOracle_=nextOracle;
             loadedRunMode_=fp?QStringLiteral("fp-image"):QStringLiteral("image");fpDone_=false;
             requests_.enqueue({loadKind,loadLine()});
         }else{
             if(!activeBackendSet_.isEmpty()){
                 if(!restartForRom({rom_},QString()))return;
                 preparedRom_.reset();
+                pendingOracle_={};
                 loadedRunMode_=fp?QStringLiteral("fp-image"):QStringLiteral("image");fpDone_=false;
                 requests_.enqueue({loadKind,loadLine()});
             }else{
                 requests_.clear();
+                pendingOracle_={};
                 loadedRunMode_=fp?QStringLiteral("fp-image"):QStringLiteral("image");fpDone_=false;
                 enqueue({loadKind,loadLine()});
             }
@@ -582,6 +891,7 @@ class MainWindow final : public QMainWindow {
         updateButtons();
     }
     void refreshMemory(){
+        if(operatorActive_)return;
         quint64 address=0;
         if(!parseOct(memoryEdit_->text(),4,03777,address)||address+32>04000) {alert(this,QString::fromUtf8("Початкова адреса має дозволяти читання 32 слів."));return;}
         memStart_=int(address);
@@ -596,11 +906,14 @@ class MainWindow final : public QMainWindow {
         regC_->setText(map.value("C"));regK_->setText(map.value("K"));regA_->setText(map.value("A"));
         regP_->setText(map.value("P"));regLoop_->setText(map.value("LOOP"));regT_->setText(map.value("T"));
         steps_->setText(map.value("STEPS"));
+        actualSteps_=map.value(QStringLiteral("STEPS")).toULongLong();
+        fpDispatches_=map.value(QStringLiteral("DISPATCHES")).toULongLong();
         parseOct(map.value("C"),4,03777,c_);parseOct(map.value("K"),14,(quint64(1)<<41)-1,command_);
         parseOct(map.value("A"),4,03777,a_);parseOct(map.value("P"),4,03777,p_);parseOct(map.value("LOOP"),4,03777,loop_);
         t_=map.value("T")=="1";
         fpDone_=(loadedRunMode_==QStringLiteral("fp-image") &&
                  map.value(QStringLiteral("END_POINTER"))==QStringLiteral("1"));
+        updateFpDispatches();
         lamps_->setState(command_,c_,a_,p_,loop_,t_);
         if(t_ || fpDone_)running_=false;
         updateButtons();
@@ -615,6 +928,11 @@ class MainWindow final : public QMainWindow {
             busy_=false;ready_=true;setStatus(QString::fromUtf8("Backend готовий, ROM перевірено"));updateButtons();pump();return;
         }
         if(fields[0]=="ERR") {
+            if(operatorActive_){
+                busy_=false;faulted_=true;
+                operatorHold(QStringLiteral("BACKEND_ERROR: ")+fields.mid(1).join(' '));return;
+            }
+            if(oracleAuditing_){busy_=false;oracleHold(QStringLiteral("BACKEND_DUMP_ERROR"));return;}
             busy_=false;running_=false;
             setStatus(QString::fromUtf8("Помилка CPU: ")+fields.mid(1).join(' '));
             updateButtons();pump();return;
@@ -624,12 +942,24 @@ class MainWindow final : public QMainWindow {
         }
         const QString kind=inFlight_.kind;
         busy_=false;
+        if(operatorActive_&&!operatorWaitingLoad_ && kind!="LOAD" && kind!="LOADFP"){
+            QString reason;
+            if(!checkOperatorResponse(fields,reason)){operatorHold(reason);return;}
+            ++operatorIndex_;queueNextOperator();updateButtons();pump();return;
+        }
         if(kind=="LOAD"||kind=="LOADFP") {
-            loaded_=true;faulted_=false;traceArea_->clear();traceArea_->appendPlainText(QString::fromUtf8("Завантажено: ")+image_);
+            loaded_=true;faulted_=false;traceArea_->clear();
+            traceArea_->appendPlainText(operatorActive_
+                ?QStringLiteral("H118 C2b live replay: ")+operatorId_
+                :QString::fromUtf8("Завантажено: ")+image_);
+            loadedOracle_=pendingOracle_;pendingOracle_={};
+            oracleEligible_=true;oracleFinished_=loadedOracle_.isEmpty();oracleAuditing_=false;
             imageInfo_->setText(fields.size()>2?fields[2]:QString::fromUtf8("Завантажено"));
             applyState(fields.mid(2));
             setStatus(QString::fromUtf8("Образ завантажено"));
-            requests_.enqueue({"DUMP",QStringLiteral("DUMP\t%1\t32").arg(octal(memStart_,4))});
+            if(operatorActive_){
+                operatorWaitingLoad_=false;queueNextOperator();
+            }else requests_.enqueue({"DUMP",QStringLiteral("DUMP\t%1\t32").arg(octal(memStart_,4))});
         } else if(kind=="STEP") {
             ++batchCount_;
             QString path;
@@ -641,12 +971,23 @@ class MainWindow final : public QMainWindow {
             applyState(fields.mid(2));
             if(fpDone_)setStatus(QString::fromUtf8("МП завершила програму на межі диспетчера (не STOP)"));
             else if(t_)setStatus(QString::fromUtf8("CPU зупинено (STOP або аварійний останов)"));
-            if(!running_||t_||fpDone_||batchCount_%12==0)requests_.enqueue({"DUMP",QStringLiteral("DUMP\t%1\t32").arg(octal(memStart_,4))});
+            if(!running_||t_||fpDone_||batchCount_%12==0)
+                requests_.enqueue({"DUMP",QStringLiteral("DUMP\t%1\t32").arg(octal(memStart_,4))});
+            if((t_||fpDone_) && !loadedOracle_.isEmpty() && !oracleFinished_)startOracleAudit();
         } else if(kind=="DUMP") {
             QString data, start;
             for(const auto& field:fields){if(field.startsWith("DATA="))data=field.mid(5);if(field.startsWith("START="))start=field.mid(6);}
             bool ok=false;const int base=start.toInt(&ok,8);
             const QStringList words=data.split(',');
+            if(oracleAuditing_ && inFlight_.line.endsWith(QStringLiteral("\t1"))){
+                const QString expectedAddress=oracleWatchAddresses_.at(oracleWatchIndex_);
+                const QString expectedWord=loadedOracle_.value(QStringLiteral("watches")).toObject().value(expectedAddress).toString();
+                if(!ok||start!=expectedAddress||words.size()!=1||words.at(0)!=expectedWord){
+                    oracleHold(QStringLiteral("WATCH_MISMATCH_%1").arg(expectedAddress));return;
+                }
+                traceArea_->appendPlainText(QStringLiteral("oracle [%1] = %2").arg(expectedAddress,words.at(0)));
+                ++oracleWatchIndex_;nextOracleWatch();updateButtons();pump();return;
+            }
             if(!ok||words.size()!=32) {fatal(QString::fromUtf8("Некоректна відповідь пам’яті"));return;}
             for(int i=0;i<32;i++) {
                 memoryTable_->item(i,0)->setText(octal(base+i,4));
@@ -707,7 +1048,7 @@ class MainWindow final : public QMainWindow {
     }
 public:
     explicit MainWindow(QString root,QString rom,QWidget* parent=nullptr) : QMainWindow(parent),root_(std::move(root)),rom_(std::move(rom)){
-        makeUI();populateCatalog();startBackend();
+        makeUI();populateCatalog();populateOperators();startBackend();
     }
     ~MainWindow() override {
         runTimer_.stop();

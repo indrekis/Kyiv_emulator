@@ -1,3 +1,8 @@
 # Preserve byte-exact H115-A source material on Windows.
 examples/historical/gy1962/rom_modules/fp_simulation_251_printed.k41 text eol=lf
 examples/historical/gy1962/rom_modules/fp_simulation_251_provenance.tsv text eol=lf
+
+# H118: SHA-pinned KYIV41-OCT1 machine images must have stable LF checkout bytes.
+*.k41 text eol=lf
+# H118 R5: executable Bash scripts must not acquire CRLF on Windows.
+*.sh text eol=lf

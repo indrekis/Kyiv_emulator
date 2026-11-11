@@ -98,8 +98,20 @@ def prepare(repo: Path, set_id: str, out: Path, scenario_id: str | None):
         copied.write_bytes(program_bytes)
         if hashlib.sha256(copied.read_bytes()).hexdigest() != scenario['program']['sha256']:
             raise BrowserError('PROGRAM_COPY_SHA_MISMATCH')
+        # H118: carry the already-C2a-validated numeric/machine oracle to Qt.
+        # No new math implementation or trust in fields chosen by the GUI.
         response.update({'scenario_id': scenario_id, 'program_path': str(copied),
                          'entry': scenario['entry'], 'program_sha256': scenario['program']['sha256']})
+        # H116 unit fixtures use a deliberately smaller fake C2a validator.
+        # The production C2a checker always validates these fields; Qt refuses
+        # a selected published scenario if its oracle is absent or mismatched.
+        if all(k in scenario for k in ('expect', 'max_steps', 'watches')):
+            response['oracle'] = {'id': scenario['id'], 'origin': scenario['origin'],
+                'mode': scenario['mode'], 'status': scenario['expect']['status'],
+                'steps': scenario['expect']['steps'],
+                'dispatches': scenario['expect']['dispatches'],
+                'max_steps': scenario['max_steps'],
+                'watches': scenario['watches']}
     return response
 
 

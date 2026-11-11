@@ -117,13 +117,18 @@ struct Server {
     std::optional<std::uint64_t> fp_end_pointer;
     bool fp_done=false;
     bool saved_fp_done=false;
+    // H118: same dispatcher counter as the H115 CLI (PC==3305, including
+    // the final END_POINTER boundary); protocol-only, no CPU changes.
+    std::uint64_t fp_dispatches=0, saved_fp_dispatches=0;
 
     bool at_fp_end(const Kyiv_t& m) const {
         return fp_end_pointer && m.C_reg==03305 &&
                ((m.kmem.read_memory(00014)>>12)&07777ULL)==*fp_end_pointer;
     }
     std::string fp_status() const {
-        return fp_end_pointer && fp_done ? "\tEND_POINTER=1" : "";
+        if (!fp_end_pointer) return "";
+        return "\tDISPATCHES="+std::to_string(fp_dispatches)+
+               (fp_done ? "\tEND_POINTER=1" : "");
     }
 
     explicit Server(const std::string& rom_path,
@@ -197,6 +202,7 @@ struct Server {
             cpu.swap(next); // No loss of old state if any input validation failed.
             checkpoint.reset(); executed=0; fault=false;
             fp_end_pointer=end; fp_done=false; saved_fp_done=false;
+            fp_dispatches=0; saved_fp_dispatches=0;
             return std::string("OK\t")+(fp ? "LOADFP" : "LOAD")+
                    "\tWORDS="+std::to_string(image.size())+"\t"+state(*cpu,executed)+
                    (fp ? "\tFP_ENTRY="+oct(start,4)+"\tFP_END_POINTER="+oct(*end,4) : "");
@@ -215,6 +221,9 @@ struct Server {
             std::string path;
             unsigned done=0;
             for (;done<n && !m.T_reg;++done) {
+                // H115 counts every encounter with the dispatcher, including
+                // final END_POINTER; save/restore must rewind this counter.
+                if (fp_end_pointer && m.C_reg==03305) ++fp_dispatches;
                 if (at_fp_end(m)) { fp_done=true; break; }
                 if (!path.empty()) path+=',';
                 path+=oct(m.C_reg,4);
@@ -226,7 +235,12 @@ struct Server {
                 } catch (...) {fault=true;throw;}
             }
             // Detect completion even when the last requested step reached the boundary.
-            if (at_fp_end(m)) fp_done=true;
+            if (!fp_done && at_fp_end(m)) {
+                // A STEP batch can stop precisely on the boundary; count it
+                // now, once, even though the CPU does not execute this word.
+                ++fp_dispatches;
+                fp_done=true;
+            }
             // 'done' excludes the last instruction when it stops the CPU.
             const unsigned actual=static_cast<unsigned>(std::count(path.begin(),path.end(),',')) + (path.empty()?0:1);
             return "OK\tSTEP\tEXECUTED="+std::to_string(actual)+
@@ -249,7 +263,7 @@ struct Server {
         if (a[0]=="SAVE") {
             require_args(a,1);
             checkpoint=save(get(),executed);
-            saved_fp_done=fp_done;
+            saved_fp_done=fp_done; saved_fp_dispatches=fp_dispatches;
             return "OK\tSAVE\t"+state(*cpu,executed)+fp_status();
         }
         if (a[0]=="RESTORE") {
@@ -257,7 +271,7 @@ struct Server {
             if (!checkpoint) throw std::runtime_error("NO_CHECKPOINT");
             restore(get(),*checkpoint);
             executed=checkpoint->executed;fault=false;
-            fp_done=saved_fp_done;
+            fp_done=saved_fp_done; fp_dispatches=saved_fp_dispatches;
             return "OK\tRESTORE\t"+state(*cpu,executed)+fp_status();
         }
         if (a[0]=="SETNK") {
