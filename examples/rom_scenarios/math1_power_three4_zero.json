@@ -1,0 +1,23 @@
+{
+  "description": "H62 math ROM #1: a^x/4; a=3/4, x=0",
+  "end_pointer": null,
+  "entry": "0101",
+  "expect": {
+    "dispatches": null,
+    "status": "CPU_STOP",
+    "steps": 73
+  },
+  "id": "math1_power_three4_zero",
+  "max_steps": 150,
+  "mode": "image",
+  "origin": "SOURCE_TRANSCRIPTION GY1962 pp.94-95; H62 BOUNDED_HOST; synthetic RAM call/STOP; NOT historical operator setup",
+  "program": {
+    "path": "examples/rom_scenarios/inputs/math1_power_three4_zero.k41",
+    "sha256": "9eb0e133578c53617f2539d6fc61f1d7a6d652b19aa27a7ba8609df049250d5e"
+  },
+  "rom_set": "math_module1",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0003": "04000000000000"
+  }
+}

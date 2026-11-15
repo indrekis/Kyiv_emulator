@@ -1,0 +1,23 @@
+{
+  "description": "H62 math ROM #1: scalar product: [1/2] dot [1/4]",
+  "end_pointer": null,
+  "entry": "0101",
+  "expect": {
+    "dispatches": null,
+    "status": "CPU_STOP",
+    "steps": 15
+  },
+  "id": "math1_dot_one",
+  "max_steps": 150,
+  "mode": "image",
+  "origin": "SOURCE_TRANSCRIPTION GY1962 pp.94-95; H62 BOUNDED_HOST; synthetic RAM call/STOP; NOT historical operator setup",
+  "program": {
+    "path": "examples/rom_scenarios/inputs/math1_dot_one.k41",
+    "sha256": "9c1b10c3070e89be84b11be5e8687fd89e4500b1ec720a824001d61f09b23fac"
+  },
+  "rom_set": "math_module1",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0003": "02000000000000"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "description": "H62 math ROM #1: 1x1 matrix [1/2] times vector [1/4]",
+  "end_pointer": null,
+  "entry": "0101",
+  "expect": {
+    "dispatches": null,
+    "status": "CPU_STOP",
+    "steps": 22
+  },
+  "id": "math1_matvec_one",
+  "max_steps": 150,
+  "mode": "image",
+  "origin": "SOURCE_TRANSCRIPTION GY1962 pp.94-95; H62 BOUNDED_HOST; synthetic RAM call/STOP; NOT historical operator setup",
+  "program": {
+    "path": "examples/rom_scenarios/inputs/math1_matvec_one.k41",
+    "sha256": "6d97ee3d6f663be416723b8ea2a89336d2e8466f4378337ad8bb609b7b16336f"
+  },
+  "rom_set": "math_module1",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0401": "02000000000000"
+  }
+}

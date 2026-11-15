@@ -1,0 +1,23 @@
+{
+  "description": "H62 math ROM #1: sqrt(x)/4; x=1/4",
+  "end_pointer": null,
+  "entry": "0101",
+  "expect": {
+    "dispatches": null,
+    "status": "CPU_STOP",
+    "steps": 40
+  },
+  "id": "math1_sqrt_quarter",
+  "max_steps": 150,
+  "mode": "image",
+  "origin": "SOURCE_TRANSCRIPTION GY1962 pp.94-95; H62 BOUNDED_HOST; synthetic RAM call/STOP; NOT historical operator setup",
+  "program": {
+    "path": "examples/rom_scenarios/inputs/math1_sqrt_quarter.k41",
+    "sha256": "65ca9bbbb4cedfca4ab8e86a30ce08f4e34db1930501e261ee54000722c5e4b3"
+  },
+  "rom_set": "math_module1",
+  "schema": "KYIV_H116_ROM_SCENARIO_V1",
+  "watches": {
+    "0003": "02000000000000"
+  }
+}
