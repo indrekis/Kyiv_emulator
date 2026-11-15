@@ -131,7 +131,7 @@ def main(argv=None):
             result = list_items(repo)
         else:
             result = prepare(repo, a.set_id, a.out, a.scenario)
-        print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        print(json.dumps(result, ensure_ascii=True, sort_keys=True))
     except (BrowserError, OSError, ValueError, TypeError, KeyError) as e:
         print('H116_H1_HOLD ' + str(e), file=sys.stderr)
         return 2

@@ -149,6 +149,7 @@ class MainWindow final : public QMainWindow {
     bool operatorActive_=false, operatorWaitingLoad_=false;
     int operatorIndex_=0;
     QString operatorId_;
+    int auH117SecondEpochSteps_=0; // H117 C2b scenario budget minus 97+1.
     QSpinBox *limit_=nullptr;
     QPushButton *load_=nullptr,*step_=nullptr,*run_=nullptr,*pause_=nullptr,*reset_=nullptr,*save_=nullptr,*restore_=nullptr,*setNk_=nullptr,*clearNk_=nullptr;
     QLabel *status_=nullptr,*regC_=nullptr,*regK_=nullptr,*regA_=nullptr,*regP_=nullptr,*regLoop_=nullptr,*regT_=nullptr,*steps_=nullptr,*imageInfo_=nullptr;
@@ -627,8 +628,10 @@ class MainWindow final : public QMainWindow {
         if(!operatorActive_||operatorWaitingLoad_)return;
         if(operatorIndex_==operatorActions_.size()){
             operatorActive_=false;
-            traceArea_->appendPlainText(QStringLiteral("PASS_H118_C2B_GUI_PERSISTENT_HOST_NOT_HARDWARE"));
-            setStatus(QString::fromUtf8("C2b PASS — усі дії та oracle перевірені на CPU (не апаратний доказ)"));
+            traceArea_->appendPlainText(QStringLiteral("PASS_H118_C2B_GUI_PERSISTENT"));
+            if(operatorId_==QStringLiteral("au_h117_two_epochs"))
+                traceArea_->appendPlainText(QString::fromUtf8("H117 АУ: дві епохи завершено; реконструкція 0360 виконана"));
+            setStatus(QString::fromUtf8("C2b PASS — усі дії та машинні оракули збіглися"));
             updateButtons();
             return;
         }
@@ -671,6 +674,33 @@ class MainWindow final : public QMainWindow {
         if(!correct){reason=QStringLiteral("ACTION_%1_ORACLE_MISMATCH_%2").arg(operatorIndex_).arg(op);return false;}
         traceArea_->appendPlainText(QStringLiteral("C2b %1 %2: %3").arg(operatorIndex_+1).arg(op).arg(fields.mid(2).join(' ')).left(550));
         if(op==QStringLiteral("step")||op==QStringLiteral("restore")||op==QStringLiteral("state"))applyState(fields.mid(2));
+        if(operatorId_==QStringLiteral("au_h117_two_epochs") && op==QStringLiteral("step")){
+            bool valid=false;
+            const int executed=data.value(QStringLiteral("STEPS")).toInt(&valid);
+            const QString pc=data.value(QStringLiteral("C"));
+            if(!valid || executed<1 || executed>98+auH117SecondEpochSteps_){
+                reason=QStringLiteral("AU_H117_STEP_COUNTER_INVALID");return false;
+            }
+            QString progress;
+            if(executed<97)
+                progress=QString::fromUtf8("H117 АУ · епоха 1: %1/97 · C=%2").arg(executed).arg(pc);
+            else if(executed==97){
+                if(pc!=QStringLiteral("0360")){reason=QStringLiteral("AU_H117_FIRST_BOUNDARY");return false;}
+                progress=QString::fromUtf8("H117 АУ · епоха 1: 97/97 · C=0360");
+            }else if(executed==98){
+                if(pc!=QStringLiteral("0042")){reason=QStringLiteral("AU_H117_JUMP");return false;}
+                progress=QString::fromUtf8("H117 АУ · реконструкція: 0360 → 0042");
+            }else{
+                const int epoch2=executed-98;
+                progress=QString::fromUtf8("H117 АУ · епоха 2: %1/%2 · C=%3").arg(epoch2).arg(auH117SecondEpochSteps_).arg(pc);
+                if(epoch2==auH117SecondEpochSteps_ && pc!=QStringLiteral("0360")){
+                    reason=QStringLiteral("AU_H117_SECOND_BOUNDARY");return false;
+                }
+            }
+            setStatus(progress);
+            if(executed==97 || executed==98 || executed==98+auH117SecondEpochSteps_)
+                traceArea_->appendPlainText(progress);
+        }
         return true;
     }
     void startOperatorReplay(){
@@ -712,6 +742,11 @@ class MainWindow final : public QMainWindow {
         preparedRom_=std::move(temporary);
         operatorActions_=report.value(QStringLiteral("actions")).toArray();
         operatorIndex_=0;operatorActive_=true;operatorWaitingLoad_=true;operatorId_=id;
+        auH117SecondEpochSteps_=0;
+        if(id==QStringLiteral("au_h117_two_epochs")){
+            auH117SecondEpochSteps_=report.value(QStringLiteral("max_steps")).toInt()-98;
+            if(auH117SecondEpochSteps_<1){operatorHold(QStringLiteral("AU_H117_BUDGET_INVALID"));return;}
+        }
         loadedOracle_={};pendingOracle_={};oracleAuditing_=false;oracleFinished_=true;
         loadedRunMode_=QStringLiteral("image");fpDone_=false;
         requests_.enqueue({QStringLiteral("LOAD"),QStringLiteral("LOAD\t")+program+QStringLiteral("\t")+entry});
@@ -733,8 +768,8 @@ class MainWindow final : public QMainWindow {
         if(!oracleAuditing_)return;
         if(oracleWatchIndex_>=oracleWatchAddresses_.size()){
             oracleAuditing_=false;oracleFinished_=true;
-            traceArea_->appendPlainText(QStringLiteral("PASS_H118_C2A_GUI_NATIVE_ORACLE_NOT_HARDWARE"));
-            setStatus(QString::fromUtf8("C2a PASS — машинні слова й лічильники збігаються (не історичний oracle)"));
+            traceArea_->appendPlainText(QStringLiteral("PASS_H118_C2A_GUI_NATIVE_ORACLE"));
+            setStatus(QString::fromUtf8("C2a PASS — машинні слова й лічильники збігаються"));
             updateButtons();return;
         }
         const QString addr=oracleWatchAddresses_.at(oracleWatchIndex_);

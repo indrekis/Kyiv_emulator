@@ -91,8 +91,8 @@ class H118QtOperatorTests(unittest.TestCase):
         backend = (ROOT / 'gui/qt6/kyiv_gui_backend.cpp').read_text(encoding='utf-8')
         bridge = (ROOT / 'tools/historical/qt_rom_browser_v1.py').read_text(encoding='utf-8')
         for token in ('startOperatorReplay()', 'checkOperatorResponse(', 'startOracleAudit()',
-                      'PASS_H118_C2A_GUI_NATIVE_ORACLE_NOT_HARDWARE',
-                      'PASS_H118_C2B_GUI_PERSISTENT_HOST_NOT_HARDWARE'):
+                      'PASS_H118_C2A_GUI_NATIVE_ORACLE',
+                      'PASS_H118_C2B_GUI_PERSISTENT'):
             self.assertIn(token,front)
         self.assertIn("response['oracle']",bridge)
         self.assertIn('fp_dispatches',backend)

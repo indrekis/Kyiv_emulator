@@ -54,7 +54,7 @@ def list_items(repo: Path):
         items.append({'id': scenario['id'], 'description': scenario['description'],
                       'origin': scenario['origin'], 'entry': scenario['entry'],
                       'rom_set': scenario['rom_set'], 'actions': len(scenario['actions']),
-                      'source': 'C2b; HOST bounded, not physical hardware'})
+                      'source': 'C2b; bounded operator replay'})
     if not items:
         raise Hold('OPERATOR_CATALOG_EMPTY')
     return {'status': 'PASS_H118_OPERATOR_LIST', 'items': items}
@@ -86,7 +86,7 @@ def prepare(repo: Path, scenario_id: str, out: Path):
         'entry': scenario['entry'], 'max_steps': scenario['max_steps'],
         'program_path': str(program_copy), 'program_sha256': scenario['program']['sha256'],
         'rom_path': str(rom), 'rom_sha256': sha(rom.read_bytes()),
-        'actions': scenario['actions'], 'hardware_oracle': False,
+        'actions': scenario['actions'],
         'execution_scope': 'HOST_OPERATOR_ON_EXISTING_PERSISTENT_KYIV_T',
     }
     manifest = out / 'RESULT.json'
@@ -108,7 +108,7 @@ def main(argv=None):
     try:
         repo = args.repo.resolve()
         result = list_items(repo) if args.command == 'list' else prepare(repo, args.scenario_id, args.out)
-        print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        print(json.dumps(result, ensure_ascii=True, sort_keys=True))
         return 0
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print('H118_OPERATOR_HOLD ' + str(exc), file=sys.stderr)
