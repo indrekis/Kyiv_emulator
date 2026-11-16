@@ -7,7 +7,7 @@ Though, in terms of memory and reliability "Kyiv" wasn't the best for its times,
 
 "Kyiv" is the world's first computer, which from the very beginning laid down the needs of programmers, in particular: the ability to easily implement compilers, text processing, asynchronous control, image processing, the ability to solve logical problems and implement information systems.
 
-Kateryna Yushchenko, one of the "Kyiv"'s inventors, according to pr. Yuiriy Yushchenko, implemented poiners in the machine before it is officially considered to. Also, according to A.P. Oleh Fareniuk, "Kyiv" was the first machine that implemented RISC ISA ([discussion in Ukrainian](docs/articles/is_kyiv_risc_isa.md)).
+Kateryna Yushchenko, one of the "Kyiv"'s inventors, according to pr. Yuiriy Yushchenko, implemented poiners in the machine before it is officially considered to. An [article by Oleh Fareniuk (in Ukrainian)](docs/articles/is_kyiv_risc_isa.md) argues that the "Kyiv" instruction set has several features resembling those of later RISC architectures.
 
 ## Installation
 In future we want to host emulator as web application, till then you can compile source code or install application
